@@ -2,6 +2,8 @@
 using backend_shopia.Exceptions;
 using backend_shopia.IServices;
 using backend_shopia.Services;
+using backend_shopia.Types;
+using Dapper;
 using NetTopologySuite.Geometries;
 using Npgsql;
 using RFAuth;
@@ -139,6 +141,8 @@ namespace backend_shopia
                     return null;
                 },
             });
+
+            SqlMapper.AddTypeHandler(new VectorFloatArrayHandler());
 
             services.AddAutoMapper(typeof(MappingProfile).Assembly);
         }
