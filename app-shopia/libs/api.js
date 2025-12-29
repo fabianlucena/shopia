@@ -21,7 +21,7 @@ export class Api {
 
     if (fetchOptions.query) {
       if (typeof fetchOptions.query === 'function')
-        fetchOptions.query = query(fetchOptions);
+        fetchOptions.query = fetchOptions.query(fetchOptions);
       
       if (fetchOptions.query) {
         if (typeof fetchOptions.query !== 'string')
