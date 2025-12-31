@@ -2,9 +2,11 @@
   import Form from '$components/Form.svelte';
   import TextField from '$components/TextField.svelte';
   import PasswordField from '$components/PasswordField.svelte';
+  import LinkField from '$components/LinkField.svelte';
   import Button from '$components/Button.svelte';
   import { login } from '$services/loginService.js';
   import { pushNotification } from '$libs/notification.js';
+  import { navigate } from '$libs/router';
 
   let data = {
     username: '',
@@ -14,13 +16,19 @@
   async function handleSubmit(evt) {
     evt.preventDefault();
     try {
-      const res = await login(data);
+      await login(data);
     } catch (error) {
       pushNotification('Error de inicio de sesión', 'error');
       return;
     }
     
+    navigate('/');
     pushNotification('Inicio de sesión exitoso', 'success');
+  }
+
+  function passwordRecoveryHandler(evt) {
+    evt.preventDefault();
+    navigate('/password-recovery');
   }
 </script>
 
@@ -39,6 +47,12 @@
     label="Contraseña"
     bind:value={data.password}
   />
+
+  <LinkField
+    onclick={passwordRecoveryHandler}
+  >
+    Recuperar contraseña
+  </LinkField>
 
   {#snippet footer()}
     <Button>Registrarse</Button>

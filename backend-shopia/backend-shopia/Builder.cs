@@ -166,6 +166,18 @@ namespace backend_shopia
             l10n.AddTranslationsFromFile("es", "exception", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Translations\\exception_es.txt"));
         }
 
+        public static void Configure(this WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var serviceProvider = scope.ServiceProvider;
+
+            RFAuth.Setup.ConfigureRFAuth(serviceProvider);
+            RFRBAC.Setup.ConfigureRFRBAC(serviceProvider);
+            RFUserEmailVerified.Setup.ConfigureRFUserEmailVerified(serviceProvider);
+            RFRegister.Setup.ConfigureRFRegister(serviceProvider);
+            Setup.ConfigureShopia(serviceProvider);
+        }
+
         public static void ConfigureRepo(this WebApplication app)
         {
             if (app.Configuration.GetValue<bool>("CreateDapperTables"))
@@ -189,12 +201,8 @@ namespace backend_shopia
                 using var scope = app.Services.CreateScope();
                 var serviceProvider = scope.ServiceProvider;
 
-                RFAuth.Setup.ConfigureRFAuth(serviceProvider);
                 RFAuth.Setup.ConfigureDataRFAuth(serviceProvider);
-                RFUserEmailVerified.Setup.ConfigureRFUserEmailVerified(serviceProvider);
-                RFRBAC.Setup.ConfigureRFRBAC(serviceProvider);
-                RFRegister.Setup.ConfigureRFRegister(serviceProvider);
-                Setup.ConfigureShopia(serviceProvider);
+                RFUserEmailVerified.Setup.ConfigureDataConfigureRFUserEmailVerified(serviceProvider);
             }
         }
     }

@@ -69,6 +69,7 @@
 
   form.single-column {
     max-width: 40em;
+    width: 100%;
   }
 
   .form-header,

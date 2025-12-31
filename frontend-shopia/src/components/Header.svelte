@@ -1,16 +1,13 @@
 <script>
   import { showMenu } from '$stores/showMenu.js';
-  import { isLoggedIn } from '$stores/session.js';
 </script>
 
 <h1>
-  {#if $isLoggedIn}
-    <button
-      onclick={() => $showMenu = !$showMenu}
-    >
-      &#9776;
-    </button>
-  {/if}
+  <button
+    onclick={() => $showMenu = !$showMenu}
+  >
+    &#9776;
+  </button>
   Shopia
 </h1>
 

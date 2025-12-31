@@ -2,12 +2,33 @@
   import { navigate } from '$libs/router.js';
   import { showMenu } from '$stores/showMenu.js';
   import { logout } from '$services/loginService';
+  import { isLoggedIn } from '$stores/session.js';
 
-  const menuItems = [
-    { name: 'home', label: 'Inicio', path: '/' },
-    { name: 'logout', label: 'Salir', path: '/', method: logout },
-    { name: 'about', label: 'Acerca de', path: '/about' },
-  ];
+  $: menuItems = [
+    {
+      name: 'home',
+      label: 'Inicio',
+      path: '/',
+    },
+    {
+      name: 'login',
+      label: 'Ingresar',
+      path: '/login',
+      condition: !$isLoggedIn,
+    },
+    {
+      name: 'logout',
+      label: 'Salir',
+      path: '/',
+      method: logout,
+      condition: $isLoggedIn,
+    },
+    {
+      name: 'about',
+      label: 'Acerca de',
+      path: '/about',
+    },
+  ].filter(r => r.condition !== false);
 
   function handleClick(itemName) {
     const item = menuItems.find(i => i.name === itemName);
@@ -39,6 +60,7 @@
 <style>
   nav {
     position: absolute;
+    z-index: 2;
     top: 3em;
     display: flex;
     flex-direction: column;
