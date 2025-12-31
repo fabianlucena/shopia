@@ -1,0 +1,42 @@
+:root {
+  --border-color: #29681b;
+  --background-color: #b5f6a7;
+  --input-background-color: #DAF9D4;
+  --header-background-color: #29681b;
+  --header-text-color: white;
+  --menu-background-color: #a1e6a0;
+  --menu-item-background-color: #8de08b;
+  --menu-item-hover-background-color: #76d876;
+}
+
+body {
+  background-color: #b5f6a7;
+  font-family: Roboto, Helvetica, Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+#app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+button {
+  background-color: var(--border-color);
+  color: white;
+  border: none;
+  padding: .3em 1em;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 100%;
+  margin: .5em 1em;
+  cursor: pointer;
+  border-radius: .3em;
+}
