@@ -216,6 +216,20 @@ namespace backend_shopia.Services
         public async Task<int> GetCountForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
             => await GetCountAsync(await GetFilterForOwnerIdAsync(ownerId, options));
 
+        public Int64? GetCurrentUserIdOrDefault()
+        {
+            var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+            var httpContext = httpContextAccessor.HttpContext;
+            if (httpContext == null)
+                return null;
+
+            var userId = (httpContext.Items["UserId"] as Int64?);
+            if (userId == null || userId <= 0)
+                return null;
+
+            return userId!;
+        }
+
         public Int64 GetCurrentUserId()
         {
             var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();

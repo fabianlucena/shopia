@@ -1,5 +1,4 @@
-﻿using backend_shopia.DTO;
-using backend_shopia.Entities;
+﻿using backend_shopia.Entities;
 using RFService.IServices;
 using RFService.Repo;
 
@@ -14,6 +13,10 @@ namespace backend_shopia.IServices
             IServiceName<Item>,
             IServiceIdUuidName<Item>
     {
+        Int64? GetCurrentUserIdOrDefault();
+
+        Int64 GetCurrentUserId();
+
         Task<bool> CheckForUuidAndCurrentUserAsync(Guid uuid, QueryOptions? options = null);
 
         Task<QueryOptions> GetFilterForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);

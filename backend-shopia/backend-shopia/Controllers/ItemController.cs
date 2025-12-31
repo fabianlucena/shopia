@@ -51,7 +51,6 @@ namespace backend_shopia.Controllers
         }
 
         [HttpGet("{uuid?}")]
-        [Permission("item.get")]
         public async Task<IActionResult> GetAsync([FromRoute] Guid? uuid)
         {
             logger.LogInformation("Getting items");
@@ -70,7 +69,15 @@ namespace backend_shopia.Controllers
 
             if (response.Any())
             {
-                var uuidList = (await itemService.GetListUuidForCurrentUserAsync()).ToHashSet();
+                HashSet<Guid> uuidList;
+                if (itemService.GetCurrentUserIdOrDefault() is not null)
+                {
+                    uuidList = [.. (await itemService.GetListUuidForCurrentUserAsync())];
+                } else
+                {
+                    uuidList = [];
+                }
+
                 var itemIdMap = itemsList.ToDictionary(i => i.Uuid, i => i.Id);
 
                 response = await Task.WhenAll(response.Select(async item =>
