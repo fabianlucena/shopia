@@ -1,5 +1,6 @@
 <script>
-  import { get } from '../services/itemService.js';
+  import { get } from '$services/itemService.js';
+  import Item from '$components/Item.svelte';
 
   let items = $state([]);
   
@@ -9,15 +10,31 @@
   });
 </script>
 
-<h1>Inicio</h1>
+<h1>Artículos</h1>
 
 {#if items.length === 0}
   <p>Cargando...</p>
 {:else}
-  <ul>
+  <div
+    class="item-list"
+  >
     {#each items as item}
-      <li>{item.name}</li>
+      <Item
+        {...item}
+      />
     {/each}
-  </ul>
+  </div>
 {/if}
 
+<style>
+  .item-list {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25em;
+    padding: 0 .3em;
+    justify-content: center;
+    align-content: flex-start;
+    box-sizing: border-box;
+  }
+</style>
