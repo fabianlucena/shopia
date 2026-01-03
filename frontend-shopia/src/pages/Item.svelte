@@ -12,8 +12,10 @@
   });
   
   $effect(() => {
-    getSingleForUuid(uuid)
-      .then(resData => data.set(resData));
+    if (uuid !== 'new') {
+      getSingleForUuid(uuid)
+        .then(resData => data.set(resData));
+    }
   });
 </script>
 

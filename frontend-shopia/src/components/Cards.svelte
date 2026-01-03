@@ -3,14 +3,26 @@
 
   let {
     header = '',
+    globalActions = null,
     columns = [],
     data = [],
     getValue = getFormattedValue,
   } = $props();
 </script>
 
-{#if header}
-  <div class="header">{header}</div>
+{#if header || globalActions}
+  <div class="header">
+    {#if header}
+      <div class="title">
+        {header}
+      </div>
+    {/if}
+    {#if globalActions}
+      <div class="actions">
+        {@render globalActions() }
+      </div>
+    {/if}
+  </div>
 {/if}
 <div class="cards">
   {#each data as row}
@@ -44,6 +56,12 @@
     font-size: 1.5em;
     font-weight: bold;
     text-align: center;
+    display: flex;
+    flex-direction: row;
+  }
+
+  .header .title {
+    flex: 1;
   }
   
   .cards {

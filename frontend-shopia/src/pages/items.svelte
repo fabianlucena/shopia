@@ -17,8 +17,4 @@
     { label: 'Regalo', field: 'isPresent', formatter: yesNo, className: 'center' },
   ]}
   {service}
-  actions={[
-    'edit',
-    'delete',
-  ]}
 />
