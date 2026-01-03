@@ -3,6 +3,8 @@
   import Table from '$components/Table.svelte';
   import Cards from '$components/Cards.svelte';
   import Button from '$components/Button.svelte';
+  import EditButton from '$components/buttons/Edit.svelte';
+  import DeleteButton from '$components/buttons/Delete.svelte';
   import { confirm } from '$libs/confirm';
   import { permissions } from '$stores/session';
   import { navigate } from '$libs/router.js';
@@ -38,6 +40,7 @@
           if (action === 'edit') {
             return {
               label: 'Editar',
+              component: editButton,
               permission: `${baseName}.edit`,
               action: row => navigate(`/${baseName}/${row.uuid}`)
             };
@@ -45,6 +48,7 @@
           if (action === 'delete') {
             return {
               label: 'Eliminar',
+              component: deleteButton,
               permission: `${baseName}.delete`,
               action: row => {
                 confirm({
@@ -76,9 +80,23 @@
   <p>Esta acción no se puede deshacer.</p>
 {/snippet}
 
+{#snippet editButton(props)}
+  <EditButton {...props} />
+{/snippet}
+
+{#snippet deleteButton(props)}
+  <DeleteButton {...props} />
+{/snippet}
+
 {#snippet actionsCell({ row })}
   {#each $actions as action}
-    <Button onclick={() => action.action(row)}>{action.label}</Button>
+    {#if action.component}
+      {@render action.component({
+        onclick: () => action.action(row)
+      })}
+    {:else}
+      <Button onclick={() => action.action(row)}>{action.label}</Button>
+    {/if}
   {/each}
 {/snippet}
 

@@ -38,10 +38,16 @@
 
   button.icon {
     padding: 0;
+    background-color: transparent;
+    color: var(--menu-item-color);
   }
 
   button:hover {
     background-color: var(--button-background-color-highlight);
+  }
+
+  button.icon:hover {
+    background-color: var(--menu-background-color);
   }
 
   .danger {

@@ -3,7 +3,7 @@
   height="24"
   viewBox="0 0 24 24"
   fill="none"
-  stroke="#c00000"
+  stroke="#b03020"
   stroke-width="4"
   stroke-linecap="round"
   stroke-linejoin="round"
