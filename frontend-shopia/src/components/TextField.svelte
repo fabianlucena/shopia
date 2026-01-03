@@ -8,6 +8,7 @@
     value = $bindable(''),
     disabled = null,
     id = crypto.randomUUID(),
+    required = false,
     ...rest
   } = $props();
 
@@ -18,12 +19,14 @@
 <Field
   for={id}
   {label}
+  {required}
 >
   <input
     type={type}
     {id}
     bind:value
     disabled={disabled ?? $isDisabled}
+    {required}
     {...rest}
   />
 </Field>

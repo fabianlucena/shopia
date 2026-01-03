@@ -42,11 +42,13 @@
   <TextField
     label="Nombre de usuario"
     bind:value={data.username}
+    required={true}
   />
 
   <PasswordField
     label="Contraseña"
     bind:value={data.password}
+    required={true}
   />
 
   <LinkField

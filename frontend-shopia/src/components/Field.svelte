@@ -1,13 +1,19 @@
 <script>
+  import RequiredIcon from '$icons/required.svelte';
+
   let {
     for: forAttr = '',
     label = '',
+    required = false,
     children,
   } = $props();
 </script>
 
 <div class="field">
   <label for={forAttr}>
+    {#if required}
+      <RequiredIcon class="required" />
+    {/if}
     {label}
   </label>
   {@render children()}
@@ -26,6 +32,11 @@
     font-size: 80%;
     opacity: .6;
     margin-bottom: 0.1em;
+  }
+
+  :global(.required) {
+    color: red;
+    font-weight: bold;
   }
 
   :global(.field input) {
