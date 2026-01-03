@@ -26,30 +26,22 @@
 {#if header}
   <div class="header">{header}</div>
 {/if}
-<table>
-  <thead>
-    <tr>
+<div class="cards">
+  {#each data as row}
+    <div class="card">
       {#each columns as column}
-        <th>{column.label}</th>
+        <div class="field">
+          {column.label}:
+          {#if column.renderCell}
+            {@render column.renderCell({ row, column, value: getCellValue(row, column) }) }
+          {:else}
+            {getCellValue(row, column)}
+          {/if}
+        </div>
       {/each}
-    </tr>
-  </thead>
-  <tbody>
-    {#each data as row}
-      <tr>
-        {#each columns as column}
-          <td>
-            {#if column.renderCell}
-              {@render column.renderCell({ row, column, value: getCellValue(row, column) }) }
-            {:else}
-              {getCellValue(row, column)}
-            {/if}
-          </td>
-        {/each}
-      </tr>
-    {/each}
-  </tbody>
-</table>
+    </div>
+  {/each}
+</div>
 
 <style>
   .header {
@@ -61,22 +53,22 @@
     font-weight: bold;
     text-align: center;
   }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
+  
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   }
 
-  td, th {
-    border-bottom: .1em solid var(--border-color);
-    padding: .15em .5em;
-    text-align: left;
+  .card {
+    border: .1em solid var(--border-color);
+    border-radius: .5em;
+    padding: .2em .5em;
+    margin: .15em .35em;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
     background-color: var(--input-background-color);
   }
 
-  th {
-    background-color: var(--header-background-color);
-    color: var(--header-text-color);
-    text-align: left;
+  .field {
+    margin-bottom: 0.5rem;
   }
 </style>
