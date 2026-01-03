@@ -11,10 +11,6 @@
       method: logout,
       condition: $isLoggedIn,
     },
-    {
-      name: 'otro',
-      label: 'Otro',
-    },
   ].filter(r => r.condition !== false);
 </script>
 
