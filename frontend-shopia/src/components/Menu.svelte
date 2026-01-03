@@ -1,17 +1,17 @@
 <script>
   import { navigate } from '$libs/router.js';
-  import { onMount, onDestroy } from 'svelte';
 
   let {
     items = [],
     onclose = null,
-  } = $$props;
+    ...restProps
+  } = $props();
 
   function handleClose(evt) {
     onclose?.();
   }
 
-  onMount(() => {
+  $effect(() => {
     window.addEventListener('click', handleClose, true);
 
     return () => window.removeEventListener('click', handleClose, true);
@@ -37,7 +37,7 @@
 </script>
 
 <nav
-  {...$$restProps}
+  {...restProps}
 >
   {#each items as item}
     <button

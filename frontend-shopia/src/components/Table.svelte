@@ -4,15 +4,21 @@
   let {
     columns = [],
     data = [],
-    renderCell = thisRenderCell,
+    getCellValue = thisGetCellValue,
   } = $props();
 
-  function thisRenderCell(row, column) {
+  function thisGetCellValue(row, column) {
+    if (column.getCellValue) {
+      return column.getCellValue(row);
+    }
+
     if (column.type === 'boolean') {
       return row[column.field] ? 'Sí' : 'No';
     }
     
-    return getValue(row, column.field);
+    if (column.field) {
+      return getValue(row, column.field);
+    }
   }
 </script>
 
@@ -28,7 +34,13 @@
     {#each data as row}
       <tr>
         {#each columns as column}
-          <td>{renderCell(row, column)}</td>
+          <td>
+            {#if column.renderCell}
+              {@render column.renderCell({ row, column, value: thisGetCellValue(row, column) }) }
+            {:else}
+              {thisGetCellValue(row, column)}
+            {/if}
+          </td>
         {/each}
       </tr>
     {/each}

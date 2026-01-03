@@ -26,6 +26,7 @@
   let options = writable([]);
   $effect(() => {
     options.set(allOptions.filter(r =>
+      // @ts-ignore
       typeof r.condition === 'function' ? r.condition() : r.condition !== false
     ));
   });

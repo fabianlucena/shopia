@@ -9,7 +9,7 @@
     children,
     disabled = null,
     loading = null,
-    footer,
+    footer = null,
     submitLabel = '',
     onsubmit = null,
     submitPosition = 'first',
