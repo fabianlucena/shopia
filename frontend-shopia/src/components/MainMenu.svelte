@@ -1,22 +1,37 @@
 <script>
+  import { writable } from 'svelte/store';
   import Menu from '$components/Menu.svelte';
   import { showMainMenu } from '$stores/session.js';
+  import { permissions } from '$stores/session.js';
 
-  $: items = [
+  const allOptions = [
     {
       name: 'home',
       label: 'Inicio',
       path: '/',
     },
     {
+      name: 'items',
+      label: 'Mis artículos',
+      path: '/items',
+    },
+    {
       name: 'about',
       label: 'Acerca de',
       path: '/about',
+      condition: () => $permissions.includes('item.get'),
     },
-  ].filter(r => r.condition !== false);
+  ];
+
+  let options = writable([]);
+  $effect(() => {
+    options.set(allOptions.filter(r =>
+      typeof r.condition === 'function' ? r.condition() : r.condition !== false
+    ));
+  });
 </script>
 
 <Menu
   onclose={() => $showMainMenu = false}
-  {items}
+  items={$options}
 />
