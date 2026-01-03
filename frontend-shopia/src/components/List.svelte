@@ -109,7 +109,10 @@
       {header}
       columns={[
         ...properties,
-        { label: 'Acciones', renderCell: actionsCell }
+        {
+          renderCell: actionsCell,
+          className: 'actions',
+        }
       ]}
       data={$data}
     />

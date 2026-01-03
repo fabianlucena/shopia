@@ -14,10 +14,16 @@
 {/if}
 <div class="cards">
   {#each data as row}
-    <div class="card">
+    <div
+      class="card"
+    >
       {#each columns as column}
-        <div class="field">
-          {column.label}:
+        <div
+          class={`field ${column.className || ''}`}
+        >
+          {#if column.label}
+            {column.label}:
+          {/if}
           {#if column.renderCell}
             {@render column.renderCell({ row, column, value: getValue(row, column) }) }
           {:else}
@@ -56,5 +62,9 @@
 
   .field {
     margin-bottom: 0.5rem;
+  }
+
+  .actions {
+    text-align: right;
   }
 </style>
