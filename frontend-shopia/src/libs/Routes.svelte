@@ -41,7 +41,6 @@
     },
   ];
   
-  let params = {};
   let routes = writable([]);
   $effect(() => {
     routes.set(allRoutes.filter(r =>
@@ -49,11 +48,11 @@
     ));
   });
 
-  let theRoute;
-  let Component = $state(Home);
+  let Component = $state(null);
+  let params = writable({});
   $effect(() => {
-    let newRoute = $routes.find(r => r.path === $route);
-    if (!newRoute) {
+    let theRoute = $routes.find(r => r.path === $route);
+    if (!theRoute) {
       // Check for dynamic routes
       for (let r of $routes) {
         if (r.path.includes(':')) {
@@ -68,7 +67,7 @@
               }
             }
             if (isMatch) {
-              newRoute = r;
+              theRoute = r;
               break;
             }
           }
@@ -76,24 +75,21 @@
       }
     }
 
-    if (newRoute !== theRoute) {
-      theRoute = newRoute;
-    }
-
     if (theRoute?.page) {
       Component = theRoute.page;
+        params.set({});
       if (theRoute.path.includes(':')) {
         const routeParts = theRoute.path.split('/');
         const pathParts = $route.split('/');
-        params = {};
         routeParts.forEach((part, index) => {
           if (part.startsWith(':')) {
             const paramName = part.slice(1);
-            params[paramName] = pathParts[index];
+            params.update(currentParams => {
+              currentParams[paramName] = pathParts[index];
+              return currentParams;
+            });
           }
         });
-      } else {
-        params = {};
       }
     } else {
       Component = null;
@@ -103,7 +99,7 @@
 </script>
 
 {#if Component}
-  <Component {...params}/>
+  <Component {...$params}/>
 {:else}
   <NotFound />
 {/if}
