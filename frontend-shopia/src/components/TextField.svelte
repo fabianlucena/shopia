@@ -6,14 +6,13 @@
     label = '',
     type = 'text',
     value = $bindable(''),
-    disabled = false,
+    disabled = null,
     id = crypto.randomUUID(),
     ...rest
   } = $props();
 
   let disabledForm = getContext('disabled-form');
-  let isDisabled = $state(false);
-  $effect(() => disabledForm.subscribe(v => isDisabled = v));
+  let isDisabled = $derived(disabledForm);
 </script>
 
 <Field
@@ -24,7 +23,7 @@
     type={type}
     {id}
     bind:value
-    disabled={disabled ?? isDisabled}
+    disabled={disabled ?? $isDisabled}
     {...rest}
   />
 </Field>

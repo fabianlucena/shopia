@@ -4,6 +4,8 @@
   --input-background-color: #DAF9D4;
   --header-background-color: #29681b;
   --header-text-color: white;
+  --button-background-color: #29681b;
+  --button-disabled-background-color: #688a61;
   --menu-background-color: #a1e6a0;
   --menu-item-background-color: #8de08b;
   --menu-item-color: #404040;
@@ -30,7 +32,7 @@ body {
 }
 
 button {
-  background-color: var(--border-color);
+  background-color: var(--button-background-color);
   color: white;
   border: none;
   padding: .3em 1em;
@@ -41,4 +43,9 @@ button {
   margin: .5em 1em;
   cursor: pointer;
   border-radius: .3em;
+}
+
+button:disabled {
+  background-color: var(--button-disabled-background-color);
+  cursor: not-allowed;
 }
