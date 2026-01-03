@@ -1,5 +1,5 @@
 import { Api } from './api';
-import { isLoggedIn, permissions } from '$stores/session.js';
+import { isLoggedIn, permissions, showUserMenu } from '$stores/session.js';
 
 export async function autoLogin() {
   const autoLoginToken = localStorage.getItem('autoLoginToken');
@@ -16,6 +16,8 @@ export async function login(body) {
 }
 
 export async function _login(url, body) {
+  showUserMenu.set(false);
+
   const deviceToken = localStorage.getItem('deviceToken');
   if (deviceToken) {
     body.deviceToken = deviceToken;
@@ -25,6 +27,7 @@ export async function _login(url, body) {
     const data = await Api.postJson(url, { body });
     if (!data?.authorizationToken) {
       isLoggedIn.set(false);
+      permissions.set([]);
       return;
     }
 
@@ -40,7 +43,7 @@ export async function _login(url, body) {
     }
 
     if (data.attributes?.permissions) {
-      permissions.set(data.attributes?.permissions);
+      permissions.set(data.attributes?.permissions ?? []);
     }
 
     return true;
@@ -53,6 +56,8 @@ export async function _login(url, body) {
 export function logout() {
   localStorage.removeItem('autoLoginToken');
   isLoggedIn.set(false);
+  showUserMenu.set(false);
+  permissions.set([]);
   
   try {
     Api.postJson('/v1/logout');

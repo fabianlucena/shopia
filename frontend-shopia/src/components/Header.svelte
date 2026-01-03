@@ -1,18 +1,40 @@
 <script>
-  import { showMenu } from '$stores/showMenu.js';
+  import { showMainMenu, isLoggedIn, showUserMenu } from '$stores/session.js';
+  import { navigate } from '$libs/router.js';
+  import MenuButton from '$components/buttons/Menu.svelte';
+  import UserButton from '$components/buttons/User.svelte';
+  import LoginButton from '$components/buttons/Login.svelte';
+  import UserMenu from './UserMenu.svelte';
 </script>
 
-<h1>
-  <button
-    onclick={() => $showMenu = !$showMenu}
+<header>
+  <MenuButton
+    class="icon"
+    onclick={() => $showMainMenu = !$showMainMenu}
+  />
+  <span
+    style="flex: 1; text-align: center;"
   >
-    &#9776;
-  </button>
-  Shopia
-</h1>
+    Shopia
+  </span>
+  {#if $isLoggedIn}
+    <UserButton
+      class="icon"
+      onclick={() => $showUserMenu = !$showUserMenu}
+    />
+    {#if $showUserMenu}
+      <UserMenu />
+    {/if}
+  {:else}
+    <LoginButton
+      class="icon"
+      onclick={() => navigate('/login')}
+    />
+  {/if}
+</header>
 
 <style>
-  h1 {
+  header {
     display: flex;
     align-items: center;
     font-size: 1.5em;
@@ -22,7 +44,7 @@
     color: var(--header-text-color);
   }
 
-  button {
+  :global(.icon) {
     font-size: 1em;
     margin: 0 .5em 0 0;
     padding: 0;

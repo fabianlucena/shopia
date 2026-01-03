@@ -30,7 +30,8 @@
       "$pages/*": ["src/pages/*"],
       "$libs/*": ["src/libs/*"],
       "$stores/*": ["src/stores/*"],
-      "$services/*": ["src/services/*"]
+      "$services/*": ["src/services/*"],
+      "$icons/*": ["src/icons/*"]
     }
   },
   /**

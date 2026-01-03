@@ -6,7 +6,9 @@
   --header-text-color: white;
   --menu-background-color: #a1e6a0;
   --menu-item-background-color: #8de08b;
+  --menu-item-color: #404040;
   --menu-item-hover-background-color: #76d876;
+  --button-text-color: #ffffff;
 }
 
 body {

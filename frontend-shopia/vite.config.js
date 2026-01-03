@@ -12,6 +12,7 @@ export default defineConfig({
       $libs: path.resolve(__dirname, 'src/libs'),
       $stores: path.resolve(__dirname, 'src/stores'),
       $services: path.resolve(__dirname, 'src/services'),
+      $icons: path.resolve(__dirname, 'src/icons'),
     },
   },
 });

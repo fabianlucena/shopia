@@ -1,14 +1,21 @@
 <script>
+  import { onMount } from 'svelte';
   import Header from '$components/Header.svelte';
-  import Menu from '$components/Menu.svelte';
+  import MainMenu from '$components/MainMenu.svelte';
   import Routes from '$libs/Routes.svelte';
   import { NotificationContainer } from '$libs/notification.js';
+  import { showMainMenu } from '$stores/session.js';
+  import { autoLogin } from '$services/loginService.js';
+
+  onMount(() => autoLogin());
 </script>
 
 <main>
   <NotificationContainer />
   <Header />
-  <Menu />
+  {#if $showMainMenu}
+    <MainMenu />
+  {/if}
   <section class="content" >
     <Routes />
   </section>
