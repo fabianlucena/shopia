@@ -4,7 +4,10 @@
   let {
     type = 'button',
     disabled = null,
+    variant = 'primary',
+    className = '',
     children,
+    ...props
   } = $props();
   
 
@@ -14,7 +17,44 @@
 
 <button 
   {type}
+  class={`${variant} ${className}`}
   disabled={disabled ?? $isDisabled}
+  {...props}
 >
   {@render children()}
 </button>
+
+<style>
+  button {
+    padding: .4rem .7rem;
+    border: none;
+    border-radius: .4em;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    background-color: var(--button-background-color);
+    color: white;
+  }
+
+  button.icon {
+    padding: 0;
+  }
+
+  button:hover {
+    background-color: var(--button-background-color-highlight);
+  }
+
+  .danger {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .danger:hover {
+    background-color: #a71d2a;
+  }
+
+  button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+</style>

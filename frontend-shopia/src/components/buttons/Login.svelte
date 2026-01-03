@@ -1,7 +1,8 @@
 <script>
+  import ButtonIcon from '$components/ButtonIcon.svelte';
   import LoginIcon from '$icons/login.svelte';
 </script>
 
-<button {...$$restProps}>
+<ButtonIcon {...$$restProps}>
   <LoginIcon />
-</button>
+</ButtonIcon>

@@ -6,6 +6,7 @@
 </script>
 
 <List
+  baseName="item"
   header="Artículos"
   properties={[
     { label: 'Nombre', field: 'name' },
@@ -17,6 +18,7 @@
   ]}
   {service}
   actions={[
-    { label: 'Editar', permission: 'item.edit', action: row => navigate(`/item/${row.uuid}`) }
+    'edit',
+    'delete',
   ]}
 />

@@ -5,6 +5,7 @@
   --header-background-color: #29681b;
   --header-text-color: white;
   --button-background-color: #29681b;
+  --button-background-color-highlight: #19520d;
   --button-disabled-background-color: #688a61;
   --menu-background-color: #a1e6a0;
   --menu-item-background-color: #8de08b;
@@ -35,12 +36,10 @@ button {
   background-color: var(--button-background-color);
   color: white;
   border: none;
-  padding: .3em 1em;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 100%;
-  margin: .5em 1em;
   cursor: pointer;
   border-radius: .3em;
 }

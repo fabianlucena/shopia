@@ -33,6 +33,6 @@ export async function updateForUuid(uuid, data, options) {
   return await Api.patchJson('/v1/item', {...options, path: uuid, body: data});
 }
 
-async function deleteForUuid(uuid, options) {
+export async function deleteForUuid(uuid, options) {
   return await Api.deleteJson('/v1/item', {...options, path: uuid});
 }
