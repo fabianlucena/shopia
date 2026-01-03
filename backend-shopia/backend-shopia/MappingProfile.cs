@@ -3,6 +3,7 @@ using backend_shopia.DTO;
 using backend_shopia.Entities;
 using backend_shopia.Exceptions;
 using backend_shopia.IServices;
+using System.Globalization;
 
 namespace backend_shopia
 {
@@ -69,6 +70,7 @@ namespace backend_shopia
                 .ForMember(dest => dest.CategoryId, opt => opt.MapFrom<ItemAddRequest_CategoryIdResolverAsync>())
                 .ForMember(dest => dest.StoreId, opt => opt.MapFrom<ItemAddRequest_StoreIdResolverAsync>());
             CreateMap<Item, ItemResponse>()
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price.ToString(CultureInfo.InvariantCulture)))
                 .ForMember(dest => dest.CategoryUuid, opt => opt.MapFrom(src => src.Category != null ? (Guid?)src.Category.Uuid : null))
                 .ForMember(dest => dest.StoreUuid, opt => opt.MapFrom(src => src.Store != null ? (Guid?)src.Store.Uuid : null));
 

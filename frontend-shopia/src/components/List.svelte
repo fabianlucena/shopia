@@ -2,6 +2,7 @@
   import { writable } from 'svelte/store';
   import Table from '$components/Table.svelte';
   import Cards from '$components/Cards.svelte';
+  import { permissions } from '$stores/session';
 
   let {
     header = '',
@@ -28,7 +29,7 @@
 </script>
 
 {#snippet actionsCell({ row })}
-  {#each actions as action}
+  {#each actions.filter(action => !action.permission || $permissions.includes(action.permission)) as action}
     <button onclick={() => action.action(row)}>{action.label}</button>
   {/each}
 {/snippet}

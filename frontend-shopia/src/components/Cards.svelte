@@ -1,26 +1,12 @@
 <script>
-  import { getValue } from '$libs/object.js';
+  import { getFormattedValue } from '$libs/formatter.js';
 
   let {
     header = '',
     columns = [],
     data = [],
-    getCellValue = thisGetCellValue,
+    getValue = getFormattedValue,
   } = $props();
-
-  function thisGetCellValue(row, column) {
-    if (column.getCellValue) {
-      return column.getCellValue(row);
-    }
-
-    if (column.type === 'boolean') {
-      return row[column.field] ? 'Sí' : 'No';
-    }
-    
-    if (column.field) {
-      return getValue(row, column.field);
-    }
-  }
 </script>
 
 {#if header}
@@ -33,9 +19,9 @@
         <div class="field">
           {column.label}:
           {#if column.renderCell}
-            {@render column.renderCell({ row, column, value: getCellValue(row, column) }) }
+            {@render column.renderCell({ row, column, value: getValue(row, column) }) }
           {:else}
-            {getCellValue(row, column)}
+            {getValue(row, column)}
           {/if}
         </div>
       {/each}
