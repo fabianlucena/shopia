@@ -5,6 +5,7 @@
     row,
     column,
     getValue,
+    onChange = null,
   } = $props();
 </script>
 
@@ -13,7 +14,11 @@
     <YesNo
       checked={value}
       onChange={value => {
-        console.log(`${column.label} changed: ${value? 'Yes' : 'No' }`);
+        onChange?.({
+          row,
+          column,
+          value,
+        });
       }}
     />
   {:else}

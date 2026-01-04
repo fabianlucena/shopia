@@ -92,6 +92,16 @@
 
     actions.set(newActions);
   });
+
+  function onChange({ row, column, value }) {
+    data.update(rows => {
+      const index = rows.findIndex(r => r.uuid === row.uuid);
+      if (index !== -1) {
+        rows[index] = { ...rows[index], [column.field]: value };
+      }
+      return rows;
+    });
+  }
 </script>
 
 {#snippet confirmDeleteBody()}
@@ -150,9 +160,10 @@
         {
           renderCell: actionsCell,
           className: 'actions',
-        }
+        },
       ]}
       data={$data}
+      onChange={onChange}
     />
   {:else}  
     <Table
@@ -160,9 +171,14 @@
       {globalActions}
       columns={[
         ...properties,
-        { label: 'Acciones', renderCell: actionsCell }
+        {
+          label: 'Acciones',
+          renderCell: actionsCell,
+          className: 'actions',
+        },
       ]}
       data={$data}
+      onChange={onChange}
     />
   {/if}
 </div>

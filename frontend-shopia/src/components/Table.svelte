@@ -8,6 +8,7 @@
     columns = [],
     data = [],
     getValue = getFormattedValue,
+    onChange = null,
   } = $props();
 </script>
 
@@ -44,7 +45,7 @@
           <td
             class={column.className}
           >
-            <Value {row} {column} {getValue} />
+            <Value {row} {column} {getValue} {onChange}/>
           </td>
         {/each}
       </tr>
@@ -74,17 +75,33 @@
     border-collapse: collapse;
   }
 
-  td, th {
+  tr {
     border-bottom: .1em solid var(--border-color);
-    padding: .15em .5em;
+    background-color: var(--data-background-color);
+  }
+
+  tr:nth-child(even) {
+    background-color: var(--alternative-background-color);
+  }
+
+  tr:hover {
+    background-color: var(--hover-background-color);
+  }
+
+  td, th {
+    padding: .35em .5em;
     text-align: left;
-    background-color: var(--input-background-color);
   }
 
   th {
     background-color: var(--header-background-color);
     color: var(--header-text-color);
     text-align: left;
+  }
+
+  td.actions {
+    display: flex;
+    gap: .5em;
   }
 
   th.number {

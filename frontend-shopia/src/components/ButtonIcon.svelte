@@ -14,6 +14,3 @@
 >
   {@render children()}
 </Button>
-
-<style>
-</style>

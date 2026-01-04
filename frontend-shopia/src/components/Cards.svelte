@@ -8,6 +8,7 @@
     columns = [],
     data = [],
     getValue = getFormattedValue,
+    onChange = null,
   } = $props();
 </script>
 
@@ -37,7 +38,7 @@
           {#if column.label}
             {column.label}:
           {/if}
-          <Value {row} {column} {getValue} />
+          <Value {row} {column} {getValue} {onChange} />
         </div>
       {/each}
     </div>

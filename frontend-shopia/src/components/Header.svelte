@@ -9,7 +9,7 @@
 
 <header>
   <MenuButton
-    class="icon"
+    style="height: 2em;"
     onclick={() => $showMainMenu = !$showMainMenu}
   />
   <span
@@ -19,7 +19,7 @@
   </span>
   {#if $isLoggedIn}
     <UserButton
-      class="icon"
+      style="height: 2em;"
       onclick={() => $showUserMenu = !$showUserMenu}
     />
     {#if $showUserMenu}
@@ -42,13 +42,5 @@
     padding: 0.5em;
     background-color: var(--header-background-color);
     color: var(--header-text-color);
-  }
-
-  :global(.icon) {
-    font-size: 1em;
-    margin: 0 .5em 0 0;
-    padding: 0;
-    border-radius: 0;
-    font-weight: bold;
   }
 </style>

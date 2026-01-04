@@ -1,6 +1,7 @@
 :root {
   --border-color: #29681b;
   --background-color: #b5f6a7;
+  --hover-background-color: #afdfd0;
   --input-background-color: #DAF9D4;
   --header-background-color: #29681b;
   --header-text-color: white;
@@ -10,8 +11,9 @@
   --menu-background-color: #a1e6a0;
   --menu-item-background-color: #8de08b;
   --menu-item-color: #404040;
-  --menu-item-hover-background-color: #76d876;
   --button-text-color: #ffffff;
+  --data-background-color: #DAF9D4;
+  --alternative-background-color: #d4f9eb;
 }
 
 body {

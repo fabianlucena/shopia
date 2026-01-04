@@ -72,6 +72,6 @@
   }
 
   button:hover {
-    background-color: var(--menu-item-hover-background-color);
+    background-color: var(--hover-background-color);
   }
 </style>
