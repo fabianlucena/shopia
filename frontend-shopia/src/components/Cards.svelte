@@ -20,7 +20,7 @@
       </div>
     {/if}
     {#if globalActions}
-      <div class="actions">
+      <div class="actions global-actions">
         {@render globalActions() }
       </div>
     {/if}
@@ -77,10 +77,14 @@
   }
 
   .field {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.5em;
   }
 
-  .actions {
+  .item-actions {
     text-align: right;
+    display: flex;
+    gap: .5em;
+    justify-content: flex-end;
+    font-size: 150%;
   }
 </style>

@@ -102,6 +102,7 @@
   td.actions {
     display: flex;
     gap: .5em;
+    font-size: 100%;
   }
 
   th.number {

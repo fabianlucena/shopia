@@ -50,3 +50,8 @@ button:disabled {
   background-color: var(--button-disabled-background-color);
   cursor: not-allowed;
 }
+
+.icon {
+  color: var(--icon-color);
+  background-color: transparent;
+}

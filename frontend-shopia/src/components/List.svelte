@@ -159,7 +159,7 @@
         ...properties,
         {
           renderCell: actionsCell,
-          className: 'actions',
+          className: 'actions item-actions',
         },
       ]}
       data={$data}
@@ -174,7 +174,7 @@
         {
           label: 'Acciones',
           renderCell: actionsCell,
-          className: 'actions',
+          className: 'actions item-actions',
         },
       ]}
       data={$data}

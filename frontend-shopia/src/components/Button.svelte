@@ -4,7 +4,7 @@
   let {
     type = 'button',
     disabled = null,
-    variant = 'primary',
+    variant = '',
     className = '',
     children,
     ...props
@@ -26,11 +26,10 @@
 
 <style>
   button {
-    padding: .4rem .7rem;
+    padding: .4em .7em;
     border: none;
     border-radius: .4em;
     cursor: pointer;
-    font-size: 1rem;
   }
 
   button:disabled {
@@ -68,9 +67,8 @@
 
   .icon {
     padding: 0;
-    background-color: transparent;
-    color: var(--menu-item-color);
-    height: 1.1em;
+    height: 1em;
+    width: auto;
     vertical-align: middle;
   }
 

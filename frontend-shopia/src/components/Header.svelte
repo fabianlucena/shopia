@@ -9,7 +9,6 @@
 
 <header>
   <MenuButton
-    style="height: 2em;"
     onclick={() => $showMainMenu = !$showMainMenu}
   />
   <span
@@ -19,7 +18,6 @@
   </span>
   {#if $isLoggedIn}
     <UserButton
-      style="height: 2em;"
       onclick={() => $showUserMenu = !$showUserMenu}
     />
     {#if $showUserMenu}
