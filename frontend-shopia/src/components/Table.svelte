@@ -1,5 +1,6 @@
 <script>
   import { getFormattedValue } from '$libs/formatter.js';
+  import Value from './Value.svelte';
 
   let {
     header = '',
@@ -43,11 +44,7 @@
           <td
             class={column.className}
           >
-            {#if column.renderCell}
-              {@render column.renderCell({ row, column, value: getValue(row, column) }) }
-            {:else}
-              {getValue(row, column)}
-            {/if}
+            <Value {row} {column} {getValue} />
           </td>
         {/each}
       </tr>

@@ -10,11 +10,12 @@
   header="Artículos"
   properties={[
     { label: 'Nombre', field: 'name' },
+    { label: 'Habilitado', field: 'isEnabled', control: 'yesNo' },
     { label: 'Descripción', field: 'description' },
     { label: 'Categoría', field: 'category.name' },
     { label: 'Precio', field: 'price', formatter: money, className: 'money' },
     { label: 'Cantidad', field: 'stock', className: 'number' },
-    { label: 'Regalo', field: 'isPresent', formatter: yesNo, className: 'center' },
+    { label: 'Regalo', field: 'isPresent', control: 'yesNo' },
   ]}
   {service}
 />

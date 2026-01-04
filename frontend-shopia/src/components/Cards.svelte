@@ -1,5 +1,6 @@
 <script>
   import { getFormattedValue } from '$libs/formatter.js';
+  import Value from './Value.svelte';
 
   let {
     header = '',
@@ -36,11 +37,7 @@
           {#if column.label}
             {column.label}:
           {/if}
-          {#if column.renderCell}
-            {@render column.renderCell({ row, column, value: getValue(row, column) }) }
-          {:else}
-            {getValue(row, column)}
-          {/if}
+          <Value {row} {column} {getValue} />
         </div>
       {/each}
     </div>

@@ -26,28 +26,28 @@ export function yesNo(value, { yes = 'Sí', no = 'No' } = {}) {
 }
 
 export function getFormattedValue(data, property) {
-    let value;
-    if (property.getValue) {
-      try {
-        value = property.getValue(data, property);
-      } catch (e) {
-        console.error('Error in getValue for property', property, 'with row', data, e);
-      }
-    } else if (property.field) {
-      try {
-        value = getValue(data, property.field);
-      } catch (e) {
-        console.error('Error getting field value for property', property, 'with row', data, e);
-      }
+  let value;
+  if (property.getValue) {
+    try {
+      value = property.getValue(data, property);
+    } catch (e) {
+      console.error('Error in getValue for property', property, 'with row', data, e);
     }
-
-    if (property.formatter) {
-      try {
-        value = property.formatter(value, data, property);
-      } catch (e) {
-        console.error('Error in formatter for property', property, 'with value', value, e);
-      }
+  } else if (property.field) {
+    try {
+      value = getValue(data, property.field);
+    } catch (e) {
+      console.error('Error getting field value for property', property, 'with row', data, e);
     }
-
-    return value;
   }
+
+  if (property.formatter) {
+    try {
+      value = property.formatter(value, data, property);
+    } catch (e) {
+      console.error('Error in formatter for property', property, 'with value', value, e);
+    }
+  }
+
+  return value;
+}
