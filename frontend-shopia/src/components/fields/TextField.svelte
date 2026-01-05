@@ -10,6 +10,7 @@
     value = $bindable(''),
     disabled = null,
     required = false,
+    preControl = null,
     ...rest
   } = $props();
 
@@ -22,6 +23,7 @@
   {label}
   {required}
 >
+  {preControl}
   <Text
     type={type}
     {id}

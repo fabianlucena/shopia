@@ -16,7 +16,9 @@
     {/if}
     {label}
   </label>
-  {@render children()}
+  <span class="field-control">
+    {@render children()}
+  </span>
 </div>
 
 <style >
@@ -34,6 +36,13 @@
     margin-bottom: 0.1em;
   }
 
+  .field-control {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: .3em;
+  }
+
   :global(.required) {
     color: red;
     font-weight: bold;
@@ -44,6 +53,7 @@
     .field textarea,
     .field select
   ) {
+    flex: 1;
     font-family: inherit;
     font-size: 100%;
     background-color: transparent;

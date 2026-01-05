@@ -1,17 +1,46 @@
 <script>
-  import NumberField from '$components/fields/NumberField.svelte';
+  import TextField from '$components/fields/TextField.svelte';
+  import { writable } from 'svelte/store';
   
   let {
-    value = $bindable(0),
-    step = .01,
+    value = $bindable('0'),
+    onChange = null,
+    pattern = "^[\\d.]+(,\\d{1,2})?$",
     ...restProps
   } = $props();
 
-  </script>
+  let textValue = writable();
 
-<NumberField
-  bind:value={value}
-  {step}
+  $effect(() => {
+    const newTextValue = new Intl.NumberFormat("es-AR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(Number(value));
+
+    console.log(newTextValue);
+
+    if (newTextValue !== $textValue) {
+      textValue.set(newTextValue);
+    }
+  });
+
+  function handleChange(evt) {
+    const raw = evt.target.value;
+
+    value = raw
+      .replace('.', '')
+      .replace(',', '.');
+
+    onChange?.(evt);
+  }
+
+</script>
+
+<TextField
+  {pattern}
+  value={$textValue}
+  onChange={handleChange}
+  preControl="$"
   {...restProps}
 >
-</NumberField>
+</TextField>
