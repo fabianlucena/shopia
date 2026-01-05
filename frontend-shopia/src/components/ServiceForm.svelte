@@ -8,6 +8,7 @@
   import CurrencyField from '$components/fields/CurrencyField.svelte';
   import SelectField from '$components/fields/SelectField.svelte';
   import TextAreaField from '$components/fields/TextAreaField.svelte';
+    import { navigate } from '$libs/router';
 
   let {
     uuid = null,
@@ -103,7 +104,10 @@
     }
 
     service.updateForUuid(uuid, dataToSend)
-      .then(() => pushNotification('Datos guardados correctamente', 'success'))
+      .then(() => {
+        pushNotification('Datos guardados correctamente', 'success');
+        navigate(-1);
+      })
       .catch(err => pushNotification('Error al guardar los datos', 'error'));
   }
 
