@@ -9,14 +9,6 @@
   } = $props();
 
   function validate(data, fields) {
-    const minAgeField = fields.find(f => f.name === 'minAge');
-    if (minAgeField)
-      minAgeField.visible = !!data.isPresent;
-
-    const maxAgeField = fields.find(f => f.name === 'maxAge');
-    if (maxAgeField)
-      maxAgeField.visible = !!data.isPresent;
-    
     if (!data.name) {
       return 'Debe proporcionar un nombre para el artículo.';
     }
@@ -58,12 +50,12 @@
     'name',
     'description',
     //{ name: 'images',       type: 'imageGalery', label: 'Imágenes', deleteFieldName: 'deletedImages' },
-    { name: 'categoryUuid', type: 'select',      label: 'Rubro',    service: categoryService },
-    { name: 'storeUuid',    type: 'select',      label: 'Local',    service: storeService },
+    { name: 'categoryUuid', type: 'select',      label: 'Rubro',  required: true, service: categoryService },
+    { name: 'storeUuid',    type: 'select',      label: 'Local',  required: true, service: storeService },
     { name: 'price',        type: 'currency',    label: 'Precio' },
     { name: 'stock',        type: 'number',      label: 'Disponibilidad' },
     { name: 'isPresent',    type: 'switch',      label: 'Apto para regalar' },
-    { name: 'minAge',       type: 'number',      label: 'Edad mínima', condition: data => data.isPresent },
-    { name: 'maxAge',       type: 'number',      label: 'Edad máxima', condition: data => data.isPresent },
+    { name: 'minAge',       type: 'number',      label: 'Edad mínima', required: true, condition: data => data.isPresent },
+    { name: 'maxAge',       type: 'number',      label: 'Edad máxima', required: true, condition: data => data.isPresent },
   ]}
 />
