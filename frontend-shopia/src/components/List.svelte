@@ -6,10 +6,11 @@
   import AddButton from '$components/buttons/Add.svelte';
   import EditButton from '$components/buttons/Edit.svelte';
   import DeleteButton from '$components/buttons/Delete.svelte';
+  import YesNo from '$components/YesNo.svelte';
   import { confirm } from '$libs/confirm';
   import { permissions } from '$stores/session';
   import { navigate } from '$libs/router.js';
-  import { pushNotification } from '$libs/notification';
+  import { pushNotification } from '$libs/notification.js';
 
   let {
     baseName = '',
@@ -21,6 +22,7 @@
       'delete',
     ],
     properties = [],
+    filters : originalFilters = [],
     ...props
   } = $props();
 
@@ -82,6 +84,41 @@
     actions.set(newActions);
   }
 
+  const filters = writable([]);
+  function updateFilters() {
+    const newFilters = originalFilters.map(filter => {
+        if (typeof filter === 'string') {
+          if (filter === 'includeDisabled') {
+            return {
+              id: crypto.randomUUID(),
+              name: 'includeDisabled',
+              label: 'Ver deshabilitados',
+              title: 'Incluir elementos deshabilitados',
+              value: false,
+              component: yesNo,
+              onChange: value => {
+                let update = false;
+                filters.update(fs => {
+                  const f = fs.find(f => f.name === 'includeDisabled');
+                  if (f?.value !== value) {
+                    update = true;
+                    f.value = value;
+                  }
+                  return fs;
+                });
+
+                update && updateData();
+              }
+            };
+          }
+        }
+        return filter;
+      });
+
+    filters.set(newFilters);
+  }
+
+  const dFilters = $derived($filters);
   const data = writable([]);
   function updateData() {
     if (!service) {
@@ -89,7 +126,14 @@
       return;
     }
 
-    service?.get({ limit: 10 })
+    var query = { limit: 10 };
+    dFilters.forEach(filter => {
+      if (filter.name && filter.value !== undefined) {
+        query[filter.name] = filter.value;
+      }
+    });
+
+    service?.get(query)
       .then(res => {
         data.set([...props?.data ?? [], ...res.rows]);
       });
@@ -97,6 +141,7 @@
 
   $effect(() => {
     updateActions();
+    updateFilters();
     updateData();
 
     const observer = new ResizeObserver(entries =>
@@ -175,24 +220,42 @@
   {/each}
 {/snippet}
 
+{#snippet yesNo(props)}
+  <div class="filter">
+    <label for={props.id}>{props.label}: </label>
+    <YesNo checked={props.value} {...props} />
+  </div>
+{/snippet}
+
 <div
   bind:this={container}
   class="container"
 >
-  {#if header || globalActions}
-  <div class="header">
-    {#if header}
-      <div class="title">
-        {header}
-      </div>
-    {/if}
-    {#if globalActions}
-      <div class="actions global-actions">
-        {@render globalActions() }
-      </div>
-    {/if}
-  </div>
-{/if}
+  {#if header || globalActions }
+    <div class="header">
+      {#if header}
+        <div class="title">
+          {header}
+        </div>
+      {/if}
+      {#if globalActions}
+        <div class="actions global-actions">
+          {@render globalActions() }
+        </div>
+      {/if}
+    </div>
+  {/if}
+  {#if $filters.length > 0}
+    <div class="filters">
+      {#each $filters as filter}
+        {#if filter.component}
+          {@render filter.component(filter)}
+        {:else}
+          Control desconocido
+        {/if}
+      {/each}
+    </div>
+  {/if}
   {#if $width < 800}
     <Cards
       columns={[
@@ -245,5 +308,21 @@
 
   .header .title {
     flex: 1;
+  }
+
+  .filters {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    padding: 0.2em;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .filter {
+    text-align: center;
+    border: .1em solid var(--border-color);
+    padding: .5em;
+    border-radius: .5em;
   }
 </style>

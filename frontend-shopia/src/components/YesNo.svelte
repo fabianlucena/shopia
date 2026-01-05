@@ -1,5 +1,6 @@
 <script>
   let {
+    id = '',
     checked,
     labelOn = 'Sí',
     labelOff = 'No',
@@ -22,6 +23,7 @@
 
 <label class="toggle">
   <input
+    {id}
     type="checkbox"
     checked={isOn}
     onchange={handleChange}

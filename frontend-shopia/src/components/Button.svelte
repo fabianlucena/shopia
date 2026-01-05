@@ -70,6 +70,7 @@
     height: 1em;
     width: auto;
     vertical-align: middle;
+    border-radius: .2em;
   }
 
   .icon:hover {

@@ -18,4 +18,5 @@
     { label: 'Regalo', field: 'isPresent', control: 'yesNo' },
   ]}
   {service}
+  filters={[ 'includeDisabled' ]}
 />

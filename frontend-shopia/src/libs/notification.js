@@ -1,9 +1,20 @@
-import { Toaster, toast } from 'svelte-sonner';
+import { toast } from 'svelte-sonner';
 
 export function pushNotification(message, type = 'default') {
-  console.log(message);
-  // @ts-ignore
-  toast(message, { type });
+  if (type === 'success') {
+    console.log(message);
+    toast.success(message);
+  } else if (type === 'error') {
+    console.error(message);
+    toast.error(message);
+  } else if (type === 'info') {
+    console.log(message);
+    toast.info(message, { duration: 4000 });
+  } else if (type === 'warning') {
+    console.warn(message);
+    toast.warning(message, { duration: 4000 });
+  } else {
+    console.log(message);
+    toast(message);
+  }
 }
-
-export const NotificationContainer = Toaster;

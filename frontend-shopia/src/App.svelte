@@ -4,7 +4,7 @@
   import MainMenu from '$components/MainMenu.svelte';
   import ConfirmModal from '$components/ConfirmModal.svelte';
   import Routes from '$libs/Routes.svelte';
-  import { NotificationContainer } from '$libs/notification.js';
+  import NotificationContainer from '$components/NotificationContainer.svelte';
   import { showMainMenu } from '$stores/session.js';
   import { autoLogin } from '$services/loginService.js';
 
