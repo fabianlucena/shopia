@@ -10,6 +10,8 @@
   import ItemForm from '$pages/ItemForm.svelte';
   import CommercesList from '$pages/CommercesList.svelte';
   import CommerceForm from '$pages/CommerceForm.svelte';
+  import StoresList from '$pages/StoresList.svelte';
+  import StoreForm from '$pages/StoreForm.svelte';
   import { writable } from 'svelte/store';
 
   const allRoutes = [
@@ -41,7 +43,6 @@
       page: ItemForm,
       condition: () => $permissions.includes('item.get'),
     },
-    
     {
       path: '/commerces',
       page: CommercesList,
@@ -51,6 +52,16 @@
       path: '/commerce/:uuid',
       page: CommerceForm,
       condition: () => $permissions.includes('commerce.get'),
+    },
+    {
+      path: '/stores',
+      page: StoresList,
+      condition: () => $permissions.includes('store.get'),
+    },
+    {
+      path: '/store/:uuid',
+      page: StoreForm,
+      condition: () => $permissions.includes('store.get'),
     },
   ];
   

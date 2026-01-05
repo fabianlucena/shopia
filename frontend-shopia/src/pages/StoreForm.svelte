@@ -1,5 +1,5 @@
 <script>
-  import * as commerceService from '$services/commerceService.js';
+  import * as storeService from '$services/storeService.js';
   import ServiceForm from '$components/ServiceForm.svelte';;
 
   let {
@@ -21,8 +21,8 @@
 
 <ServiceForm
   {...restProps}
-  header="Comercio"
-  service={commerceService}
+  header="Local"
+  service={storeService}
   {validate}
   fields={[
     'isEnabled',

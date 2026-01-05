@@ -1,11 +1,11 @@
 <script>
   import List from '$components/List.svelte';
-  import * as service from '$services/commerceService.js';
+  import * as service from '$services/storeService.js';
 </script>
 
 <List
-  baseName="commerce"
-  header="Comercios"
+  baseName="store"
+  header="Locales"
   properties={[
     { label: 'Nombre', field: 'name' },
     { label: 'Habilitado', field: 'isEnabled', control: 'switch' },

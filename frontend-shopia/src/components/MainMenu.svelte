@@ -16,6 +16,11 @@
       path: '/items',
     },
     {
+      name: 'stores',
+      label: 'Mis locales',
+      path: '/stores',
+    },
+    {
       name: 'commerces',
       label: 'Mis comercios',
       path: '/commerces',
