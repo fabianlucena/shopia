@@ -8,6 +8,8 @@
   import PasswordRecovery from '$pages/PasswordRecovery.svelte';
   import ItemsList from '$pages/ItemsList.svelte';
   import ItemForm from '$pages/ItemForm.svelte';
+  import CommercesList from '$pages/CommercesList.svelte';
+  import CommerceForm from '$pages/CommerceForm.svelte';
   import { writable } from 'svelte/store';
 
   const allRoutes = [
@@ -38,6 +40,17 @@
       path: '/item/:uuid',
       page: ItemForm,
       condition: () => $permissions.includes('item.get'),
+    },
+    
+    {
+      path: '/commerces',
+      page: CommercesList,
+      condition: () => $permissions.includes('commerce.get'),
+    },
+    {
+      path: '/commerce/:uuid',
+      page: CommerceForm,
+      condition: () => $permissions.includes('commerce.get'),
     },
   ];
   

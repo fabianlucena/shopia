@@ -1,5 +1,5 @@
 <script>
-  import * as itemService from '$services/itemService.js';
+  import * as commerceService from '$services/commerceService.js';
   import ServiceForm from '$components/ServiceForm.svelte';
   import * as categoryService from '$services/categoryService.js';
   import * as storeService from '$services/storeService.js';
@@ -42,20 +42,12 @@
 
 <ServiceForm
   {...restProps}
-  header="Artículo"
-  service={itemService}
+  header="Comercio"
+  service={commerceService}
   {validate}
   fields={[
     'isEnabled',
     'name',
     'description',
-    //{ name: 'images',       type: 'imageGalery', label: 'Imágenes', deleteFieldName: 'deletedImages' },
-    { name: 'categoryUuid', type: 'select',      label: 'Rubro',  required: true, service: categoryService },
-    { name: 'storeUuid',    type: 'select',      label: 'Local',  required: true, service: storeService },
-    { name: 'price',        type: 'currency',    label: 'Precio' },
-    { name: 'stock',        type: 'number',      label: 'Disponibilidad' },
-    { name: 'isPresent',    type: 'switch',      label: 'Apto para regalar' },
-    { name: 'minAge',       type: 'number',      label: 'Edad mínima', required: true, condition: data => data.isPresent },
-    { name: 'maxAge',       type: 'number',      label: 'Edad máxima', required: true, condition: data => data.isPresent },
   ]}
 />
