@@ -14,7 +14,9 @@
     service,
     fields : originalFields = {},
     submitLabel = 'Guardar',
+    onSubmit = null,
     cancelable = true,
+    validate = null,
     ...restProps
   } = $props();
 
@@ -83,11 +85,35 @@
     loadData();
   });
 
+  function handleSubmit(evt) {
+    evt.preventDefault();
+
+    onSubmit?.($data);
+    if (!service) {
+      if (!onSubmit) {
+        pushNotification('ServiceForm: service no está definido', 'error');
+      }
+
+      return;
+    }
+
+    const dataToSend = {};
+    for (let field of $fields) {
+      dataToSend[field.name] = $data[field.name];
+    }
+
+    service.updateForUuid(uuid, dataToSend)
+      .then(() => pushNotification('Datos guardados correctamente', 'success'))
+      .catch(err => pushNotification('Error al guardar los datos', 'error'));
+  }
+
 </script>
 
 <Form
   {submitLabel}
   {cancelable}
+  validate={() => validate?.($data, $fields)}
+  onSubmit={handleSubmit}
   {...restProps}
 >
   {#each $fields.filter(field => {

@@ -40,8 +40,8 @@
     evt.preventDefault();
 
     const validationMessage = validate?.();
-    if (validationMessage) {
-      pushNotification(validationMessage, 'error');
+    if (validationMessage !== true) {
+      pushNotification(validationMessage ?? 'Error de validación', 'error');
       return;
     }
 
