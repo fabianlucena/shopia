@@ -10,23 +10,21 @@
 
   let textValue = $derived('' + value);
 
-  function handleInput(evt) {
-    const raw = evt.value;
+  function handleChange(evt) {
+    const raw = evt.target.value;
     const num = Number(raw);
-
-    console.log(evt, num);
 
     value = isNaN(num) ? null : num;
     textValue = '' + value;
 
-    onChange?.(value);
+    onChange?.(evt);
   }
 </script>
 
 <TextField
   {type}
   bind:value={textValue}
-  onChange={handleInput}
+  onChange={handleChange}
   {...restProps}
 >
 </TextField>
