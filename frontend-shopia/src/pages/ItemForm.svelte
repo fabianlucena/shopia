@@ -2,6 +2,7 @@
   import { writable } from 'svelte/store';
   import { getSingleForUuid } from '$services/itemService.js';
   import * as categoryService from '$services/categoryService.js';
+  import * as storeService from '$services/storeService.js';
   import Form from '$components/Form.svelte';
   import TextField from '$components/TextField.svelte';
   import SelectField from '$components/SelectField.svelte';
@@ -12,6 +13,7 @@
     name: '',
     description: '',
     categoryUuid: '',
+    storeUuid: '',
   });
   
   $effect(() => {
@@ -41,6 +43,13 @@
     label="Categoría"
     bind:value={$data.categoryUuid}
     service={categoryService.getAllForSelect}
+    required={true}
+  />
+
+  <SelectField
+    label="Local"
+    bind:value={$data.storeUuid}
+    service={storeService.getAllForSelect}
     required={true}
   />
 </Form>
