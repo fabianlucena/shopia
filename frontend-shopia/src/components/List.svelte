@@ -9,6 +9,7 @@
   import { confirm } from '$libs/confirm';
   import { permissions } from '$stores/session';
   import { navigate } from '$libs/router.js';
+  import { pushNotification } from '$libs/notification';
 
   let {
     baseName = '',
@@ -25,21 +26,9 @@
 
   let container;
   let width = writable(0);
-  const data = writable([]);
-
-  $effect(() => {
-    data.set(props.data);
-    service?.get({ limit: 10 })
-      .then(res => data.set(res.rows));
-
-    const observer = new ResizeObserver(entries =>
-      width.set(entries[0].contentRect.width));
-    observer.observe(container);
-    return () => observer.disconnect();
-  });
 
   const actions = writable([]);
-  $effect(() => {
+  function updateActions() {
     const newActions = originalActions.map(action => {
         if (typeof action === 'string') {
           if (action === 'add') {
@@ -91,16 +80,55 @@
       .filter(action => !action.permission || $permissions.includes(action.permission));
 
     actions.set(newActions);
+  }
+
+  const data = writable([]);
+  function updateData() {
+    if (!service) {
+      data.set(props.data);
+      return;
+    }
+
+    service?.get({ limit: 10 })
+      .then(res => {
+        data.set([...props?.data ?? [], ...res.rows]);
+      });
+  }
+
+  $effect(() => {
+    updateActions();
+    updateData();
+
+    const observer = new ResizeObserver(entries =>
+      width.set(entries[0].contentRect.width));
+    observer.observe(container);
+    return () => observer.disconnect();
   });
 
-  function onChange({ row, column, value }) {
-    data.update(rows => {
-      const index = rows.findIndex(r => r.uuid === row.uuid);
-      if (index !== -1) {
-        rows[index] = { ...rows[index], [column.field]: value };
-      }
-      return rows;
+  async function onChange({ row, column, value }) {
+    const index = $data.findIndex(r => r.uuid === row.uuid);
+    if (index < 0)
+      return;
+
+    data.update(d => {
+      d[index] = { ...$data[index], [column.field]: value };
+      return d;
     });
+
+    if (!service.updateForUuid) {
+      pushNotification('Error no hay método para actualizar el elemento.', 'error');
+    } else if (!$permissions.includes(`${baseName}.edit`)) {
+      pushNotification('Error no tiene permiso para actualizar el elemento.', 'error');
+    } else {
+      try {
+        await service.updateForUuid(row.uuid, { [column.field]: value });
+        pushNotification('Elemento actualizado correctamente.', 'success');
+      } catch {
+        pushNotification('Error al actualizar el elemento.', 'error');
+      }
+    }
+
+    updateData();
   }
 </script>
 
@@ -151,10 +179,22 @@
   bind:this={container}
   class="container"
 >
+  {#if header || globalActions}
+  <div class="header">
+    {#if header}
+      <div class="title">
+        {header}
+      </div>
+    {/if}
+    {#if globalActions}
+      <div class="actions global-actions">
+        {@render globalActions() }
+      </div>
+    {/if}
+  </div>
+{/if}
   {#if $width < 800}
     <Cards
-      {header}
-      {globalActions}
       columns={[
         ...properties,
         {
@@ -162,13 +202,12 @@
           className: 'actions item-actions',
         },
       ]}
+      fieldId="uuid"
       data={$data}
       onChange={onChange}
     />
   {:else}  
     <Table
-      {header}
-      {globalActions}
       columns={[
         ...properties,
         {
@@ -177,6 +216,7 @@
           className: 'actions item-actions',
         },
       ]}
+      fieldId="uuid"
       data={$data}
       onChange={onChange}
     />
@@ -189,5 +229,21 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+  }
+  
+  .header {
+    color: var(--header-text-color);
+    background-color: var(--header-background-color);
+    margin-top: 0.5em;
+    padding: .5em;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+  }
+
+  .header .title {
+    flex: 1;
   }
 </style>
