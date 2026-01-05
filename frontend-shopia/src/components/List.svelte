@@ -6,7 +6,7 @@
   import AddButton from '$components/buttons/Add.svelte';
   import EditButton from '$components/buttons/Edit.svelte';
   import DeleteButton from '$components/buttons/Delete.svelte';
-  import YesNo from '$components/controls/YesNo.svelte';
+  import Switch from '$components/controls/Switch.svelte';
   import { confirm } from '$libs/confirm';
   import { permissions } from '$stores/session';
   import { navigate } from '$libs/router.js';
@@ -95,7 +95,7 @@
               label: 'Ver deshabilitados',
               title: 'Incluir elementos deshabilitados',
               value: false,
-              component: yesNo,
+              component: switchControl,
               onChange: value => {
                 let update = false;
                 filters.update(fs => {
@@ -220,10 +220,10 @@
   {/each}
 {/snippet}
 
-{#snippet yesNo(props)}
+{#snippet switchControl(props)}
   <div class="filter">
     <label for={props.id}>{props.label}: </label>
-    <YesNo checked={props.value} {...props} />
+    <Switch value={props.value} {...props} />
   </div>
 {/snippet}
 

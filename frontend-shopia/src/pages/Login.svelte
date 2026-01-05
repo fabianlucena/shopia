@@ -35,7 +35,7 @@
 
 <Form
   header="Login"
-  onsubmit={handleSubmit}
+  onSubmit={handleSubmit}
   submitLabel="Ingresar"
   submitPosition="last"
 >

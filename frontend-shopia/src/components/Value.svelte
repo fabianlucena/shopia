@@ -1,5 +1,5 @@
 <script>
-  import YesNo from './controls/YesNo.svelte';
+  import Switch from './controls/Switch.svelte';
 
   let {
     row,
@@ -10,8 +10,8 @@
 </script>
 
 {#snippet control({ row, column, value })}
-  {#if column.control === 'yesNo'}
-    <YesNo
+  {#if column.control === 'switch'}
+    <Switch
       {value}
       onChange={value => {
         onChange?.({

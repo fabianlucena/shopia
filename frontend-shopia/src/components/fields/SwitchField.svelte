@@ -1,5 +1,5 @@
 <script>
-  import YesNo from '$components/controls/YesNo.svelte';
+  import Switch from '$components/controls/Switch.svelte';
   import Field from '$components/fields/Field.svelte';
   import { getContext } from 'svelte';
 
@@ -21,7 +21,7 @@
   {label}
   {required}
 >
-  <YesNo
+  <Switch
     {id}
     bind:value
     disabled={disabled ?? $isDisabled}

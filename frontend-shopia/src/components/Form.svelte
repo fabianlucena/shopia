@@ -3,6 +3,8 @@
   import { writable } from 'svelte/store';
   import Button from './controls/Button.svelte';
   import LoadingIcon from '$icons/loading.svelte';
+  import { pushNotification } from '$libs/notification';
+    import { navigate } from '$libs/router';
 
   let {
     header = '',
@@ -10,11 +12,15 @@
     disabled = null,
     loading = null,
     footer = null,
-    submitLabel = '',
-    onsubmit = null,
+    submitLabel = 'Enviar',
+    onSubmit = null,
+    cancelLabel = null,
+    onCancel = null,
+    cancelable = false,
     submitPosition = 'first',
     layout = 'single-column',
     class: formClass = '',
+    validate = null,
     ...otherProps
   } = $props();
 
@@ -33,16 +39,43 @@
   async function handleSubmit(evt) {
     evt.preventDefault();
 
+    const validationMessage = validate?.();
+    if (validationMessage) {
+      pushNotification(validationMessage, 'error');
+      return;
+    }
+
     const setDisabled = !disabled && disabled !== false;
     const setLoading = !loading && loading !== false;
 
     setDisabled && disabledForm.set(true);
     setLoading && loadingForm.set(true);
-    await onsubmit?.(evt);
+    await onSubmit?.(evt);
     setDisabled && disabledForm.set(false);
     setLoading && loadingForm.set(false);
   }
+
+  function cancelHandler(evt) {
+    evt.preventDefault();
+    
+    console.log(onCancel);
+
+    if (onCancel) {
+      onCancel(evt);
+    } else {
+      navigate(-1);
+    }
+  }
 </script>
+
+{#snippet footButtons()}
+  {#if submitLabel || onSubmit}
+    <Button type="submit">{submitLabel || 'Enviar'}</Button>
+  {/if}
+  {#if cancelLabel || onCancel || cancelable}
+    <Button onClick={cancelHandler} variant="danger">{cancelLabel || 'Cancelar'}</Button>
+  {/if}
+{/snippet}
 
 <form
   onsubmit={handleSubmit}
@@ -66,14 +99,14 @@
   >
     {@render children?.()}
   </div>
-  {#if submitLabel || onsubmit || footer}
+  {#if submitLabel || onSubmit || footer || cancelLabel || onCancel || cancelable}
     <div class="form-footer">
-      {#if (submitLabel || onsubmit) && submitPosition === 'first'}
-        <Button type="submit">{submitLabel || 'Enviar'}</Button>
+      {#if submitPosition === 'first'}
+        {@render footButtons()}
       {/if}
       {@render footer?.()}
-      {#if (submitLabel || onsubmit) && submitPosition !== 'first'}
-        <Button type="submit">{submitLabel || 'Enviar'}</Button>
+      {#if submitPosition !== 'first'}
+        {@render footButtons()}
       {/if}
     </div>
   {/if}

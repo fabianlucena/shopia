@@ -16,15 +16,17 @@
   let isDisabled = $derived(disabledForm);
 
   // @ts-check
-  let options = writable(originalOptions);
+  let options = writable([]);
   $effect(() => {
-    if (service) {
-      console.log(service);
-      service()
-        .then(opt => {
-          options.set([...originalOptions, ...opt]);
-        });
+    if (!service) {
+      options.set(originalOptions);
+      return;
     }
+
+    service()
+      .then(opt => {
+        options.set([...originalOptions, ...opt]);
+      });
   });
 </script>
 

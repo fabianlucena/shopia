@@ -7,6 +7,8 @@
     variant = '',
     className = '',
     children,
+    onClick = null,
+    onclick = null,
     ...props
   } = $props();
   
@@ -19,6 +21,7 @@
   {type}
   class={`${variant} ${className}`}
   disabled={disabled ?? $isDisabled}
+  onclick={evt => {onClick?.(evt); onclick?.(evt);}}
   {...props}
 >
   {@render children()}
