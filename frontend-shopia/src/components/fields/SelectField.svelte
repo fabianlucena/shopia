@@ -1,6 +1,6 @@
 <script>
-  import Field from '$components/Field.svelte';
-  import Select from '$components//Select.svelte';
+  import Field from '$components/fields/Field.svelte';
+  import Select from '$components/controls/Select.svelte';
   import { getContext } from 'svelte';
 
   let {

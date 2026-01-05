@@ -2,11 +2,11 @@
   import { writable } from 'svelte/store';
   import Table from '$components/Table.svelte';
   import Cards from '$components/Cards.svelte';
-  import Button from '$components/Button.svelte';
+  import Button from '$components/controls/Button.svelte';
   import AddButton from '$components/buttons/Add.svelte';
   import EditButton from '$components/buttons/Edit.svelte';
   import DeleteButton from '$components/buttons/Delete.svelte';
-  import YesNo from '$components/YesNo.svelte';
+  import YesNo from '$components/controls/YesNo.svelte';
   import { confirm } from '$libs/confirm';
   import { permissions } from '$stores/session';
   import { navigate } from '$libs/router.js';

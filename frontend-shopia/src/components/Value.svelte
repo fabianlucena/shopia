@@ -1,5 +1,5 @@
 <script>
-  import YesNo from './YesNo.svelte';
+  import YesNo from './controls/YesNo.svelte';
 
   let {
     row,
@@ -12,7 +12,7 @@
 {#snippet control({ row, column, value })}
   {#if column.control === 'yesNo'}
     <YesNo
-      checked={value}
+      {value}
       onChange={value => {
         onChange?.({
           row,

@@ -1,5 +1,5 @@
 <script>
-  import TextField from '$components/TextField.svelte';
+  import TextField from '$components/fields/TextField.svelte';
   
   export let type = 'password';
   export let value = '';

@@ -1,7 +1,7 @@
 <script>
   import { setContext } from 'svelte';
   import { writable } from 'svelte/store';
-  import Button from './Button.svelte';
+  import Button from './controls/Button.svelte';
   import LoadingIcon from '$icons/loading.svelte';
 
   let {

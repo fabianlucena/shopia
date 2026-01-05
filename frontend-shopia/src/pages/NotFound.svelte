@@ -1,5 +1,5 @@
 <script>
-    import LinkField from "$components/LinkField.svelte";
+    import LinkField from "$components/fields/LinkField.svelte";
 
 </script>
 

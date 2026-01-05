@@ -4,12 +4,14 @@
   import * as categoryService from '$services/categoryService.js';
   import * as storeService from '$services/storeService.js';
   import Form from '$components/Form.svelte';
-  import TextField from '$components/TextField.svelte';
-  import SelectField from '$components/SelectField.svelte';
+  import TextField from '$components/fields/TextField.svelte';
+  import SelectField from '$components/fields/SelectField.svelte';
+  import YesNoField from '$components/fields/YesNoField.svelte';
 
   let {uuid, ...allProps} = $props();
 
   let data = writable({
+    isEnabled: true,
     name: '',
     description: '',
     categoryUuid: '',
@@ -27,6 +29,11 @@
 <Form
   header="Artículo"
 >
+  <YesNoField
+    label="Habilitado"
+    bind:value={$data.isEnabled}
+  />
+
   <TextField
     label="Nombre"
     bind:value={$data.name}

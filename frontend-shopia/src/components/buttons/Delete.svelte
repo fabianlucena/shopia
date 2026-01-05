@@ -1,5 +1,5 @@
 <script>
-  import ButtonIcon from '$components/ButtonIcon.svelte';
+  import ButtonIcon from '$components/controls/ButtonIcon.svelte';
   import DeleteIcon from '$icons/delete.svelte';
 </script>
 

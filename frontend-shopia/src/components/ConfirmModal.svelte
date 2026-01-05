@@ -1,6 +1,6 @@
 <script>
   import Modal from '$components/Modal.svelte';
-  import Button from '$components/Button.svelte';
+  import Button from '$components/controls/Button.svelte';
   import ButtonClose from '$components/buttons/Close.svelte';
   import { confirmModal } from '$libs/confirm.js';
 

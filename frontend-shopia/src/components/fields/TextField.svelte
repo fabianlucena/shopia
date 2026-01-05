@@ -1,13 +1,14 @@
 <script>
-  import Field from '$components/Field.svelte';
+  import Field from '$components/fields/Field.svelte';
+  import Text from '$components/controls/Text.svelte';
   import { getContext } from 'svelte';
 
   let {
+    id = crypto.randomUUID(),
     label = '',
     type = 'text',
     value = $bindable(''),
     disabled = null,
-    id = crypto.randomUUID(),
     required = false,
     ...rest
   } = $props();
@@ -21,7 +22,7 @@
   {label}
   {required}
 >
-  <input
+  <Text
     type={type}
     {id}
     bind:value

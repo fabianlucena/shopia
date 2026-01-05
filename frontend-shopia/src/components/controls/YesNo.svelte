@@ -1,22 +1,22 @@
 <script>
   let {
     id = '',
-    checked,
+    value = $bindable(false),
     labelOn = 'Sí',
     labelOff = 'No',
+    disabled = false,
+    required = false,
     onChange = null,
   } = $props();
-
-  let isOn = $derived(!!checked);
 
   function handleChange(evt) {
     evt.stopPropagation();
     evt.preventDefault();
+
+    value = evt.target.checked;
     
     if (onChange) {
-      onChange(evt.target.checked);
-    } else {
-      checked = evt.target.checked;
+      onChange(value);
     }
   }
 </script>
@@ -25,14 +25,16 @@
   <input
     {id}
     type="checkbox"
-    checked={isOn}
+    checked={value}
     onchange={handleChange}
+    disabled={disabled}
+    {required}
   />
 
   <span class="track">
     <span class="thumb"></span>
     <span class="text">
-      {isOn ? labelOn : labelOff}
+      {value ? labelOn : labelOff}
     </span>
   </span>
 </label>
