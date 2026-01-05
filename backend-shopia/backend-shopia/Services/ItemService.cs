@@ -165,12 +165,12 @@ namespace backend_shopia.Services
                 options ??= new QueryOptions();
                 options.Switches["IncludeDisabled"] = true;
                 options.Include("Store", "store");
-                options.Include(
+                /*options.Include(
                     "Commerce",
                     "commerce",
                     entity: typeof(Commerce),
                     on: Op.Eq("commerce.Id", Op.Column("store.CommerceId"))
-                );
+                );*/
                 var items = await GetListAsync(options);
                 foreach (var item in items)
                 {
