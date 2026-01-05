@@ -9,6 +9,7 @@ using RFService.Data;
 using RFService.Libs;
 using RFService.Repo;
 using Sprache;
+using System.Globalization;
 using System.Text.Json;
 
 namespace backend_shopia.Controllers
@@ -124,7 +125,7 @@ namespace backend_shopia.Controllers
             }
 
             if (data.ContainsKey("Price") && data["Price"] is string priceText)
-                data["Price"] = decimal.Parse(priceText);
+                data["Price"] = decimal.Parse(priceText, CultureInfo.InvariantCulture);
 
             var result = await itemService.UpdateForUuidAsync(data, uuid);
             if (result <= 0)
