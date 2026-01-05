@@ -6,6 +6,8 @@
   import NumberField from '$components/fields/NumberField.svelte';
   import SwitchField from '$components/fields/SwitchField.svelte';
   import CurrencyField from '$components/fields/CurrencyField.svelte';
+  import SelectField from '$components/fields/SelectField.svelte';
+  import TextAreaField from '$components/fields/TextAreaField.svelte';
 
   let {
     uuid = null,
@@ -40,11 +42,17 @@
             type: 'switch',
             label: autoNames[field] || field,
           }
+        } else if (field === 'description') {
+          field = {
+            name: field,
+            type: 'textarea',
+            label: autoNames[field] || field,
+          }
         } else {
           field = {
             name: field,
             label: autoNames[field] || field,
-            required: ['name', 'description'].includes(field),
+            required: ['name'].includes(field),
           }
         }
       }
@@ -113,10 +121,16 @@
         required={field.required}
       />
     {:else if field.type === 'select'}
-      <CurrencyField
+      <SelectField
         label={field.label}
         bind:value={$data[field.name]}
         service={field.service?.getAllForSelect}
+        required={field.required}
+      />
+    {:else if field.type === 'textarea'}
+      <TextAreaField
+        label={field.label}
+        bind:value={$data[field.name]}
         required={field.required}
       />
     {:else}
