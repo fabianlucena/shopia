@@ -155,7 +155,11 @@
 
   .form-footer {
     margin-top: .5em;
-    justify-content: space-evenly;
+    padding: .5em;
+    display: flex;
+    gap: .5em;
+    justify-content: flex-end;
+    align-items: flex-end;
     background-color: var(--input-background-color);
   }
 
