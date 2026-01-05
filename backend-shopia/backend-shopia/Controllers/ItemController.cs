@@ -123,6 +123,9 @@ namespace backend_shopia.Controllers
                     .GetPascalized();
             }
 
+            if (data.ContainsKey("Price") && data["Price"] is string priceText)
+                data["Price"] = decimal.Parse(priceText);
+
             var result = await itemService.UpdateForUuidAsync(data, uuid);
             if (result <= 0)
                 return BadRequest();
