@@ -25,6 +25,9 @@ namespace backend_shopia.Entities
         public Int64 StoreId { get; set; } = default;
         public Store? Store { get; set; } = default;
 
+        [Virtual]
+        public Commerce? Commerce { get; set; } = default;
+
         [Required]
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }

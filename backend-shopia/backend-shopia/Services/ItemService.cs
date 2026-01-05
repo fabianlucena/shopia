@@ -164,13 +164,13 @@ namespace backend_shopia.Services
             {
                 options ??= new QueryOptions();
                 options.Switches["IncludeDisabled"] = true;
-                options.Include("Store", "store");
-                /*options.Include(
+                options.IncludeIfNotExists("Store", "store");
+                options.IncludeIfNotExists(
                     "Commerce",
                     "commerce",
                     entity: typeof(Commerce),
                     on: Op.Eq("commerce.Id", Op.Column("store.CommerceId"))
-                );*/
+                );
                 var items = await GetListAsync(options);
                 foreach (var item in items)
                 {
@@ -286,7 +286,7 @@ namespace backend_shopia.Services
         public async Task<int> UpdateInheritedForUuid(Guid uuid, QueryOptions? options = null)
         {
             (options, DataDictionary data) = GetOptionsForUpdateInherited(options);
-            options.AddFilter("uuid", uuid);
+            options.AddFilter("Uuid", uuid);
 
             return await UpdateAsync(data, options);
         }
