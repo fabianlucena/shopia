@@ -29,7 +29,7 @@
   }
 
   label {
-    font-size: 80%;
+    font-size: 75%;
     opacity: .6;
     margin-bottom: 0.1em;
   }
@@ -39,13 +39,26 @@
     font-weight: bold;
   }
 
-  :global(.field input) {
-    font-size: 110%;
+  :global(
+    .field input,
+    .field textarea,
+    .field select
+  ) {
+    font-family: inherit;
+    font-size: 100%;
     background-color: transparent;
     border: none;
   }
 
-  :global(.field input:focus) {
+  :global(
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus
+  ) {
     outline: none;
+  }
+
+  :global(.field textarea) {
+    resize: vertical;
   }
 </style>
