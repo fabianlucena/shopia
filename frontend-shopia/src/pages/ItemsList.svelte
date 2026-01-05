@@ -1,7 +1,6 @@
 <script>
   import List from '$components/List.svelte';
   import * as service from '$services/itemService.js';
-  import { navigate } from '$libs/router.js';
   import { money, yesNo } from '$libs/formatter.js';
 </script>
 

@@ -6,8 +6,8 @@
   import Login from '$pages/Login.svelte';
   import NotFound from '$pages/NotFound.svelte';
   import PasswordRecovery from '$pages/PasswordRecovery.svelte';
-  import Items from '$pages/Items.svelte';
-  import Item from '$pages/Item.svelte';
+  import ItemsList from '$pages/ItemsList.svelte';
+  import ItemForm from '$pages/ItemForm.svelte';
   import { writable } from 'svelte/store';
 
   const allRoutes = [
@@ -31,12 +31,12 @@
     },
     {
       path: '/items',
-      page: Items,
+      page: ItemsList,
       condition: () => $permissions.includes('item.get'),
     },
     {
       path: '/item/:uuid',
-      page: Item,
+      page: ItemForm,
       condition: () => $permissions.includes('item.get'),
     },
   ];
