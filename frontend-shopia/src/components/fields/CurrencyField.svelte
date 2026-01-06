@@ -17,8 +17,6 @@
       maximumFractionDigits: 2
     }).format(Number(value));
 
-    console.log(newTextValue);
-
     if (newTextValue !== $textValue) {
       textValue.set(newTextValue);
     }
