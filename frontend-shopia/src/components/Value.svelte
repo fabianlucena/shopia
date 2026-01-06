@@ -1,6 +1,6 @@
 <script>
   import Switch from './controls/Switch.svelte';
-  import Tags from './controls/Tags.svelte';
+  import TagsView from './controls/TagsView.svelte';
 
   let {
     data,
@@ -22,8 +22,8 @@
         });
       }}
     />
-  {:else if options.control === 'tags'}
-    <Tags
+  {:else if options.control === 'tagsView'}
+    <TagsView
       {value}
     />
   {:else}
