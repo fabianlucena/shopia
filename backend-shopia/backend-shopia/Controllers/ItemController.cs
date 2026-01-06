@@ -20,6 +20,7 @@ namespace backend_shopia.Controllers
         ILogger<ItemController> logger,
         IItemService itemService,
         IItemFileService itemFileService,
+        IItemStoreService itemStoreService,
         IMapper mapper
     )
         : ControllerBase
@@ -33,8 +34,14 @@ namespace backend_shopia.Controllers
             if (data.CategoryUuid == default)
                 throw new NoCategoryException();
 
-            if (data.StoreUuid == default)
+            if (data.StoresUuid == default
+                || data.StoresUuid.Length <= 0
+                || data.StoresUuid.Any(s => s == default)
+            )
                 throw new NoStoreException();
+
+            if (data.Price < 0)
+                return BadRequest("Price cannot be negative.");
 
             var item = mapper.Map<ItemAddRequest, Item>(data);
 
@@ -62,8 +69,7 @@ namespace backend_shopia.Controllers
 
             options
                 .AddFilter("InheritedIsEnabled", true)
-                .Include("Category")
-                .Include("Store");
+                .Include("Category");
             var itemsList = await itemService.GetListAsync(options);
 
             var response = itemsList.Select(mapper.Map<Item, ItemResponse>);
@@ -91,6 +97,10 @@ namespace backend_shopia.Controllers
                             Uuid = f.Uuid,
                             Uri = $"/v1/item/image/{f.Uuid}",
                         }).ToList()];
+
+                        var storesList = await itemStoreService.GetListStoresForItemIdAsync(itemId);
+                        item.Stores = [..storesList.Select(mapper.Map<Store, StoreMinimalDTO>)];
+                        item.StoresUuid = [..item.Stores.Select(s => s.Uuid)];
                     }
 
                     return item;
@@ -131,7 +141,15 @@ namespace backend_shopia.Controllers
             if (result <= 0)
                 return BadRequest();
 
-            var updateImagesResult = await UpdateImages(uuid);
+            var id = await itemService.GetSingleIdForUuidAsync(
+                uuid,
+                new QueryOptions
+                {
+                    Switches = { { "IncludeDisabled", true } }
+                }
+            );
+
+            var updateImagesResult = await UpdateImages(id);
             if (updateImagesResult is BadRequestObjectResult)
                 return updateImagesResult;
 
@@ -142,17 +160,6 @@ namespace backend_shopia.Controllers
 
             return Ok();
         }
-
-        private async Task<IActionResult> UpdateImages(Guid itemUuid)
-            => await UpdateImages(
-                await itemService.GetSingleIdForUuidAsync(
-                    itemUuid,
-                    new QueryOptions
-                    {
-                        Switches = { { "IncludeDisabled", true } }
-                    }
-                )
-            );
 
         private async Task<IActionResult> UpdateImages(Int64 itemId)
         {

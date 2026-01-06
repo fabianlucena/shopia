@@ -86,6 +86,7 @@ namespace backend_shopia
             services.AddScoped<IStoreService, StoreService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IItemService, ItemService>();
+            services.AddScoped<IItemStoreService, ItemStoreService>();
             services.AddScoped<IItemFileService, ItemFileService>();
 
             services.AddRFLoggerProviderDapper();
@@ -103,6 +104,7 @@ namespace backend_shopia
             services.AddScoped<Dapper<Store>, Dapper<Store>>();
             services.AddScoped<Dapper<Category>, Dapper<Category>>();
             services.AddScoped<Dapper<Item>, Dapper<Item>>();
+            services.AddScoped<Dapper<ItemStore>, Dapper<ItemStore>>();
             services.AddScoped<Dapper<ItemFile>, Dapper<ItemFile>>();
 
             services.AddScoped<IRepo<Plan>, Dapper<Plan>>();
@@ -113,6 +115,7 @@ namespace backend_shopia
             services.AddScoped<IRepo<Store>, Dapper<Store>>();
             services.AddScoped<IRepo<Category>, Dapper<Category>>();
             services.AddScoped<IRepo<Item>, Dapper<Item>>();
+            services.AddScoped<IRepo<ItemStore>, Dapper<ItemStore>>();
             services.AddScoped<IRepo<ItemFile>, Dapper<ItemFile>>();
 
             services.AddRFDapperDriverPostgreSQL(new PostgreSQLDDOptions

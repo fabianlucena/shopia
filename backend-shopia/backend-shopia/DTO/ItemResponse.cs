@@ -14,9 +14,9 @@
 
         public Guid? CategoryUuid { get; set; }
 
-        public required StoreMinimalDTO Store { get; set; }
+        public required StoreMinimalDTO[] Stores { get; set; }
 
-        public Guid? StoreUuid { get; set; }
+        public Guid[]? StoresUuid { get; set; }
 
         public required string Price { get; set; }
 

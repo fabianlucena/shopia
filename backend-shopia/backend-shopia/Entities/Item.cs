@@ -20,10 +20,11 @@ namespace backend_shopia.Entities
         public Int64 CategoryId { get; set; } = default;
         public Category? Category { get; set; } = default;
 
-        [Required]
-        [ForeignKey("Store")]
-        public Int64 StoreId { get; set; } = default;
-        public Store? Store { get; set; } = default;
+        [Virtual]
+        public IEnumerable<ItemStore>? ItemsStores { get; set; } = default;
+
+        [Virtual]
+        public IEnumerable<Store>? Stores { get; set; } = default;
 
         [Virtual]
         public Commerce? Commerce { get; set; } = default;

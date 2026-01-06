@@ -10,7 +10,7 @@
 
         public required Guid CategoryUuid { get; set; }
 
-        public required Guid StoreUuid { get; set; }
+        public required Guid[] StoresUuid { get; set; }
 
         public decimal Price { get; set; }
 

@@ -9,23 +9,26 @@
     service = null,
     disabled = null,
     required = false,
+    multiple = false,
     ...rest
   } = $props();
 
   let disabledForm = getContext('disabled-form');
   let isDisabled = $derived(disabledForm);
+  let _originalOptions = originalOptions || [];
+  let _service = service;
 
   // @ts-check
   let options = writable([]);
   $effect(() => {
-    if (!service) {
-      options.set(originalOptions);
+    if (!_service) {
+      options.set(_originalOptions);
       return;
     }
 
-    service()
+    _service()
       .then(opt => {
-        options.set([...originalOptions, ...opt]);
+        options.set([..._originalOptions, ...opt]);
       });
   });
 </script>

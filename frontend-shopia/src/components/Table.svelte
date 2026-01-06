@@ -30,7 +30,12 @@
           <td
             class={column.className}
           >
-            <Value {row} {column} {getValue} {onChange}/>
+            <Value
+              data={row}
+              options={column}
+              getValue={getValue}
+              onChange={onChange}
+            />
           </td>
         {/each}
       </tr>

@@ -1,4 +1,5 @@
-﻿using backend_shopia.DTO;
+﻿using AutoMapper;
+using backend_shopia.DTO;
 using backend_shopia.Entities;
 using backend_shopia.Exceptions;
 using backend_shopia.IServices;
@@ -35,28 +36,40 @@ namespace backend_shopia.Services
                     throw new NoItemException();
             }
 
-            if (data.Item.Store == null)
+            var item = data.Item;
+            if (item.Commerce == null)
             {
-                if (data.Item.StoreId <= 0)
+                if (item.Stores == null || !item.Stores.Any())
                     throw new NoStoreException();
 
-                var storeService = serviceProvider.GetRequiredService<IStoreService>();
-                data.Item.Store = await storeService.GetSingleOrDefaultForIdAsync(
-                    data.Item.StoreId,
-                    new QueryOptions
-                    {
-                        Join = { { "Commerce" } },
-                        Switches = { { "IncludeDisabled", true } },
-                    }
-                );
+                var store = item.Stores.First()
+                    ?? throw new NoStoreException();
 
-                if (data.Item.Store == null)
-                    throw new NoStoreException();
+                if (store.Commerce == null)
+                {
+                    if (store.Id <= 0)
+                        throw new NoCommerceException();
+
+                    var storeService = serviceProvider.GetRequiredService<IStoreService>();
+                    store = await storeService.GetSingleOrDefaultForIdAsync(
+                        store.Id,
+                        new QueryOptions
+                        {
+                            Join = { { "Commerce" } },
+                            Switches = { { "IncludeDisabled", true } },
+                        }
+                    );
+
+                    if (store == null)
+                        throw new NoStoreException();
+
+                    if (store.Commerce == null)
+                        throw new NoCommerceException();
+                }
+
+                if (store.Commerce == null)
+                    throw new CommerceDoesNotExistException();
             }
-
-            var store = data.Item.Store;
-            if (store.Commerce == null)
-                throw new CommerceDoesNotExistException();
 
             var userPlanService = serviceProvider.GetRequiredService<IUserPlanService>();
             var limits = await userPlanService.GetLimitsForCurrentUserAsync();

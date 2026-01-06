@@ -50,7 +50,7 @@
               title: 'Editar elemento',
               component: editButton,
               permission: `${baseName}.edit`,
-              action: row => navigate(`/${baseName}/${row.uuid}`)
+              action: ({ data }) => navigate(`/${baseName}/${data.uuid}`),
             };
           }
           
@@ -194,15 +194,15 @@
   <DeleteButton {...props} />
 {/snippet}
 
-{#snippet actionsCell({ row })}
+{#snippet renderActions(props)}
   {#each $actions.filter(a => !a.global) as action}
     {#if action.component}
       {@render action.component({
         title: action.title || action.label,
-        onclick: () => action.action(row)
+        onclick: () => action.action(props)
       })}
     {:else}
-      <Button onclick={() => action.action(row)}>{action.label}</Button>
+      <Button onclick={() => action.action(props)}>{action.label}</Button>
     {/if}
   {/each}
 {/snippet}
@@ -261,7 +261,7 @@
       columns={[
         ...properties,
         {
-          renderCell: actionsCell,
+          render: renderActions,
           className: 'actions item-actions',
         },
       ]}
@@ -275,7 +275,7 @@
         ...properties,
         {
           label: 'Acciones',
-          renderCell: actionsCell,
+          render: renderActions,
           className: 'actions item-actions',
         },
       ]}

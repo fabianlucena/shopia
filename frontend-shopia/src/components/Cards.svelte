@@ -23,7 +23,12 @@
           {#if column.label}
             {column.label}:
           {/if}
-          <Value {row} {column} {getValue} {onChange} />
+          <Value
+            data={row}
+            options={column}
+            getValue={getValue}
+            onChange={onChange}
+          />
         </div>
       {/each}
     </div>

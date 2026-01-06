@@ -7,8 +7,9 @@
   import SwitchField from '$components/fields/SwitchField.svelte';
   import CurrencyField from '$components/fields/CurrencyField.svelte';
   import SelectField from '$components/fields/SelectField.svelte';
+  import MultiSelectField from '$components/fields/MultiSelectField.svelte';
   import TextAreaField from '$components/fields/TextAreaField.svelte';
-    import { navigate } from '$libs/router';
+  import { navigate } from '$libs/router';
 
   let {
     uuid = null,
@@ -86,7 +87,7 @@
     loadData();
   });
 
-  function handleSubmit(evt) {
+  async function handleSubmit(evt) {
     evt.preventDefault();
 
     onSubmit?.($data);
@@ -103,12 +104,13 @@
       dataToSend[field.name] = $data[field.name];
     }
 
-    service.updateForUuid(uuid, dataToSend)
-      .then(() => {
-        pushNotification('Datos guardados correctamente', 'success');
-        navigate(-1);
-      })
-      .catch(err => pushNotification('Error al guardar los datos', 'error'));
+    try {
+      await service.updateForUuid(uuid, dataToSend)
+      pushNotification('Datos guardados correctamente', 'success');
+      navigate(-1);
+    } catch (err) {
+      pushNotification('Error al guardar los datos', 'error');
+    }
   }
 
 </script>
@@ -128,40 +130,44 @@
     }) as field}
     {#if field.type === 'text'}
       <TextField
-        label={field.label}
         bind:value={$data[field.name]}
-        required={field.required}
+        {...field}
       />
     {:else if field.type === 'switch'}
       <SwitchField
-        label={field.label}
         bind:value={$data[field.name]}
-        required={field.required}
+        {...field}
       />
     {:else if field.type === 'number'}
       <NumberField
-        label={field.label}
         bind:value={$data[field.name]}
-        required={field.required}
+        {...field}
       />
     {:else if field.type === 'currency'}
       <CurrencyField
-        label={field.label}
         bind:value={$data[field.name]}
-        required={field.required}
+        {...field}
       />
     {:else if field.type === 'select'}
       <SelectField
-        label={field.label}
         bind:value={$data[field.name]}
-        service={field.service?.getAllForSelect}
-        required={field.required}
+        {...{
+          ...field,
+          service: field.service?.getAllForSelect,
+        }}
+      />
+    {:else if field.type === 'multiSelect'}
+      <MultiSelectField
+        bind:value={$data[field.name]}
+        {...{
+          ...field,
+          service: field.service?.getAllForSelect,
+        }}
       />
     {:else if field.type === 'textarea'}
       <TextAreaField
-        label={field.label}
         bind:value={$data[field.name]}
-        required={field.required}
+        {...field}
       />
     {:else}
       <p>Tipo de campo no soportado: {field.type}</p>

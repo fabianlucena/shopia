@@ -1,35 +1,40 @@
 <script>
   import Switch from './controls/Switch.svelte';
+  import Tags from './controls/Tags.svelte';
 
   let {
-    row,
-    column,
+    data,
+    options,
     getValue,
     onChange = null,
   } = $props();
 </script>
 
-{#snippet control({ row, column, value })}
-  {#if column.control === 'switch'}
+{#snippet control({ data, options, value })}
+  {#if options.control === 'switch'}
     <Switch
       {value}
       onChange={value => {
         onChange?.({
-          row,
-          column,
+          data,
+          options,
           value,
         });
       }}
     />
+  {:else if options.control === 'tags'}
+    <Tags
+      {value}
+    />
   {:else}
-    <strong>No {column.control} Control</strong>
+    <strong>No {options.control} Control</strong>
   {/if}
 {/snippet}
 
-{#if column.renderCell}
-  {@render column.renderCell({ row, column, value: getValue(row, column) })}
-{:else if column.control}
-  {@render control({ row, column, value: getValue(row, column) })}
+{#if options.render}
+  {@render options.render({ data, options, value: getValue({ data, options }) })}
+{:else if options.control}
+  {@render control({ data, options, value: getValue({ data, options }) })}
 {:else}
-  {getValue(row, column)}
+  {getValue({ data, options })}
 {/if}

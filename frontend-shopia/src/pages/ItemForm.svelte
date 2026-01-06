@@ -21,8 +21,8 @@
       return 'Debe seleccionar un rubro.';
     }
 
-    if (!data.storeUuid) {
-      return 'Debe seleccionar un local.';
+    if (!data.storesUuid) {
+      return 'Debe seleccionar al menos un local.';
     }
 
     if (!data.price) {
@@ -51,7 +51,7 @@
     'description',
     //{ name: 'images',       type: 'imageGalery', label: 'Imágenes', deleteFieldName: 'deletedImages' },
     { name: 'categoryUuid', type: 'select',      label: 'Rubro',  required: true, service: categoryService },
-    { name: 'storeUuid',    type: 'select',      label: 'Local',  required: true, service: storeService },
+    { name: 'storesUuid',   type: 'multiSelect', label: 'Local',  required: true, service: storeService },
     { name: 'price',        type: 'currency',    label: 'Precio' },
     { name: 'stock',        type: 'number',      label: 'Disponibilidad' },
     { name: 'isPresent',    type: 'switch',      label: 'Apto para regalar' },

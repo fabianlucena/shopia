@@ -35,17 +35,28 @@ namespace backend_shopia
         }
     }
 
-    public class ItemAddRequest_StoreIdResolverAsync(IStoreService storeService)
-        : IValueResolver<ItemAddRequest, Item, Int64>
+    public class ItemAddRequest_StoresResolverAsync(IStoreService storeService)
+        : IValueResolver<ItemAddRequest, Item, IEnumerable<Store>?>
     {
-        public Int64 Resolve(
+        public IEnumerable<Store>? Resolve(
             ItemAddRequest source,
             Item destination,
-            Int64 destMember,
+            IEnumerable<Store>? destMember,
             ResolutionContext context)
         {
-            return storeService.GetSingleOrDefaultIdForUuidAsync(source.StoreUuid)?.Result
-                ?? throw new StoreDoesNotExistException();
+            if (source.StoresUuid == null
+                || source.StoresUuid.Length <= 0
+                || source.StoresUuid.Any(s => s == default)
+            )
+                return null;
+
+            if (source.StoresUuid.Any(s => s == default))
+                throw new NoStoreException();
+
+            var stores = storeService.GetListForUuidsAsync(source.StoresUuid)?.Result
+               ?? throw new StoreDoesNotExistException();
+
+            return [..stores];
         }
     }
 
@@ -68,11 +79,11 @@ namespace backend_shopia
 
             CreateMap<ItemAddRequest, Item>()
                 .ForMember(dest => dest.CategoryId, opt => opt.MapFrom<ItemAddRequest_CategoryIdResolverAsync>())
-                .ForMember(dest => dest.StoreId, opt => opt.MapFrom<ItemAddRequest_StoreIdResolverAsync>());
+                .ForMember(dest => dest.Stores, opt => opt.MapFrom<ItemAddRequest_StoresResolverAsync>());
             CreateMap<Item, ItemResponse>()
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price.ToString(CultureInfo.InvariantCulture)))
                 .ForMember(dest => dest.CategoryUuid, opt => opt.MapFrom(src => src.Category != null ? (Guid?)src.Category.Uuid : null))
-                .ForMember(dest => dest.StoreUuid, opt => opt.MapFrom(src => src.Store != null ? (Guid?)src.Store.Uuid : null));
+                .ForMember(dest => dest.StoresUuid, opt => opt.MapFrom(src => src.Stores != null ? (Guid[]?)src.Stores.Select(s => s.Uuid) : null));
 
             CreateMap<Plan, PlanDTO>();
         }

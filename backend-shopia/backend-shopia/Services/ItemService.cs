@@ -27,39 +27,61 @@ namespace backend_shopia.Services
             if (string.IsNullOrWhiteSpace(data.Name))
                 throw new NoNameException();
 
-            if (data.StoreId <= 0)
-            {
-                data.StoreId = data.Store?.Id ?? 0;
-                if (data.StoreId <= 0)
-                    throw new NoStoreException();
-            }
+            if (data.Stores == null || !data.Stores.Any())
+                throw new NoStoreException();
 
-            if (data.Store == null)
+            var stores = data.Stores.ToList();
+            IStoreService storeService = serviceProvider.GetRequiredService<IStoreService>();
+            for (var i = 0; i < stores.Count; i++)
             {
-                var storeService = serviceProvider.GetRequiredService<IStoreService>();
-                data.Store = await storeService.GetSingleOrDefaultForIdAsync(
-                        data.StoreId,
-                        new QueryOptions
-                        {
-                            Join = { { "Commerce" } },
-                            Switches = { { "IncludeDisabled", true } },
-                        }
-                    )
+                var store = stores[i]
                     ?? throw new StoreDoesNotExistException();
-            }
 
-            if (data.Store.Commerce == null)
-            {
-                var commerceService = serviceProvider.GetRequiredService<ICommerceService>();
-                data.Store.Commerce = await commerceService.GetSingleOrDefaultForIdAsync(
-                        data.Store.CommerceId,
-                        new QueryOptions
-                        {
-                            Switches = { { "IncludeDisabled", true } },
-                        }
-                    )
-                    ?? throw new CommerceDoesNotExistException();
+                if (store.Commerce == null)
+                {
+                    if (store.CommerceId > 0)
+                    {
+                        var commerceService = serviceProvider.GetRequiredService<ICommerceService>();
+                        stores[0].Commerce = await commerceService.GetSingleOrDefaultForIdAsync(
+                                store.CommerceId,
+                                new QueryOptions
+                                {
+                                    Switches = { { "IncludeDisabled", true } },
+                                }
+                            )
+                            ?? throw new CommerceDoesNotExistException();
+                    }
+                    else if (store.Id > 0)
+                    {
+                        stores[0] = await storeService.GetSingleOrDefaultForIdAsync(
+                            store.Id,
+                            new QueryOptions
+                            {
+                                Join = { { "Commerce" } },
+                                Switches = { { "IncludeDisabled", true } },
+                            }
+                        )
+                        ?? throw new StoreDoesNotExistException();
+                    }
+                    else if (store.Uuid != Guid.Empty)
+                    {
+                        stores[0] = await storeService.GetSingleOrDefaultForUuidAsync(
+                            store.Uuid,
+                            new QueryOptions
+                            {
+                                Join = { { "Commerce" } },
+                                Switches = { { "IncludeDisabled", true } },
+                            }
+                        )
+                        ?? throw new StoreDoesNotExistException();
+                    }
+                    else
+                    {
+                        throw new StoreDoesNotExistException();
+                    }
+                }
             }
+            data.Stores = stores;
 
             var userPlanService = serviceProvider.GetRequiredService<IUserPlanService>();
             var limits = await userPlanService.GetLimitsForCurrentUserAsync();
@@ -77,20 +99,63 @@ namespace backend_shopia.Services
                 throw new MaxEnabledItemsLimitReachedException();
             }
 
-            data.InheritedIsEnabled = data.Store.IsEnabled && data.Store.Commerce.IsEnabled;
+            data.InheritedIsEnabled = data.Stores.Any(s => s.IsEnabled && (s.Commerce?.IsEnabled ?? false));
 
             data.Embedding = await GetEmbedding(data);
 
             return data;
         }
 
+        public override async Task<IEnumerable<Item>> GetListAsync(QueryOptions options)
+        {
+            var items = await base.GetListAsync(options);
+            if (items.Any())
+            {
+                if (options.Switches.TryGetValue("IncludeStores", out var includeStores)
+                    && includeStores)
+                {
+                    var itemStoreOptions = new QueryOptions();
+                    itemStoreOptions.Include("Store", "store");
+                    if (options.Switches.TryGetValue("IncludeCommerce", out var includeCommerce)
+                        && includeCommerce)
+                    {
+                        itemStoreOptions.Join.Add(new From(
+                            propertyName: "Commerce",
+                            alias: "commerce",
+                            type: JoinType.Inner,
+                            on: Op.Eq("commerce.Id", Op.Column("store.CommerceId")),
+                            entity: typeof(Commerce)
+                        ));
+                    }
+
+                    var itemStoreService = serviceProvider.GetRequiredService<IItemStoreService>();
+                    foreach (var item in items)
+                    {
+                        var itemsStores = await itemStoreService.GetListForItemIdAsync(
+                            item.Id,
+                            new QueryOptions(itemStoreOptions)
+                        );
+
+                        item.ItemsStores = itemsStores;
+                        item.Stores = itemsStores.Select(i => {
+                            i.Store!.Commerce = i.Commerce;  
+                            return i.Store;
+                        });
+                        item.Commerce = item.Stores.First().Commerce;
+                    }
+                }
+            }
+
+            return items;
+        }
+
         public async Task<float[]> GetEmbedding(Item data)
         {
-            if (data.Store == null)
+            if (data.Stores == null || !data.Stores.Any())
             {
-                var storeService = serviceProvider.GetRequiredService<IStoreService>();
-                data.Store = await storeService.GetSingleOrDefaultForIdAsync(
-                        data.StoreId,
+                var itemStoreService = serviceProvider.GetRequiredService<IItemStoreService>();
+                data.Stores = await itemStoreService.GetListStoresForItemIdAsync(
+                        data.Id,
                         new QueryOptions
                         {
                             Join = { { "Commerce" } },
@@ -100,26 +165,35 @@ namespace backend_shopia.Services
                     ?? throw new StoreDoesNotExistException();
             }
 
-            if (data.Store.Commerce == null)
+            var stores = data.Stores.ToList();
+            for (var i = 0; i < stores.Count; i++)
             {
-                var commerceService = serviceProvider.GetRequiredService<ICommerceService>();
-                data.Store.Commerce = await commerceService.GetSingleOrDefaultForIdAsync(
-                        data.Store.CommerceId,
-                        new QueryOptions
-                        {
-                            Switches = { { "IncludeDisabled", true } },
-                        }
-                    )
-                    ?? throw new CommerceDoesNotExistException();
+                var store = stores[i]
+                    ?? throw new StoreDoesNotExistException();
+
+                if (store.Commerce == null)
+                {
+                    var commerceService = serviceProvider.GetRequiredService<ICommerceService>();
+                    stores[i].Commerce = await commerceService.GetSingleOrDefaultForIdAsync(
+                            store.CommerceId,
+                            new QueryOptions
+                            {
+                                Switches = { { "IncludeDisabled", true } },
+                            }
+                        )
+                        ?? throw new CommerceDoesNotExistException();
+                }
             }
+
+            data.Stores = stores;
 
             var embeddingData = new
             {
                 data.Name,
                 data.Description,
                 data.Category,
-                Store = data.Store?.Name,
-                Commerce = data.Store?.Commerce?.Name,
+                Stores = data.Stores?.Select(s => s.Name),
+                Commerce = data.Stores?.First()?.Commerce?.Name,
                 data.Price,
                 data.IsPresent,
                 data.MinAge,
@@ -162,16 +236,55 @@ namespace backend_shopia.Services
             var updatedRows = await base.UpdateAsync(data, options);
             if (updatedRows > 0)
             {
-                options ??= new QueryOptions();
-                options.Switches["IncludeDisabled"] = true;
-                options.IncludeIfNotExists("Store", "store");
-                options.IncludeIfNotExists(
-                    "Commerce",
-                    "commerce",
-                    entity: typeof(Commerce),
-                    on: Op.Eq("commerce.Id", Op.Column("store.CommerceId"))
-                );
-                var items = await GetListAsync(options);
+                var getOptions = new QueryOptions(options);
+                getOptions.Switches["IncludeDisabled"] = true;
+                getOptions.Switches["IncludeStores"] = true;
+                getOptions.Switches["IncludeCommerce"] = true;
+                var items = await GetListAsync(getOptions);
+
+                if (data.TryGetGuids("StoresUuid", out var storesUuid))
+                {
+                    IStoreService storeService = serviceProvider.GetRequiredService<IStoreService>();
+                    var storesId = await storeService.GetListIdForUuidsAsync(
+                        storesUuid,
+                        new QueryOptions
+                        {
+                            Switches = { { "IncludeDisabled", true } },
+                        }
+                    );
+
+                    foreach (var item in items)
+                    {
+                        var currentStoresIds = item.Stores!.Select(s => s.Id);
+                        var storesToAdd = storesId.Except(currentStoresIds);
+                        var storesToRemove = currentStoresIds.Except(storesId);
+
+                        IItemStoreService itemStoreService = serviceProvider.GetRequiredService<IItemStoreService>();
+                        foreach (var storeId in storesToAdd)
+                        {
+                            await itemStoreService.CreateAsync(new ItemStore
+                            {
+                                ItemId = item.Id,
+                                StoreId = storeId,
+                            });
+                        }
+
+                        if (storesToRemove.Any())
+                        {
+                            await itemStoreService.DeleteAsync(
+                                new QueryOptions
+                                {
+                                    Filters =
+                                    {
+                                        { "ItemId", item.Id },
+                                        { "StoreId", storesToRemove },
+                                    }
+                                }
+                            );
+                        }
+                    }
+                }
+
                 foreach (var item in items)
                 {
                     var embedding = await GetEmbedding(item);
@@ -208,7 +321,14 @@ namespace backend_shopia.Services
             options = (options != null) ?
                 new QueryOptions(options) :
                 new();
-            options.AddFilter("StoreId", storesId);
+            options.Join.Add(new From(
+                alias: "storeItem",
+                type: JoinType.Inner,
+                on: Op.Eq("storeItem.ItemId", Op.Column("Id")),
+                entity: typeof(ItemStore)
+            ));
+
+            options.AddFilter("storeItem.StoreId", storesId);
 
             return options;
         }
@@ -260,9 +380,20 @@ namespace backend_shopia.Services
         public (QueryOptions, DataDictionary) GetOptionsForUpdateInherited(QueryOptions? options = null)
         {
             options ??= new();
-            options.Include("Store", "store");
             options.Include(
-                "Commerce",
+                "",
+                "itemStore",
+                entity: typeof(ItemStore),
+                on: Op.Eq("itemStore.ItemId", Op.Column("Id"))
+            );
+            options.Include(
+                "",
+                "store",
+                entity: typeof(Store),
+                on: Op.Eq("store.Id", Op.Column("itemStore.StoreId"))
+            );
+            options.Include(
+                "",
                 "commerce",
                 entity: typeof(Commerce),
                 on: Op.Eq("commerce.Id", Op.Column("store.CommerceId"))
@@ -288,7 +419,7 @@ namespace backend_shopia.Services
             (options, DataDictionary data) = GetOptionsForUpdateInherited(options);
             options.AddFilter("Uuid", uuid);
 
-            return await UpdateAsync(data, options);
+            return await base.UpdateAsync(data, options);
         }
 
         public async Task<int> UpdateInheritedForStoreUuid(Guid storeUuid, QueryOptions? options = null)
