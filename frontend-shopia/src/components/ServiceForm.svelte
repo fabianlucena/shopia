@@ -1,4 +1,6 @@
 <script>
+  // @ts-nocheck
+
   import { writable } from 'svelte/store';
   import Form from './Form.svelte';
   import { pushNotification } from '$libs/notification';
@@ -15,6 +17,7 @@
     uuid = null,
     service,
     fields : originalFields = {},
+    data : originalData = {},
     submitLabel = 'Guardar',
     onSubmit = null,
     cancelable = true,
@@ -22,16 +25,16 @@
     ...restProps
   } = $props();
 
-  let data = writable({});
+  let data = writable({...originalData});
   let fields = writable([]);
-
+  
   function prepareFields() {
     if (!Array.isArray(originalFields)) {
       pushNotification('ServiceForm: fields debe ser un array', 'error');
       return;
     }
 
-    const autoNames = {
+    const autoLabel = {
       isEnabled: 'Habilitado',
       name: 'Nombre',
       description: 'Descripción',
@@ -40,25 +43,30 @@
     let preparedFields = [];
     for (let field of originalFields) {
       if (typeof field === 'string') {
-        if (field === 'isEnabled') {
+        var name = field;
+        var required = false;
+        if (field.startsWith('*')) {
+          name = field.substring(1);
+          required = true;
+        }
+
+        if (name === 'isEnabled') {
           field = {
-            name: 'isEnabled',
             type: 'switch',
-            label: autoNames[field] || field,
+            value: true,
           }
-        } else if (field === 'description') {
+        } else if (name === 'description') {
           field = {
-            name: field,
             type: 'textarea',
-            label: autoNames[field] || field,
+            required,
           }
         } else {
-          field = {
-            name: field,
-            label: autoNames[field] || field,
-            required: ['name'].includes(field),
-          }
+          field = {};
         }
+
+        field.name ??= name;
+        field.label ??= autoLabel[name] || name;
+        field.required ??= required || ['name'].includes(name);
       }
 
       field.name ??= field.field || field.label || '';
@@ -66,13 +74,37 @@
       field.label ??= field.name;
 
       preparedFields.push(field);
-      data.update(d => {
-        d[field.name] ??= '';
-        return d;
-      });
+      if (field.name) {
+        data.update(d => {
+          d[field.name] ??= getDefaultValueForField(field)
+          return d;
+        });
+      }
     }
     
     fields.set(preparedFields);
+  }
+
+  function getDefaultValueForField(field) {
+    if (typeof originalData[field.name] !== 'undefined')
+      return originalData[field.name]
+
+    if (typeof field.value !== 'undefined')
+      return field.value;
+
+    switch (field.type) {
+      case 'currency':
+      case 'number':
+        return 0;
+
+      case 'switch':
+        return false;
+
+      case 'multiSelect':
+        return [];
+    }
+
+    return '';
   }
 
   function loadData() {
@@ -105,7 +137,11 @@
     }
 
     try {
-      await service.updateForUuid(uuid, dataToSend)
+      if (!uuid || uuid === 'new')
+        await service.add(dataToSend);
+      else
+        await service.updateForUuid(uuid, dataToSend)
+
       pushNotification('Datos guardados correctamente', 'success');
       navigate(-1);
     } catch (err) {

@@ -26,7 +26,7 @@
     if (!Array.isArray(_value) && typeof _value === 'string') {
       // @ts-ignore
       _value = _value.split(',');
-      value = _value;
+      value = _value.filter(v => v.trim() !== '');
     }
 
     if (!_service) {

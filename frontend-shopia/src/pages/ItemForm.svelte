@@ -48,14 +48,14 @@
   fields={[
     'isEnabled',
     'name',
-    'description',
+    '*description',
     //{ name: 'images',       type: 'imageGalery', label: 'Imágenes', deleteFieldName: 'deletedImages' },
-    { name: 'categoryUuid', type: 'select',      label: 'Rubro',  required: true, service: categoryService },
-    { name: 'storesUuid',   type: 'multiSelect', label: 'Local',  required: true, service: storeService },
-    { name: 'price',        type: 'currency',    label: 'Precio' },
-    { name: 'stock',        type: 'number',      label: 'Disponibilidad' },
+    { name: 'categoryUuid', type: 'select',      label: 'Rubro',            required: true, service: categoryService },
+    { name: 'storesUuid',   type: 'multiSelect', label: 'Locales',          required: true, service: storeService },
+    { name: 'price',        type: 'currency',    label: 'Precio',           required: true },
+    { name: 'stock',        type: 'number',      label: 'Disponibilidad',   required: true },
     { name: 'isPresent',    type: 'switch',      label: 'Apto para regalar' },
-    { name: 'minAge',       type: 'number',      label: 'Edad mínima', required: true, condition: data => data.isPresent },
-    { name: 'maxAge',       type: 'number',      label: 'Edad máxima', required: true, condition: data => data.isPresent },
+    { name: 'minAge',       type: 'number',      label: 'Edad mínima',      required: true, condition: data => data.isPresent },
+    { name: 'maxAge',       type: 'number',      label: 'Edad máxima',      required: true, condition: data => data.isPresent },
   ]}
 />
