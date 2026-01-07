@@ -269,6 +269,12 @@ namespace backend_shopia.Services
         {
             data = await base.ValidateForUpdateAsync(data, options);
 
+            if (data.TryGetGuids("StoresUuid", out var storesUuids))
+            {
+                if (storesUuids == null || !storesUuids.Any())
+                    throw new NoStoreException();
+            }
+
             if (data.TryGetValue("IsEnabled", out var isEnabledValue)
                 && isEnabledValue is bool isEnabled && isEnabled)
             {

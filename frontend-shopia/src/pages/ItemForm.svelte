@@ -21,7 +21,7 @@
       return 'Debe seleccionar un rubro.';
     }
 
-    if (!data.storesUuid) {
+    if (!data.storesUuid.length) {
       return 'Debe seleccionar al menos un local.';
     }
 
@@ -49,7 +49,7 @@
     'isEnabled',
     'name',
     '*description',
-    //{ name: 'images',       type: 'imageGalery', label: 'Imágenes', deleteFieldName: 'deletedImages' },
+    //{ name: 'images',       type: 'imageGalery', label: 'Imágenes',         deleteFieldName: 'deletedImages' },
     { name: 'categoryUuid', type: 'select',      label: 'Rubro',            required: true, service: categoryService },
     { name: 'storesUuid',   type: 'multiSelect', label: 'Locales',          required: true, service: storeService },
     { name: 'price',        type: 'currency',    label: 'Precio',           required: true },
