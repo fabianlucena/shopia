@@ -135,6 +135,8 @@ namespace backend_shopia.Services
                             item.Id,
                             new QueryOptions(itemStoreOptions)
                         );
+                        if (!itemsStores.Any())
+                            continue;
 
                         item.ItemsStores = itemsStores;
                         item.Stores = itemsStores.Select(i => {
@@ -158,7 +160,6 @@ namespace backend_shopia.Services
                         data.Id,
                         new QueryOptions
                         {
-                            Join = { { "Commerce" } },
                             Switches = { { "IncludeDisabled", true } },
                         }
                     )
@@ -203,6 +204,65 @@ namespace backend_shopia.Services
             var embedding = await embeddingService.GetAsync(JsonSerializer.Serialize(embeddingData));
 
             return embedding;
+        }
+
+        public override async Task<Item> CreateAsync(Item item, QueryOptions? options)
+        {
+            var created = await base.CreateAsync(item, options);
+            if (item.Stores != null)
+            {
+                IStoreService storeService = serviceProvider.GetRequiredService<IStoreService>();
+
+                var storesId = new List<Int64>();
+                foreach (var store in item.Stores)
+                {
+                    if (store is null)
+                        throw new StoreDoesNotExistException();
+
+                    if (store.Id >= 0)
+                    {
+                        storesId.Add(store.Id);
+                        continue;
+                    }
+
+                    if (store.Uuid != Guid.Empty)
+                    {
+                        storesId.Add(await storeService.GetSingleIdForUuidAsync(
+                            store.Uuid,
+                            new QueryOptions
+                            {
+                                Switches = { { "IncludeDisabled", true } },
+                            }
+                        ));
+                        continue;
+                    }
+
+                    throw new StoreDoesNotExistException();
+                }
+
+                IItemStoreService itemStoreService = serviceProvider.GetRequiredService<IItemStoreService>();
+                foreach (var storeId in storesId)
+                {
+                    await itemStoreService.CreateAsync(new ItemStore
+                    {
+                        ItemId = item.Id,
+                        StoreId = storeId,
+                    });
+                }
+            }
+
+            var getOptions = new QueryOptions(options);
+            getOptions.Switches["IncludeDisabled"] = true;
+            getOptions.Switches["IncludeStores"] = true;
+            getOptions.Switches["IncludeCommerce"] = true;
+            var embeddingItem = await GetSingleForIdAsync(item.Id, getOptions);
+            var embedding = await GetEmbedding(embeddingItem);
+            await base.UpdateAsync(
+                new DataDictionary { { "Embedding", embedding } },
+                new QueryOptions { Filters = { { "Id", embeddingItem.Id } } }
+            );
+
+            return created;
         }
 
         public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, QueryOptions options)
@@ -255,7 +315,7 @@ namespace backend_shopia.Services
 
                     foreach (var item in items)
                     {
-                        var currentStoresIds = item.Stores!.Select(s => s.Id);
+                        var currentStoresIds = item.Stores?.Select(s => s.Id) ?? [];
                         var storesToAdd = storesId.Except(currentStoresIds);
                         var storesToRemove = currentStoresIds.Except(storesId);
 
