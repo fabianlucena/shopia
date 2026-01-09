@@ -11,6 +11,7 @@
   import SelectField from '$components/fields/SelectField.svelte';
   import MultiSelectField from '$components/fields/MultiSelectField.svelte';
   import TextAreaField from '$components/fields/TextAreaField.svelte';
+  import ImageGalleryField from '$components/fields/ImageGalleryField.svelte';
   import { navigate } from '$libs/router';
 
   let {
@@ -202,6 +203,11 @@
       />
     {:else if field.type === 'textarea'}
       <TextAreaField
+        bind:value={$data[field.name]}
+        {...field}
+      />
+    {:else if field.type === 'imageGallery'}
+      <ImageGalleryField
         bind:value={$data[field.name]}
         {...field}
       />

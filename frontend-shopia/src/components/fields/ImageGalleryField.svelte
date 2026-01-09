@@ -1,6 +1,6 @@
 <script>
   import Field from '$components/fields/Field.svelte';
-  import MultiSelect from '$components/controls/MultiSelect.svelte';
+  import ImageGallery from '$components/controls/ImageGallery.svelte';
 
   let {
     id = crypto.randomUUID(),
@@ -16,7 +16,7 @@
   {label}
   {required}
 >
-  <MultiSelect
+  <ImageGallery
     {id}
     bind:value
     {required}
