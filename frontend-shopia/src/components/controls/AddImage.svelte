@@ -5,6 +5,7 @@
     onChange = null,
     onchange = null,
     multiple = false,
+    addButton = {},
     ...restProps
   } = $props();
 
@@ -40,6 +41,20 @@
     {...restProps}
   >
   <AddImageButton
+    {...addButton}
+    class={`add-image-button ${addButton?.class ?? ''}`}
     onClick={addImageHandler}
   />
 </div>
+
+<style>
+  div {
+    width: 100%;
+    height: 100%;
+  }
+
+  :global(.add-image-button.icon) {
+    width: 50%;
+    height: 50%;
+  }
+</style>

@@ -4,20 +4,13 @@
   height="24"
   viewBox="0 0 24 24"
   aria-hidden="true"
+  color="#a00000"
   {...$$restProps}
 >
-  <circle
-    cx="12"
-    cy="12"
-    r="11"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-  />
   <path
-    d="M8 8 L16 16 M16 8 L8 16"
+    d="M4 4 L20 20 M20 4 L4 20"
     stroke="currentColor"
-    stroke-width="2"
+    stroke-width="5"
     stroke-linecap="round"
   />
 </svg>

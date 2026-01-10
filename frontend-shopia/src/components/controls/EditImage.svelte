@@ -6,8 +6,9 @@
     image = null,
     onOk = null,
     onCancel = null,
-    hotPlace = .3,
+    hotPlace = .2,
     aspectRatio = 0,
+    defaultSelSize = .7
   } = $props();
 
   let canvas;
@@ -32,8 +33,13 @@
       }
 
       adjustCanvas();
-      imageLoaded = false;
-      image && (image.onload = () => imageLoadHandler());
+      //imageLoaded = false;
+      if (image) {
+        image.onload = () => imageLoadHandler();
+        if (image.complete && image.naturalWidth > 0) {
+          imageLoadHandler();
+        }
+      }
 
       canvas.addEventListener('pointerdown', pointerDownHandler);
       canvas.addEventListener('pointermove', pointerMoveHandler);
@@ -114,9 +120,11 @@
     const y = (ch - h) / 2;
 
     draw = { x, y, w, h, scale: s };
-
-    sel.w = Math.min(300, w * 0.7);
-    sel.h = Math.min(200, h * 0.7);
+    
+    const currSelSize = defaultSelSize > 0 ? defaultSelSize : 0.7;
+    sel.w = Math.min(300, w * currSelSize);
+    sel.h = Math.min(200, h * currSelSize);
+    clampSelectionToImage()
     sel.x = x + (w - sel.w) / 2;
     sel.y = y + (h - sel.h) / 2;
   }
@@ -169,21 +177,22 @@
     if (!imageLoaded)
       return;
 
-    ctx.drawImage(image, 0, 0, canvas.clientWidth, canvas.clientHeight);
+    ctx.drawImage(image, draw.x, draw.y, draw.w, draw.h);
 
     ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
     ctx.fillRect(0, 0, cw, ch);
-
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.fillRect(sel.x, sel.y, sel.w, sel.h);
+    ctx.beginPath();
+    ctx.rect(sel.x, sel.y, sel.w, sel.h);
+    ctx.clip();
+    ctx.clearRect(sel.x, sel.y, sel.w, sel.h);
+    ctx.drawImage(image, draw.x, draw.y, draw.w, draw.h);
     ctx.restore();
 
     ctx.save();
     ctx.strokeStyle = 'rgba(240,240,240,0.75)';
     ctx.lineWidth = 2;
     ctx.strokeRect(sel.x, sel.y, sel.w, sel.h);
-
     ctx.beginPath();
     ctx.moveTo(sel.x + sel.w * hotPlace, sel.y);
     ctx.lineTo(sel.x + sel.w * hotPlace, sel.y + sel.h);
@@ -194,7 +203,6 @@
     ctx.moveTo(sel.x, sel.y + sel.h * hotPlace1);
     ctx.lineTo(sel.x + sel.w, sel.y + sel.h * hotPlace1);
     ctx.stroke();
-
     ctx.restore();
   }
 
@@ -210,11 +218,11 @@
     )
       return { new: true };
 
-    let x = px - sel.x - draw.x;
+    let x = px - sel.x;
     if (x < 0 || x > sel.w)
       return { new: true };
 
-    let y = py - sel.y - draw.y;
+    let y = py - sel.y;
     if (y < 0 || y > sel.h)
       return { new: true };
 
@@ -284,8 +292,6 @@
     if (!imageLoaded)
       return;
 
-      console.log(1);
-
     const p = getPointerPos(evt);
     const dm = getDragMode(p.x, p.y);
 
@@ -302,7 +308,6 @@
         : 'default';
 
       canvas.style.cursor = cursor;
-      console.log(cursor);
       return;
     }
 
@@ -403,11 +408,41 @@
   }
 </script>
 
-<div>
+<div class="edit-image-control">
   <canvas
     bind:this={canvas}
     style="border:1px solid #ccc; width:100%; touch-action:none;"
   ></canvas>
-  <OkButton onClick={okHandler} />
-  <CancelButton onClick={cancelHandler} />
+  <div
+    class="button-bar"
+  >
+    <CancelButton
+      class="edit-image-button"
+      onClick={cancelHandler}
+    />
+    <OkButton
+      class="edit-image-button"
+      onClick={okHandler}
+    />
+  </div>
 </div>
+
+<style>
+  .edit-image-control {
+    position: relative;
+  }
+
+  .button-bar {
+    position: absolute;
+    top: .2em;
+    right: .2em;
+    font-size: 1.2em;
+  }
+
+  :global(button.edit-image-button) {
+    height: 1.5em !important;
+    background-color: rgba(192, 192, 192, 0.5) !important;
+    border-radius: 0.5em !important;
+    padding: 0.2em !important;
+  }
+</style>

@@ -6,6 +6,7 @@
     label = '',
     required = false,
     children,
+    postLabel = null,
   } = $props();
 </script>
 
@@ -15,6 +16,9 @@
       <RequiredIcon class="required" />
     {/if}
     {label}
+    {#if postLabel}
+      {@render postLabel()}
+    {/if}
   </label>
   <span class="field-control">
     {@render children()}
