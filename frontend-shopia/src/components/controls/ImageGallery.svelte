@@ -12,33 +12,47 @@
     ...restProps
   } = $props();
 
+  let editorDialog;
   let image = writable(null);
+
+  $effect(() => {
+    if ($image)
+      editorDialog.showModal();
+    else
+      editorDialog.close();
+  });
+
 </script>
 
 <div
-  {id}
-  class="gallery"
-  {...restProps}
+  class="container"
 >
-  {#each [...value, { addImage: true }] as item (item.value)}
-    {#if item.addImage}
-      {#if !$image}
-        <div class="image">
-          <AddImage
-            addButton={{
-              class: "add-image-button",
-              icon: { class: "add-image-button" },
-            }}
-            onChange={newImage => {
-              let img = new Image();
-              img.src = URL.createObjectURL(newImage);
-              image.set(img);
-              URL.revokeObjectURL(img.src);
-            }}
-          />
-        </div>
-      {/if}
-    {:else}
+  <AddImage
+    addButton={{
+      class: "add-button",
+      icon: { class: "add-button" },
+    }}
+    onChange={newImage => {
+      let img = new Image();
+      img.src = URL.createObjectURL(newImage);
+      image.set(img);
+      URL.revokeObjectURL(img.src);
+    }}
+  />
+  <div
+    class="scroll"
+  >
+    {#each value as item (item.value)}
+      <div class="dot">
+      </div>
+    {/each}
+  </div>
+  <div
+    {id}
+    class="gallery"
+    {...restProps}
+  >
+    {#each value as item (item.value)}
       <div class="image">
         <DeleteButton
           class="delete-button"
@@ -48,45 +62,62 @@
         />
         <img src={item.value} alt={item.label} />
       </div>
-    {/if}
-  {/each}
-  {#if $image}
-    <EditImage
-      image={$image}
-      {aspectRatio}
-      {defaultSelSize}
-      onOk={blob => {
-        const url = URL.createObjectURL(blob);
-        value = [
-          ...value,
-          {
-            added: true,
-            label: 'Imagen ' + (value.length + 1),
-            value: url,
-          }
-        ],
-        image.set(null);
-      }}
-      onCancel={() => image.set(null)}
-    />
-  {/if}
+    {/each}
+    <dialog
+      bind:this={editorDialog}
+    >
+      <EditImage
+        class="edit-image-control"
+        image={$image}
+        {aspectRatio}
+        {defaultSelSize}
+        onOk={blob => {
+          const url = URL.createObjectURL(blob);
+          value = [
+            ...value,
+            {
+              added: true,
+              label: 'Imagen ' + (value.length + 1),
+              value: url,
+            }
+          ],
+          image.set(null);
+        }}
+        onCancel={() => image.set(null)}
+      />
+    </dialog>
+  </div>
 </div>
 
 <style>
+  .container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
   .gallery {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.3em;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: .5em;
+    scroll-behavior: smooth;
+    align-items: stretch;
+    padding-bottom: .8em;
   }
 
   .image {
     border: .1em solid var(--border-color);
     background-color: var(--tag-background-color);
-    padding: 0.2em 0.5em;
+    padding: 0.2em 0.5em ;
     border-radius: 0.3em;
+    margin: 0;
     font-size: 0.9em;
-    width: 10em;
     position: relative;
+    height: 100%;
+    width: 25%;
+    flex: 0 0 auto;
   }
 
   img {
@@ -97,12 +128,13 @@
     border-radius: 0.1em;
   }
 
-  :global(button.icon.delete-button) {
-    color: var(--danger-color);
-    height: 2.5em;
+  :global(
+    button.icon.add-button,
+    button.icon.delete-button
+  ) {
+    font-size: 1.5em;
+    height: 1.5em;
     position: absolute;
-    right: 0.2em;
-    bottom: 0.2em;
     background-color: color-mix(
       in srgb,
       var(--background-color) 60%,
@@ -110,24 +142,54 @@
     );
     padding: 0.2em;
     border-radius: 0.4em;
-    border: .1em solid var(--border-color);
+    border: .015em solid var(--border-color);
     cursor: pointer;
   }
 
-  :global(button.icon.add-image-button) {
-    color: var(--border-color);
+  :global(button.icon.add-button) {
+    color: var(--add-color);
+    top: .1em;
+    left: .1em;
+    z-index: 1;
+  }
+
+  :global(button.icon.delete-button) {
+    color: var(--danger-color);
+    right: 0.5em;
+    bottom: 0.2em;
+  }
+
+  dialog {
+    border: none;
+    background-color: var(--background-color);
+    padding: 0;
+    max-width: 100%;
+    width: 600px;
+  }
+
+  dialog::backdrop {
+    backdrop-filter: blur(2px);
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .scroll {
+    z-index: 2;
+    position: absolute;
+    bottom: .2em;
+    height: 0.8em;
     width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.2em;
-    border-radius: 0.4em;
-    border: .1em solid var(--border-color);
-    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    text-align: center;
   }
 
-  :global(svg.add-image-button) {
-    max-width: 4em;
+  .dot {
+    width: 0.6em;
+    height: 0.6em;
+    background-color: var(--border-color);
+    opacity: 0.5;
+    border-radius: .3em;
+    display: inline-block;
+    margin: 0 .08em;
   }
 </style>

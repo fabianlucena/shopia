@@ -8,7 +8,9 @@
     onCancel = null,
     hotPlace = .2,
     aspectRatio = 0,
-    defaultSelSize = .7
+    defaultSelSize = .7,
+    class : theClass = '',
+    ...restProps
   } = $props();
 
   let canvas;
@@ -107,7 +109,7 @@
   }
 
   function fitImage() {
-    if (!imageLoaded)
+    if (!imageLoaded || !image)
       return;
 
     const cw = canvas.getBoundingClientRect().width;
@@ -408,7 +410,10 @@
   }
 </script>
 
-<div class="edit-image-control">
+<div
+  class={`${theClass} edit-image-control`}
+  {...restProps}
+>
   <canvas
     bind:this={canvas}
     style="border:1px solid #ccc; width:100%; touch-action:none;"

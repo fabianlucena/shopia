@@ -1,5 +1,5 @@
 <script>
-  import AddImageButton from '$components/buttons/AddImage.svelte';
+  import AddButton from '$components/buttons/Add.svelte';
 
   let {
     onChange = null,
@@ -29,7 +29,9 @@
   }
 </script>
 
-<div>
+<div
+  {...restProps}
+>
   <input
     bind:this={fileInput}
     type="file"
@@ -40,21 +42,11 @@
     onchange={handleFile}
     {...restProps}
   >
-  <AddImageButton
+  <AddButton
     {...addButton}
-    class={`add-image-button ${addButton?.class ?? ''}`}
     onClick={addImageHandler}
   />
 </div>
 
 <style>
-  div {
-    width: 100%;
-    height: 100%;
-  }
-
-  :global(.add-image-button.icon) {
-    width: 50%;
-    height: 50%;
-  }
 </style>
