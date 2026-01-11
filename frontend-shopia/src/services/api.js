@@ -1,5 +1,5 @@
 export class Api {
-  static urlBase = import.meta.env.VITE_API_URL ?? 'http://localhost:5085/api';
+  static baseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:5085/api';
   static headers = {};
   static debug = {
     request: import.meta.env.VITE_DEBUG_API_REQUEST,
@@ -12,7 +12,7 @@ export class Api {
       debug: undefined,
       errorHandler: undefined,
     };
-    let url = this.urlBase + service;
+    let url = this.baseUrl + service;
 
     if (fetchOptions.path) {
       url += '/' + fetchOptions.path;

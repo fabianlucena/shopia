@@ -6,7 +6,7 @@
     disabled = null,
     variant = '',
     className = '',
-    class : theClass,
+    class : theClass = '',
     children,
     onClick = null,
     onclick = null,

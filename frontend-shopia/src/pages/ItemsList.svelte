@@ -10,10 +10,11 @@
   properties={[
     { label: 'Nombre', field: 'name' },
     { label: 'Habilitado', field: 'isEnabled', control: 'switch' },
+    { label: 'Imágenes', field: 'images', control: 'imagesView' },
+    { label: 'Precio', field: 'price', formatter: money, className: 'money' },
     { label: 'Descripción', field: 'description' },
     { label: 'Categoría', field: 'category.name' },
     { label: 'Locales', field: 'stores', control: 'tagsView', getValue: ({value}) => value.map(store => ({label: store.name, value: store.uuid})) },
-    { label: 'Precio', field: 'price', formatter: money, className: 'money' },
     { label: 'Cantidad', field: 'stock', className: 'number' },
     { label: 'Regalo', field: 'isPresent', control: 'switch' },
   ]}

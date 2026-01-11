@@ -1,6 +1,7 @@
 <script>
   import Switch from './controls/Switch.svelte';
   import TagsView from './controls/TagsView.svelte';
+  import ImagesView from './controls/ImagesView.svelte';
 
   let {
     data,
@@ -24,6 +25,10 @@
     />
   {:else if options.control === 'tagsView'}
     <TagsView
+      {value}
+    />
+  {:else if options.control === 'imagesView'}
+    <ImagesView
       {value}
     />
   {:else}

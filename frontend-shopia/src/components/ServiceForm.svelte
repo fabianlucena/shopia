@@ -27,6 +27,7 @@
     ...restProps
   } = $props();
 
+  // @ts-nocheck
   let data = writable({...originalData});
   let fields = writable([]);
   
