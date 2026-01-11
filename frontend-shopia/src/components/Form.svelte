@@ -71,7 +71,7 @@
 
 {#snippet footButtons()}
   {#if submitLabel || onSubmit}
-    <Button type="submit" disabled={!canSubmit}>{submitLabel || 'Enviar'}{canSubmit? 'Si': 'No'}</Button>
+    <Button type="submit" disabled={!canSubmit}>{submitLabel || 'Enviar'}</Button>
   {/if}
   {#if cancelLabel || onCancel || cancelable}
     <Button onClick={cancelHandler} variant="danger">{cancelLabel || 'Cancelar'}</Button>
