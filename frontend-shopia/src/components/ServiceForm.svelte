@@ -28,6 +28,7 @@
   } = $props();
 
   // @ts-nocheck
+  let defaultData = {...originalData};
   let data = writable({...originalData});
   let fields = writable([]);
   
@@ -89,8 +90,8 @@
   }
 
   function getDefaultValueForField(field) {
-    if (typeof originalData[field.name] !== 'undefined')
-      return originalData[field.name]
+    if (typeof defaultData[field.name] !== 'undefined')
+      return defaultData[field.name]
 
     if (typeof field.value !== 'undefined')
       return field.value;
@@ -113,7 +114,10 @@
   function loadData() {
     if (uuid && uuid !== 'new') {
       service.getSingleForUuid(uuid)
-        .then(resData => data.set(resData));
+        .then(resData => {
+          defaultData = {...resData};
+          data.set(resData);
+       });
     }
   }
   
@@ -128,7 +132,7 @@
     let sendData = getDataForSend({
       fields: $fields,
       data: $data,
-      defaultData: originalData,
+      defaultData,
     });
 
     onSubmit?.(sendData);

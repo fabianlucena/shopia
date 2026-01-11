@@ -1,9 +1,10 @@
 <script>
+  import { writable } from 'svelte/store';
+  import { Api } from '$services/api.js';
   import AddImage from '$components/controls/AddImage.svelte';
   import EditImage from '$components/controls/EditImage.svelte';
   import DeleteButton from '$components/buttons/Delete.svelte';
-  import { writable } from 'svelte/store';
-
+  
   let {
     id = '',
     value = $bindable([]),
@@ -23,7 +24,6 @@
     else
       editorDialog.close();
   });
-
 </script>
 
 <div
@@ -45,7 +45,7 @@
   <div
     class="scroll"
   >
-    {#each value as item (item.value)}
+    {#each value as image (image.url)}
       <div class="dot">
       </div>
     {/each}
@@ -55,15 +55,15 @@
     class="gallery"
     {...restProps}
   >
-    {#each value as item (item.url)}
+    {#each value as image (image.url)}
       <div class="image">
         <DeleteButton
           class="delete-button"
           onclick={() => {
-            value = value.filter(i => i.url !== item.url);
+            value = value.filter(i => i.url !== image.url);
           }}
         />
-        <img src={item.url} alt={item.label} />
+        <img src={`${image.baseUrl ?? Api.baseUrl}${image.url}`} alt={image.label} />
       </div>
     {/each}
     <dialog
@@ -81,6 +81,7 @@
             ...value,
             {
               added: true,
+              baseUrl: '',
               blob,
               name,
               type,
