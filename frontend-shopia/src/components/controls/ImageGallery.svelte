@@ -79,7 +79,13 @@
           <DeleteButton
             class="delete-button"
             onclick={() => {
-              value = value.map(i => i.url === image.url? {...i, deleted: true} : i);
+              value = value.map(i => {
+                if (i.url !== image.url)
+                  return i;
+                
+                const {added, ...newItem} = { ...i, deleted: true };
+                return newItem;
+              });
             }}
           />
         {/if}

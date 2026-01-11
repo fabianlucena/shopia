@@ -144,6 +144,11 @@
       defaultData: defaultData,
     });
 
+    if (JSON.stringify(sendData) === '{}') {
+      pushNotification('Nada para modificar', 'info');
+      return;
+    }
+
     onSubmit?.(sendData);
     if (!service) {
       if (!onSubmit) {
