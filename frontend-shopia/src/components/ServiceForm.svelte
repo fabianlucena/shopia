@@ -28,8 +28,10 @@
   } = $props();
 
   // @ts-nocheck
-  let defaultData = {...originalData};
-  let data = writable({...originalData});
+  let _init = false;
+  let _uuid;
+  let defaultData = writable({});
+  let data = writable({});
   let fields = writable([]);
   
   function prepareFields() {
@@ -90,8 +92,8 @@
   }
 
   function getDefaultValueForField(field) {
-    if (typeof defaultData[field.name] !== 'undefined')
-      return defaultData[field.name]
+    if (typeof $defaultData[field.name] !== 'undefined')
+      return $defaultData[field.name]
 
     if (typeof field.value !== 'undefined')
       return field.value;
@@ -112,11 +114,18 @@
   }
 
   function loadData() {
-    if (uuid && uuid !== 'new') {
+    if (!_init) {  
+      _init = true;
+      defaultData.update(d => ({...d, ...originalData}));
+      data.update(d => ({...d, ...originalData}));
+    }
+
+    if (uuid && uuid !== 'new' && _uuid !== uuid) {
+      _uuid = uuid;
       service.getSingleForUuid(uuid)
         .then(resData => {
-          defaultData = {...resData};
-          data.set(resData);
+          defaultData.update(d => ({...d, ...resData}));
+          data.update(d => ({...d, ...resData}));
        });
     }
   }
@@ -132,7 +141,7 @@
     let sendData = getDataForSend({
       fields: $fields,
       data: $data,
-      defaultData,
+      defaultData: $defaultData,
     });
 
     onSubmit?.(sendData);
@@ -164,6 +173,7 @@
   {cancelable}
   validate={() => validate?.($data, $fields)}
   onSubmit={handleSubmit}
+  canSubmit={JSON.stringify($data, Object.keys($data).sort()) !== JSON.stringify($defaultData, Object.keys($defaultData).sort())}
   {...restProps}
 >
   {#each $fields.filter(field => {

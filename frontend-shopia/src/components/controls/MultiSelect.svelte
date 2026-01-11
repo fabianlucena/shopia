@@ -50,7 +50,11 @@
     if (value.includes(optionValue)) {
       value = value.filter(v => v !== optionValue);
     } else {
-      value = [...value, optionValue];
+      value = [...value, optionValue].sort((a, b) => {
+        if (a < b) return -1;
+        if (a > b) return 1;
+        return 0;
+      });
     }
   }
 </script>
