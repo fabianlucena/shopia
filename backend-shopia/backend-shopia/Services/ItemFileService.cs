@@ -31,7 +31,13 @@ namespace backend_shopia.Services
                     throw new NoItemException();
 
                 var itemService = serviceProvider.GetRequiredService<IItemService>();
-                data.Item = await itemService.GetSingleOrDefaultForIdAsync(data.ItemId);
+                data.Item = await itemService.GetSingleOrDefaultForIdAsync(
+                    data.ItemId,
+                    new QueryOptions
+                    {
+                        Switches = { { "IncludeCommerce", true } }
+                    }
+                );
                 if (data.Item == null)
                     throw new NoItemException();
             }
