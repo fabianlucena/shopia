@@ -49,7 +49,7 @@ namespace backend_shopia.Controllers
             if (result == null)
                 return BadRequest();
 
-            var updateImagesResult = await UpdateImages(result.Id);
+            var updateImagesResult = await UpdateImages(result.Id, null);
             if (updateImagesResult is BadRequestObjectResult)
                 return updateImagesResult;
 
@@ -119,12 +119,25 @@ namespace backend_shopia.Controllers
             logger.LogInformation("Updating item");
 
             DataDictionary data;
+            List<Guid>? deletedImages = null;
             if (Request.HasFormContentType)
             {
                 data = [];
                 var formData = Request.Form;
                 foreach (var key in formData.Keys)
                     data[key] = formData[key];
+
+                var deletedImagesStrings = Request.Form["deletedImages"];
+                if (deletedImagesStrings.Count > 1)
+                    return BadRequest("Error multiple deleted images objects.");
+
+                if (deletedImagesStrings.Count == 1)
+                    deletedImages = JsonSerializer.Deserialize<List<Guid>>(deletedImagesStrings[0]!);
+
+                if (data.ContainsKey("storesUuid"))
+                {
+
+                }
             }
             else
             {
@@ -132,6 +145,12 @@ namespace backend_shopia.Controllers
                 string bodyContent = await reader.ReadToEndAsync();
                 data = JsonSerializer.Deserialize<DataDictionary>(bodyContent)!
                     .GetPascalized();
+
+                if (data.TryGetGuids("DeletedImages", out var deletedImagesEnumerable) 
+                    && deletedImagesEnumerable != null)
+                {
+                    deletedImages = [.. deletedImagesEnumerable];
+                }
             }
 
             if (data.ContainsKey("Price") && data["Price"] is string priceText)
@@ -149,7 +168,7 @@ namespace backend_shopia.Controllers
                 }
             );
 
-            var updateImagesResult = await UpdateImages(id);
+            var updateImagesResult = await UpdateImages(id, deletedImages);
             if (updateImagesResult is BadRequestObjectResult)
                 return updateImagesResult;
 
@@ -161,41 +180,36 @@ namespace backend_shopia.Controllers
             return Ok();
         }
 
-        private async Task<IActionResult> UpdateImages(Int64 itemId)
+        private async Task<IActionResult> UpdateImages(Int64 itemId, List<Guid>? deletedImages)
         {
-            if (!Request.HasFormContentType)
-                return Ok();
-
-            if (Request.Form.Files.Count > 0)
+            if (Request.HasFormContentType)
             {
-                var files = new FilesCollectionDTO(Request.Form.Files);
-                foreach (var file in Request.Form.Files)
+                if (Request.Form.Files.Count > 0)
                 {
-                    if (file.Length == 0)
-                        continue;
+                    var files = new FilesCollectionDTO(Request.Form.Files);
+                    foreach (var file in Request.Form.Files)
+                    {
+                        if (file.Length == 0)
+                            continue;
 
-                    if (!file.ContentType.StartsWith("image/"))
-                        return BadRequest("Only image files are allowed.");
+                        if (!file.ContentType.StartsWith("image/"))
+                            return BadRequest("Only image files are allowed.");
+                    }
+
+                    var result = await itemFileService.AddForItemIdAsync(itemId, files);
+                    if (!result.Any())
+                        return BadRequest("Error uploading image.");
                 }
-
-                var result = await itemFileService.AddForItemIdAsync(itemId, files);
-                if (!result.Any())
-                    return BadRequest("Error uploading image.");
             }
 
-            var deletedImagesStrings = Request.Form["deletedImages"];
-            if (deletedImagesStrings.Count == 0)
-                return Ok();
-
-            if (deletedImagesStrings.Count > 1)
-                return BadRequest("Error multiple deleted images objects.");
-
-            var deletedImages = JsonSerializer.Deserialize<List<Guid>>(deletedImagesStrings[0]!);
-            foreach (var uuid in deletedImages!)
+            if (deletedImages != null)
             {
-                var result = await itemFileService.DeleteForUuidAsync(uuid);
-                if (result <= 0)
-                    return BadRequest();
+                foreach (var uuid in deletedImages)
+                {
+                    var result = await itemFileService.DeleteForUuidAsync(uuid);
+                    if (result <= 0)
+                        return BadRequest();
+                }
             }
 
             return Ok();
