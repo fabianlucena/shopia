@@ -1,6 +1,6 @@
 <script>
   import Field from '$components/fields/Field.svelte';
-  import ImageGallery from '$components/controls/ImageGallery.svelte';
+  import ImageGallery from '$components/controls/ImagesGallery.svelte';
 
   let {
     id = crypto.randomUUID(),

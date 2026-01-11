@@ -1,4 +1,6 @@
 <script>
+  import ImagesGallery from "./controls/ImagesGallery.svelte";
+
   let item = $props();
 </script>
 
@@ -6,6 +8,10 @@
   class="item" 
 >
   <div>{item.name}</div>
+  <ImagesGallery
+    readonly={true}
+    bind:value={item.images}
+  />
   <div>{item.description}</div>
   <div>{item.category.name}</div>
   <div>{item.price}</div>

@@ -14,6 +14,7 @@
     maxWidth = 0,
     maxHeight = 0,
     defaultSelSize = 0,
+    readonly = false,
     ...restProps
   } = $props();
 
@@ -31,19 +32,21 @@
 <div
   class="container"
 >
-  <AddImage
-    addButton={{
-      class: "add-button",
-      icon: { class: "add-button" },
-    }}
-    onChange={newImage => {
-      let img = new Image();
-      img.dataset['name'] = newImage.name;
-      img.src = URL.createObjectURL(newImage);
-      image.set(img);
-      URL.revokeObjectURL(img.src);
-    }}
-  />
+  {#if !readonly}
+    <AddImage
+      addButton={{
+        class: "add-button",
+        icon: { class: "add-button" },
+      }}
+      onChange={newImage => {
+        let img = new Image();
+        img.dataset['name'] = newImage.name;
+        img.src = URL.createObjectURL(newImage);
+        image.set(img);
+        URL.revokeObjectURL(img.src);
+      }}
+    />
+  {/if}
   <div
     class="scroll"
   >
@@ -59,35 +62,37 @@
   >
     {#each value as image (image.url)}
       <div class="image">
-        {#if image.deleted}
-          <RestoreButton
-            class="restore-button"
-            onClick={() => {
-              value = value.map(i => {
-                if (i.url !== image.url)
-                  return i;
-                
-                const { deleted, ...newItem } = i;
-                return newItem;
-              });
-            }}
-          />
-          <CancelIcon
-            class="deleted-icon"
-          />
-        {:else}
-          <DeleteButton
-            class="delete-button"
-            onclick={() => {
-              value = value.map(i => {
-                if (i.url !== image.url)
-                  return i;
-                
-                const {added, ...newItem} = { ...i, deleted: true };
-                return newItem;
-              });
-            }}
-          />
+        {#if !readonly}
+          {#if image.deleted}
+            <RestoreButton
+              class="restore-button"
+              onClick={() => {
+                value = value.map(i => {
+                  if (i.url !== image.url)
+                    return i;
+                  
+                  const { deleted, ...newItem } = i;
+                  return newItem;
+                });
+              }}
+            />
+            <CancelIcon
+              class="deleted-icon"
+            />
+          {:else}
+            <DeleteButton
+              class="delete-button"
+              onclick={() => {
+                value = value.map(i => {
+                  if (i.url !== image.url)
+                    return i;
+                  
+                  const {added, ...newItem} = { ...i, deleted: true };
+                  return newItem;
+                });
+              }}
+            />
+          {/if}
         {/if}
         <img
           src={`${image.baseUrl ?? Api.baseUrl}${image.url}`}
