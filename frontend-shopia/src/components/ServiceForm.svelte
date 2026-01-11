@@ -13,6 +13,7 @@
   import TextAreaField from '$components/fields/TextAreaField.svelte';
   import ImageGalleryField from '$components/fields/ImageGalleryField.svelte';
   import { navigate } from '$libs/router';
+  import { getDataForSend } from '$libs/fields';
 
   let {
     uuid = null,
@@ -123,7 +124,13 @@
   async function handleSubmit(evt) {
     evt.preventDefault();
 
-    onSubmit?.($data);
+    let sendData = getDataForSend({
+      fields: $fields,
+      data: $data,
+      defaultData: originalData,
+    });
+
+    onSubmit?.(sendData);
     if (!service) {
       if (!onSubmit) {
         pushNotification('ServiceForm: service no está definido', 'error');
@@ -132,16 +139,11 @@
       return;
     }
 
-    const dataToSend = {};
-    for (let field of $fields) {
-      dataToSend[field.name] = $data[field.name];
-    }
-
     try {
       if (!uuid || uuid === 'new')
-        await service.add(dataToSend);
+        await service.add(sendData);
       else
-        await service.updateForUuid(uuid, dataToSend)
+        await service.updateForUuid(uuid, sendData)
 
       pushNotification('Datos guardados correctamente', 'success');
       navigate(-1);

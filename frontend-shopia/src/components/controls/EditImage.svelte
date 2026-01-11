@@ -10,9 +10,12 @@
     aspectRatio = 0,
     defaultSelSize = .7,
     class : theClass = '',
+    maxWidth = 0,
+    maxHeight = 0,
     ...restProps
   } = $props();
 
+  let name;
   let canvas;
   let ctx;
   let draw = { x: 0, y: 0, w: 0, h: 0, scale: 1 };
@@ -35,7 +38,6 @@
       }
 
       adjustCanvas();
-      //imageLoaded = false;
       if (image) {
         image.onload = () => imageLoadHandler();
         if (image.complete && image.naturalWidth > 0) {
@@ -101,6 +103,7 @@
   }
 
   function imageLoadHandler() {
+    name = image.dataset?.['name'];
     imageLoaded = true;
     adjustCanvas();
     fitImage();
@@ -387,10 +390,24 @@
     const cy = Math.max(0, Math.min(image.height, sy));
     const cw = Math.max(1, Math.min(image.width - cx, sw));
     const ch = Math.max(1, Math.min(image.height - cy, sh));
+    let ow = cw;
+    let oh = ch;
+
+    if (maxWidth > 0 && cw > maxWidth) {
+      const ratio = maxWidth / ow;
+      ow *= ratio;
+      oh *= ratio;
+    }
+    
+    if (maxHeight > 0 && ch > maxHeight) {
+      const ratio = maxHeight / oh;
+      ow *= ratio;
+      oh *= ratio;
+    }
 
     const out = document.createElement('canvas');
-    out.width = Math.floor(cw);
-    out.height = Math.floor(ch);
+    out.width = Math.floor(ow);
+    out.height = Math.floor(oh);
     out.getContext('2d')
       .drawImage(image, cx, cy, cw, ch, 0, 0, out.width, out.height);
 
@@ -398,7 +415,13 @@
       if (!blob)
         return;
 
-      onOk?.(blob);
+      onOk?.({
+        blob,
+        name: name.includes('.')?
+          name.substring(0, name.lastIndexOf('.')) + '.png' :
+          name + '.png',
+        type: 'image/png',
+      });
     }, 'image/png');
   }
   

@@ -8,6 +8,8 @@
     id = '',
     value = $bindable([]),
     aspectRatio = 0,
+    maxWidth = 0,
+    maxHeight = 0,
     defaultSelSize = 0,
     ...restProps
   } = $props();
@@ -34,6 +36,7 @@
     }}
     onChange={newImage => {
       let img = new Image();
+      img.dataset['name'] = newImage.name;
       img.src = URL.createObjectURL(newImage);
       image.set(img);
       URL.revokeObjectURL(img.src);
@@ -52,15 +55,15 @@
     class="gallery"
     {...restProps}
   >
-    {#each value as item (item.value)}
+    {#each value as item (item.url)}
       <div class="image">
         <DeleteButton
           class="delete-button"
           onclick={() => {
-            value = value.filter(i => i.value !== item.value);
+            value = value.filter(i => i.url !== item.url);
           }}
         />
-        <img src={item.value} alt={item.label} />
+        <img src={item.url} alt={item.label} />
       </div>
     {/each}
     <dialog
@@ -70,15 +73,19 @@
         class="edit-image-control"
         image={$image}
         {aspectRatio}
+        {maxWidth}
+        {maxHeight}
         {defaultSelSize}
-        onOk={blob => {
-          const url = URL.createObjectURL(blob);
+        onOk={({ blob, name, type }) => {
           value = [
             ...value,
             {
               added: true,
-              label: 'Imagen ' + (value.length + 1),
-              value: url,
+              blob,
+              name,
+              type,
+              label: name || ('Imagen ' + (value.length + 1)),
+              url: URL.createObjectURL(blob),
             }
           ],
           image.set(null);
@@ -94,6 +101,7 @@
     width: 100%;
     overflow: hidden;
     position: relative;
+    min-height: 2.5em;
   }
 
   .gallery {

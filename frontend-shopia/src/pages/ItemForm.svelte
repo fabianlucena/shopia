@@ -49,7 +49,7 @@
     'isEnabled',
     'name',
     '*description',
-    { name: 'images',       type: 'imageGallery', label: 'Imágenes',         aspectRatio: 9 / 16, defaultSelSize: 1, deleteFieldName: 'deletedImages' },
+    { name: 'images',       type: 'imageGallery', label: 'Imágenes',         aspectRatio: 9 / 16, defaultSelSize: 1, deleteFieldName: 'deletedImages', maxWidth: 400, maxHeight: 800 },
     { name: 'categoryUuid', type: 'select',       label: 'Rubro',            required: true, service: categoryService },
     { name: 'storesUuid',   type: 'multiSelect',  label: 'Locales',          required: true, service: storeService },
     { name: 'price',        type: 'currency',     label: 'Precio',           required: true },
