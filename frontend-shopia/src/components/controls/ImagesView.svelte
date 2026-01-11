@@ -5,8 +5,6 @@
     id = '',
     value = $bindable([]),
   } = $props();
-
-  console.log(value);
 </script>
 
 <div
