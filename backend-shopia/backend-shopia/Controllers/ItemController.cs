@@ -95,7 +95,7 @@ namespace backend_shopia.Controllers
                         var files = await itemFileService.GetListForItemIdAsync(itemId);
                         item.Images = [.. files.Select(f => new ItemImageDTO {
                             Uuid = f.Uuid,
-                            Uri = $"/v1/item/image/{f.Uuid}",
+                            Url = $"/v1/item/image/{f.Uuid}",
                         }).ToList()];
 
                         var storesList = await itemStoreService.GetListStoresForItemIdAsync(itemId);

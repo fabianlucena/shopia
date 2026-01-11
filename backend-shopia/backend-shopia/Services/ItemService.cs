@@ -111,13 +111,15 @@ namespace backend_shopia.Services
             var items = await base.GetListAsync(options);
             if (items.Any())
             {
-                if (options.Switches.TryGetValue("IncludeStores", out var includeStores)
+                options.Switches.TryGetValue("IncludeCommerce", out var includeCommerce);
+
+                if (includeCommerce
+                    || options.Switches.TryGetValue("IncludeStores", out var includeStores)
                     && includeStores)
                 {
                     var itemStoreOptions = new QueryOptions();
                     itemStoreOptions.Include("Store", "store");
-                    if (options.Switches.TryGetValue("IncludeCommerce", out var includeCommerce)
-                        && includeCommerce)
+                    if (includeCommerce)
                     {
                         itemStoreOptions.Join.Add(new From(
                             propertyName: "Commerce",

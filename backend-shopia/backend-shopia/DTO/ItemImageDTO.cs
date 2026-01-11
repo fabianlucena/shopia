@@ -3,6 +3,6 @@
     public class ItemImageDTO
     {
         public Guid Uuid { get; set; }
-        public string Uri { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
     }
 }
