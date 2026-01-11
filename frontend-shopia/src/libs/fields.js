@@ -1,13 +1,14 @@
 export function getDataForSend({ fields, data, defaultData = {} }) {
   let sendData = {};
   let formData = null;
+
   for (var name in data) {
     const field = fields.find(f => f.name === name);
     if (!field)
       continue;
 
     const value = data[name];
-    if (value === defaultData[name]) {
+    if (JSON.stringify(value) === JSON.stringify(defaultData[name])) {
       continue;
     }
 
@@ -31,7 +32,7 @@ export function getDataForSend({ fields, data, defaultData = {} }) {
       }
 
       if (deleted.length) {
-        sendData[field.deleteFieldName ?? 'delete' + name] = JSON.stringify(deleted);
+        sendData[field.deleteFieldName ?? 'delete' + name] = deleted;
       }
     } else {
       sendData[name] = value;
@@ -40,8 +41,15 @@ export function getDataForSend({ fields, data, defaultData = {} }) {
 
   if (formData) {
     for (var name in sendData) {
-      formData.append(name, sendData[name]);
+      let value = sendData[name];
+      if (Array.isArray(value) || typeof value === 'object') {
+        value = JSON.stringify(value);
+      }
+
+      formData.append(name, value);
     }
+
+    sendData = formData;
   }
 
   return sendData;

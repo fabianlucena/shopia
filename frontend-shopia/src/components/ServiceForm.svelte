@@ -30,7 +30,7 @@
   // @ts-nocheck
   let _init = false;
   let _uuid;
-  let defaultData = writable({});
+  let defaultData = {};
   let data = writable({});
   let fields = writable([]);
   
@@ -82,7 +82,7 @@
       preparedFields.push(field);
       if (field.name) {
         data.update(d => {
-          d[field.name] ??= getDefaultValueForField(field)
+          d[field.name] = getDefaultValueForField(field);
           return d;
         });
       }
@@ -92,8 +92,8 @@
   }
 
   function getDefaultValueForField(field) {
-    if (typeof $defaultData[field.name] !== 'undefined')
-      return $defaultData[field.name]
+    if (typeof defaultData[field.name] !== 'undefined')
+      return defaultData[field.name]
 
     if (typeof field.value !== 'undefined')
       return field.value;
@@ -116,16 +116,16 @@
   function loadData() {
     if (!_init) {  
       _init = true;
-      defaultData.update(d => ({...d, ...originalData}));
-      data.update(d => ({...d, ...originalData}));
+      data.update(d => ({ ...d, ...originalData }));
+      defaultData = JSON.parse(JSON.stringify($data));
     }
 
     if (uuid && uuid !== 'new' && _uuid !== uuid) {
       _uuid = uuid;
       service.getSingleForUuid(uuid)
         .then(resData => {
-          defaultData.update(d => ({...d, ...resData}));
-          data.update(d => ({...d, ...resData}));
+          data.update(d => ({ ...d, ...resData }));
+          defaultData = JSON.parse(JSON.stringify($data));
        });
     }
   }
@@ -141,7 +141,7 @@
     let sendData = getDataForSend({
       fields: $fields,
       data: $data,
-      defaultData: $defaultData,
+      defaultData: defaultData,
     });
 
     onSubmit?.(sendData);
@@ -166,6 +166,18 @@
     }
   }
 
+  let modified = $state(false);
+  $effect(() => {
+    let newValue = false;
+    for (let key in $data) {
+      if (JSON.stringify($data[key]) !== JSON.stringify(defaultData[key])) {
+        newValue = true;
+      }
+    }
+
+    modified = newValue;
+  });
+
 </script>
 
 <Form
@@ -173,7 +185,7 @@
   {cancelable}
   validate={() => validate?.($data, $fields)}
   onSubmit={handleSubmit}
-  canSubmit={JSON.stringify($data, Object.keys($data).sort()) !== JSON.stringify($defaultData, Object.keys($defaultData).sort())}
+  canSubmit={modified}
   {...restProps}
 >
   {#each $fields.filter(field => {

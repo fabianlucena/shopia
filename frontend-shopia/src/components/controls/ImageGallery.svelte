@@ -4,6 +4,8 @@
   import AddImage from '$components/controls/AddImage.svelte';
   import EditImage from '$components/controls/EditImage.svelte';
   import DeleteButton from '$components/buttons/Delete.svelte';
+  import RestoreButton from '$components/buttons/Restore.svelte';
+  import CancelIcon from '$icons/cancel.svelte';
   
   let {
     id = '',
@@ -57,13 +59,35 @@
   >
     {#each value as image (image.url)}
       <div class="image">
-        <DeleteButton
-          class="delete-button"
-          onclick={() => {
-            value = value.filter(i => i.url !== image.url);
-          }}
+        {#if image.deleted}
+          <RestoreButton
+            class="restore-button"
+            onClick={() => {
+              value = value.map(i => {
+                if (i.url !== image.url)
+                  return i;
+                
+                const { deleted, ...newItem } = i;
+                return newItem;
+              });
+            }}
+          />
+          <CancelIcon
+            class="deleted-icon"
+          />
+        {:else}
+          <DeleteButton
+            class="delete-button"
+            onclick={() => {
+              value = value.map(i => i.url === image.url? {...i, deleted: true} : i);
+            }}
+          />
+        {/if}
+        <img
+          src={`${image.baseUrl ?? Api.baseUrl}${image.url}`}
+          alt={image.label}
+          class={image.deleted ? 'deleted' : ''}
         />
-        <img src={`${image.baseUrl ?? Api.baseUrl}${image.url}`} alt={image.label} />
       </div>
     {/each}
     <dialog
@@ -137,10 +161,17 @@
     border-radius: 0.1em;
   }
 
+  img.deleted {
+    opacity: 0.4;
+    filter: grayscale(100%);
+  }
+
   :global(
     button.icon.add-button,
-    button.icon.delete-button
+    button.icon.delete-button,
+    button.icon.restore-button
   ) {
+    z-index: 1;
     font-size: 1.5em;
     height: 1.5em;
     position: absolute;
@@ -159,13 +190,28 @@
     color: var(--add-color);
     top: .1em;
     left: .1em;
-    z-index: 1;
   }
 
   :global(button.icon.delete-button) {
     color: var(--danger-color);
     right: 0.5em;
     bottom: 0.2em;
+  }
+
+  :global(button.icon.restore-button) {
+    color: var(--add-color);
+    right: 0.5em;
+    bottom: 0.2em;
+  }
+
+  :global(.deleted-icon) {
+    height: 6em;
+    width: auto;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-top: -3em;
+    margin-left: -3em;
   }
 
   dialog {
