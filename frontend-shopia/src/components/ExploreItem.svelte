@@ -11,6 +11,7 @@
   <ImagesGallery
     readonly={true}
     bind:value={item.images}
+    slideInterval={2000}
   />
   <div>{item.description}</div>
   <div>{item.category.name}</div>

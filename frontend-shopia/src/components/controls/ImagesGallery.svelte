@@ -17,21 +17,92 @@
     defaultSelSize = 0,
     readonly = false,
     imageProps = {},
+    slideInterval = -1,
     ...restProps
   } = $props();
 
+  let gallery;
   let editorDialog;
   let newImage = writable(null);
   let _imageProps = writable({});
+  let _slideInterval = writable(-1);
+  let _slideIntervalHandler = null;
+  let currentImage;
+  let currentImageIndex = writable(0);
 
   $effect(() => {
     // @ts-ignore
     _imageProps.set(arrangeProps(imageProps, {addValues: { class: 'image'}}));
 
+    var newSlideInterval = slideInterval;
+    if (readonly) {
+      if (newSlideInterval < 0) {
+        newSlideInterval = 3000;
+      }
+
+      if (newSlideInterval) {
+        _slideInterval.set(newSlideInterval);
+      }
+    }
+
+    console.log(readonly, slideInterval, newSlideInterval);
+
+    if (newSlideInterval > 0) {
+      if (!_slideIntervalHandler) {
+        _slideIntervalHandler = setInterval(() => {
+          if (!gallery)
+            return;
+
+          if (!currentImage) {
+            currentImage = gallery.firstElementChild;
+            currentImageIndex.set(0);
+            if (!currentImage)
+              return;
+            
+            let left = currentImage.getBoundingClientRect().left;
+            while (left < 0) {
+              currentImage = currentImage.nextElementSibling;
+              currentImageIndex.update(n => n + 1);
+              if (!currentImage) {
+                currentImage = gallery.firstElementChild;
+                currentImageIndex.set(0);
+                break;
+              }
+              
+              left = currentImage.getBoundingClientRect().left;
+            }
+          }
+
+          let newLeft;
+          currentImage = currentImage.nextElementSibling;
+          currentImageIndex.update(n => n + 1);
+          if (!currentImage) {
+            currentImage = gallery.firstElementChild;
+            currentImageIndex.set(0);
+            if (!currentImage)
+              return;
+
+            newLeft = 0;
+          } else {
+            newLeft = currentImage.getBoundingClientRect().left;
+          }
+          
+          gallery.scrollTo({ left: newLeft, behavior: 'smooth' });
+        }, newSlideInterval);
+      }
+    }
+
     if ($newImage)
       editorDialog.showModal();
     else
       editorDialog.close();
+
+    return () => {
+      if (_slideIntervalHandler) {
+        clearInterval(_slideIntervalHandler);
+        _slideIntervalHandler = null;
+      }
+    };
   });
 </script>
 
@@ -56,12 +127,17 @@
   <div
     class="scroll"
   >
-    {#each value as image (image.url)}
-      <div class="dot">
-      </div>
+    {#each value as image, index (image.url)}
+      <div
+        class={
+          "dot"
+          + (index === $currentImageIndex ? " active" : "")
+        }
+      ></div>
     {/each}
   </div>
   <div
+    bind:this={gallery}
     {id}
     class="gallery"
     {...restProps}
@@ -107,35 +183,35 @@
         />
       </div>
     {/each}
-    <dialog
-      bind:this={editorDialog}
-    >
-      <EditImage
-        class="edit-image-control"
-        image={$newImage}
-        {aspectRatio}
-        {maxWidth}
-        {maxHeight}
-        {defaultSelSize}
-        onOk={({ blob, name, type }) => {
-          value = [
-            ...value,
-            {
-              added: true,
-              baseUrl: '',
-              blob,
-              name,
-              type,
-              label: name || ('Imagen ' + (value.length + 1)),
-              url: URL.createObjectURL(blob),
-            }
-          ],
-          newImage.set(null);
-        }}
-        onCancel={() => newImage.set(null)}
-      />
-    </dialog>
   </div>
+  <dialog
+    bind:this={editorDialog}
+  >
+    <EditImage
+      class="edit-image-control"
+      image={$newImage}
+      {aspectRatio}
+      {maxWidth}
+      {maxHeight}
+      {defaultSelSize}
+      onOk={({ blob, name, type }) => {
+        value = [
+          ...value,
+          {
+            added: true,
+            baseUrl: '',
+            blob,
+            name,
+            type,
+            label: name || ('Imagen ' + (value.length + 1)),
+            url: URL.createObjectURL(blob),
+          }
+        ],
+        newImage.set(null);
+      }}
+      onCancel={() => newImage.set(null)}
+    />
+  </dialog>
 </div>
 
 <style>
@@ -254,12 +330,24 @@
   }
 
   .dot {
-    width: 0.6em;
-    height: 0.6em;
-    background-color: var(--border-color);
-    opacity: 0.5;
+    width: 0.5em;
+    height: 0.5em;
+    border: .1em solid var(--button-background-color-highlight);
+    background-color: color-mix(
+      in srgb,
+      var(--button-disabled-background-color) 30%,
+      transparent
+    );
     border-radius: .3em;
     display: inline-block;
     margin: 0 .08em;
+  }
+
+  .dot.active {
+    background-color: color-mix(
+      in srgb,
+      var(--button-background-color-highlight) 70%,
+      transparent
+    );
   }
 </style>
