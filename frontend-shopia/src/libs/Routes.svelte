@@ -2,6 +2,7 @@
   import { route } from '$stores/route.js';
   import { isLoggedIn, permissions } from '$stores/session.js';
   import Home from '$pages/Home.svelte';
+  import Explore from '$pages/Explore.svelte';
   import About from '$pages/About.svelte';
   import Login from '$pages/Login.svelte';
   import NotFound from '$pages/NotFound.svelte';
@@ -18,6 +19,10 @@
     {
       path: '/',
       page: Home,
+    },
+    {
+      path: '/explore',
+      page: Explore,
     },
     {
       path: '/about',

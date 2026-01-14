@@ -6,6 +6,11 @@
 
   const allOptions = [
     {
+      name: 'explore',
+      label: 'Explorar',
+      path: '/explore',
+    },
+    {
       name: 'home',
       label: 'Inicio',
       path: '/',

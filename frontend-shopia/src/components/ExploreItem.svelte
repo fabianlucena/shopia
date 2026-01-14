@@ -19,12 +19,14 @@
 
 <style>
   .item {
-    flex: 1;
     border: .1em solid var(--border-color);
     padding: .1em;
-    margin: 0;
+    margin: .1em;
     border-radius: .2em;
     min-width: 10em;
     max-width: 20em;
+    width: calc(50% - 0.2em);
+    box-sizing: border-box;
+    display: inline-block;
   }
 </style>

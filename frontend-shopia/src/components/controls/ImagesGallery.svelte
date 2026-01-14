@@ -6,6 +6,7 @@
   import DeleteButton from '$components/buttons/Delete.svelte';
   import RestoreButton from '$components/buttons/Restore.svelte';
   import CancelIcon from '$icons/cancel.svelte';
+  import { arrangeProps } from '$libs/props.js';
   
   let {
     id = '',
@@ -15,14 +16,19 @@
     maxHeight = 0,
     defaultSelSize = 0,
     readonly = false,
+    imageProps = {},
     ...restProps
   } = $props();
 
   let editorDialog;
-  let image = writable(null);
+  let newImage = writable(null);
+  let _imageProps = writable({});
 
   $effect(() => {
-    if ($image)
+    // @ts-ignore
+    _imageProps.set(arrangeProps(imageProps, {addValues: { class: 'image'}}));
+
+    if ($newImage)
       editorDialog.showModal();
     else
       editorDialog.close();
@@ -42,7 +48,7 @@
         let img = new Image();
         img.dataset['name'] = newImage.name;
         img.src = URL.createObjectURL(newImage);
-        image.set(img);
+        newImage.set(img);
         URL.revokeObjectURL(img.src);
       }}
     />
@@ -61,7 +67,7 @@
     {...restProps}
   >
     {#each value as image (image.url)}
-      <div class="image">
+      <div {...$_imageProps} >
         {#if !readonly}
           {#if image.deleted}
             <RestoreButton
@@ -106,7 +112,7 @@
     >
       <EditImage
         class="edit-image-control"
-        image={$image}
+        image={$newImage}
         {aspectRatio}
         {maxWidth}
         {maxHeight}
@@ -124,9 +130,9 @@
               url: URL.createObjectURL(blob),
             }
           ],
-          image.set(null);
+          newImage.set(null);
         }}
-        onCancel={() => image.set(null)}
+        onCancel={() => newImage.set(null)}
       />
     </dialog>
   </div>
@@ -152,15 +158,13 @@
   }
 
   .image {
-    border: .1em solid var(--border-color);
-    background-color: var(--tag-background-color);
-    padding: 0.2em 0.5em ;
-    border-radius: 0.3em;
+    width: 100%;
     margin: 0;
-    font-size: 0.9em;
+    padding: 0;
     position: relative;
     height: 100%;
-    width: 25%;
+    background-color: var(--tag-background-color);
+    font-size: 0.9em;
     flex: 0 0 auto;
   }
 
