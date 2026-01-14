@@ -309,7 +309,7 @@
     button.icon.close-button
   ) {
     z-index: 1;
-    font-size: 1.5em;
+    font-size: 1.3em;
     height: 1.5em;
     position: absolute;
     background-color: color-mix(
@@ -331,7 +331,7 @@
 
   :global(button.icon.delete-button) {
     color: var(--danger-color);
-    right: 0.5em;
+    right: 0.2em;
     bottom: 0.2em;
   }
 
