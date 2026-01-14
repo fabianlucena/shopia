@@ -106,6 +106,16 @@
       }
     };
   });
+
+  function getImageProps(image) {
+    if (!image)
+      return {};
+
+    return {
+      src: `${image.baseUrl ?? Api.baseUrl}${image.url}`,
+      alt: image.label
+    };
+  }
 </script>
 
 <div
@@ -166,7 +176,10 @@
           {:else}
             <DeleteButton
               class="delete-button"
-              onclick={() => {
+              onclick={evt => {
+                evt.stopPropagation();
+                evt.preventDefault();
+
                 value = value.map(i => {
                   if (i.url !== image.url)
                     return i;
@@ -179,7 +192,9 @@
           {/if}
         {/if}
         <button
-          onclick={() => {
+          onclick={evt => {
+            evt.stopPropagation();
+            evt.preventDefault();
             showImageIndex.set(index);
             showDialog.showModal();
           }}
@@ -200,15 +215,42 @@
       class="close-button"
       onClick={() => showDialog.close()}
     />
-    <button
-      class={'show' + ($showImageMaximize ? ' maximize' : '')}
-      onclick={() => showImageMaximize.update(v => !v)}
+    <div
+      class={'image-container show' + ($showImageMaximize ? ' maximize' : '')}
     >
-      <img
-        class={'show' + ($showImageMaximize ? ' maximize' : '')}
-        src={`${value[$showImageIndex]?.baseUrl ?? Api.baseUrl}${value[$showImageIndex]?.url}`}
-        alt={value[$showImageIndex]?.label}
-      />
+      <button
+        onclick={evt => {
+          evt.stopPropagation();
+          evt.preventDefault();
+          showImageMaximize.update(v => !v);
+        }}
+        title="Maximizar / Restaurar"
+      >
+        <img
+          class={'show' + ($showImageMaximize ? ' maximize' : '')}
+          {...getImageProps(value[$showImageIndex])}
+        />
+      </button>
+    </div>
+    <button
+      class="change-button left"
+      onclick={evt => {
+        evt.stopPropagation();
+        evt.preventDefault();
+        showImageIndex.update(v => (v - 1 + value.length) % value.length);
+      }}
+    >
+      &lt;
+    </button>
+    <button
+      class="change-button right"
+      onclick={evt => {
+        evt.stopPropagation();
+        evt.preventDefault();
+        showImageIndex.update(v => (v + 1) % value.length);
+      }}
+    >
+      &gt;
     </button>
   </dialog>
   <dialog
@@ -284,12 +326,13 @@
     filter: grayscale(100%);
   }
 
-  button.show {
+  .image-container.show {
     margin: auto;
     display: block;
     overflow: auto;
     width: 100%;
     height: 100%;
+    text-align: center;
   }
 
   img.show {
@@ -362,6 +405,9 @@
     padding: 0;
     max-width: 100%;
     width: 600px;
+    position: absolute;
+    overflow: auto;
+    height: 90%;
   }
 
   dialog::backdrop {
@@ -400,5 +446,39 @@
       var(--button-background-color-highlight) 70%,
       transparent
     );
+  }
+
+  .change-button {
+    z-index: 1;
+    font-size: 2em;
+    height: 1.5em;
+    position: absolute;
+    top: 50%;
+    border: .02em solid transparent;
+    border-radius: 0.2em;
+    background-color: transparent;
+    opacity: .5;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    
+  }
+
+  .change-button:hover {
+    border: .02em solid var(--border-color);
+    opacity: .75;
+    background-color: color-mix(
+      in srgb,
+      var(--background-color) 60%,
+      transparent
+    );
+  }
+
+  .change-button.left {
+    left: 0.2em;
+  }
+
+  .change-button.right {
+    right: 0.2em;
   }
 </style>
