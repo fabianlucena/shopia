@@ -27,6 +27,7 @@
   let editorDialog;
   let newImage = writable(null);
   let showImageIndex = writable(null);
+  let showImageMaximize = writable(false);
   let _imageProps = writable({});
   let _slideInterval = writable(-1);
   let _slideIntervalHandler = null;
@@ -199,11 +200,16 @@
       class="close-button"
       onClick={() => showDialog.close()}
     />
-    <img
-      class='show'
-      src={`${value[$showImageIndex]?.baseUrl ?? Api.baseUrl}${value[$showImageIndex]?.url}`}
-      alt={value[$showImageIndex]?.label}
-    />
+    <button
+      class={'show' + ($showImageMaximize ? ' maximize' : '')}
+      onclick={() => showImageMaximize.update(v => !v)}
+    >
+      <img
+        class={'show' + ($showImageMaximize ? ' maximize' : '')}
+        src={`${value[$showImageIndex]?.baseUrl ?? Api.baseUrl}${value[$showImageIndex]?.url}`}
+        alt={value[$showImageIndex]?.label}
+      />
+    </button>
   </dialog>
   <dialog
     bind:this={editorDialog}
@@ -278,10 +284,22 @@
     filter: grayscale(100%);
   }
 
+  button.show {
+    margin: auto;
+    display: block;
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+  }
+
   img.show {
     max-width: 100%;
     max-height: auto;
     margin: auto;
+  }
+
+  img.show.maximize {
+    max-width: none;
   }
 
   :global(
