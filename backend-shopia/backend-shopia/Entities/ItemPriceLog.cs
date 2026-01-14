@@ -5,8 +5,8 @@ using RFService.Attributes;
 
 namespace backend_shopia.Entities
 {
-    [Table("ItemsPrices", Schema = "shopia")]
-    public class ItemPrice
+    [Table("ItemsPricesLog", Schema = "shopia")]
+    public class ItemPriceLog
         : EntityCreatedAt
     {
         [Required]

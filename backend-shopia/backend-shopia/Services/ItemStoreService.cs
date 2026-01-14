@@ -1,7 +1,6 @@
 ﻿using backend_shopia.Entities;
 using backend_shopia.Exceptions;
 using backend_shopia.IServices;
-using Microsoft.Extensions.DependencyInjection;
 using RFOperators;
 using RFService.IRepo;
 using RFService.Repo;

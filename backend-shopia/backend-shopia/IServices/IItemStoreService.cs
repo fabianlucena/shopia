@@ -9,10 +9,6 @@ namespace backend_shopia.IServices
         : IService<ItemStore>,
             IServiceCreatedAt<ItemStore>
     {
-        //Task<IEnumerable<ItemStore>> AddForItemUuidAsync(Guid itemUuid, FilesCollectionDTO files);
-
-        //Task<IEnumerable<ItemStore>> AddForItemIdAsync(Int64 itemId, FilesCollectionDTO files);
-
         Task<IEnumerable<ItemStore>> GetListForItemIdAsync(Int64 itemId, QueryOptions? options = null);
 
         Task<IEnumerable<Store>> GetListStoresForItemIdAsync(Int64 itemId, QueryOptions? options = null);

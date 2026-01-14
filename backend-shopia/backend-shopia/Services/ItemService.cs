@@ -361,6 +361,20 @@ namespace backend_shopia.Services
                         new QueryOptions { Filters = { { "Id", item.Id } } }
                     );
                 }
+
+                if (data.TryGetDecimal("Price", out var price))
+                {
+                    var itemPriceLogData = new ItemPriceLog
+                    {
+                        Price = price,
+                    };
+                    IItemPriceLogService itemPriceLogService = serviceProvider.GetRequiredService<IItemPriceLogService>();
+                    foreach (var item in items)
+                    {
+                        itemPriceLogData.ItemId = item.Id;
+                        await itemPriceLogService.CreateAsync(itemPriceLogData);
+                    }
+                }
             }
 
             return updatedRows;
