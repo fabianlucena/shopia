@@ -127,10 +127,10 @@
         class: "add-button",
         icon: { class: "add-button" },
       }}
-      onChange={newImage => {
+      onChange={addImage => {
         let img = new Image();
-        img.dataset['name'] = newImage.name;
-        img.src = URL.createObjectURL(newImage);
+        img.dataset['name'] = addImage.name;
+        img.src = URL.createObjectURL(addImage);
         newImage.set(img);
         URL.revokeObjectURL(img.src);
       }}
