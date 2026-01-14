@@ -5,6 +5,7 @@
   import EditImage from '$components/controls/EditImage.svelte';
   import DeleteButton from '$components/buttons/Delete.svelte';
   import RestoreButton from '$components/buttons/Restore.svelte';
+  import CloseButton from '$components/buttons/Close.svelte';
   import CancelIcon from '$icons/cancel.svelte';
   import { arrangeProps } from '$libs/props.js';
   
@@ -22,8 +23,10 @@
   } = $props();
 
   let gallery;
+  let showDialog;
   let editorDialog;
   let newImage = writable(null);
+  let showImageIndex = writable(null);
   let _imageProps = writable({});
   let _slideInterval = writable(-1);
   let _slideIntervalHandler = null;
@@ -44,8 +47,6 @@
         _slideInterval.set(newSlideInterval);
       }
     }
-
-    console.log(readonly, slideInterval, newSlideInterval);
 
     if (newSlideInterval > 0) {
       if (!_slideIntervalHandler) {
@@ -142,7 +143,7 @@
     class="gallery"
     {...restProps}
   >
-    {#each value as image (image.url)}
+    {#each value as image, index (image.url)}
       <div {...$_imageProps} >
         {#if !readonly}
           {#if image.deleted}
@@ -176,14 +177,34 @@
             />
           {/if}
         {/if}
-        <img
-          src={`${image.baseUrl ?? Api.baseUrl}${image.url}`}
-          alt={image.label}
-          class={image.deleted ? 'deleted' : ''}
-        />
+        <button
+          onclick={() => {
+            showImageIndex.set(index);
+            showDialog.showModal();
+          }}
+        >
+          <img
+            src={`${image.baseUrl ?? Api.baseUrl}${image.url}`}
+            alt={image.label}
+            class={image.deleted ? 'deleted' : ''}
+          />
+        </button>
       </div>
     {/each}
   </div>
+  <dialog
+    bind:this={showDialog}
+  >
+    <CloseButton
+      class="close-button"
+      onClick={() => showDialog.close()}
+    />
+    <img
+      class='show'
+      src={`${value[$showImageIndex]?.baseUrl ?? Api.baseUrl}${value[$showImageIndex]?.url}`}
+      alt={value[$showImageIndex]?.label}
+    />
+  </dialog>
   <dialog
     bind:this={editorDialog}
   >
@@ -257,10 +278,17 @@
     filter: grayscale(100%);
   }
 
+  img.show {
+    max-width: 100%;
+    max-height: auto;
+    margin: auto;
+  }
+
   :global(
     button.icon.add-button,
     button.icon.delete-button,
-    button.icon.restore-button
+    button.icon.restore-button,
+    button.icon.close-button
   ) {
     z-index: 1;
     font-size: 1.5em;
@@ -293,6 +321,11 @@
     color: var(--add-color);
     right: 0.5em;
     bottom: 0.2em;
+  }
+
+  :global(button.icon.close-button) {
+    right: 0.5em;
+    top: 0.2em;
   }
 
   :global(.deleted-icon) {

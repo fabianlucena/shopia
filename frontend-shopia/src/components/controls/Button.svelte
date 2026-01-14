@@ -19,7 +19,7 @@
 
 <button 
   {type}
-  class={`${variant} ${className} ${theClass}`}
+  class={`button ${variant} ${className} ${theClass}`}
   disabled={disabled ?? $isDisabled}
   onclick={evt => {onClick?.(evt); onclick?.(evt);}}
   {...props}
