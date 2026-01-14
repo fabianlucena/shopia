@@ -1,7 +1,7 @@
 <script>
   // @ts-nocheck
 
-  import { writable } from 'svelte/store';
+  import { writable, get } from 'svelte/store';
   import Form from './Form.svelte';
   import { pushNotification } from '$libs/notification';
   import TextField from '$components/fields/TextField.svelte';
@@ -144,7 +144,13 @@
       defaultData: defaultData,
     });
 
-    if (JSON.stringify(sendData) === '{}') {
+    let isEmpty;
+    if (sendData instanceof FormData)
+      isEmpty = sendData.entries().next().done;
+    else
+      isEmpty = Object.keys(sendData).length === 0;
+
+    if (isEmpty) {
       pushNotification('Nada para modificar', 'info');
       return;
     }
