@@ -192,6 +192,7 @@
           {/if}
         {/if}
         <button
+          class="image-button"
           onclick={evt => {
             evt.stopPropagation();
             evt.preventDefault();
@@ -294,12 +295,22 @@
   .gallery {
     display: flex;
     flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     gap: .5em;
     scroll-behavior: smooth;
     align-items: stretch;
-    padding-bottom: .8em;
+  }
+
+  .gallery.no-scroll {
+    overflow: hidden;
+  }
+
+  .image-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
   }
 
   .image {
@@ -418,7 +429,7 @@
   .scroll {
     z-index: 2;
     position: absolute;
-    bottom: .2em;
+    bottom: .5em;
     height: 0.8em;
     width: 100%;
     margin: 0;
@@ -428,7 +439,7 @@
 
   .dot {
     width: 0.5em;
-    height: 0.5em;
+    height: 0.3em;
     border: .1em solid var(--button-background-color-highlight);
     background-color: color-mix(
       in srgb,

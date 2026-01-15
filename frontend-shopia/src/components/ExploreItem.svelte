@@ -39,13 +39,16 @@
     box-sizing: border-box;
     display: inline-block;
     flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 
   .images {
     width: 100%;
-    height: 20em;
+    height: auto;
     overflow: hidden;
     border-radius: .5em;
+    flex: 1;
   }
 
   .data {
