@@ -82,3 +82,27 @@ export function getFormattedValue({data, options}) {
 
   return value;
 }
+
+export function bytes(value, { locale = 'es-AR', fractionDigits = 2 } = {}) {
+  let result = Number(value);
+  if (Number.isNaN(result)) {
+    return value;
+  }
+
+  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  let unitIndex = 0;
+  while (result >= 1024 && unitIndex < units.length - 1) {
+    result /= 1024;
+    unitIndex++;
+  }
+  // @ts-ignore
+  result = result.toFixed(fractionDigits);
+
+  // @ts-ignore
+  result = new Intl.NumberFormat(locale, {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  }).format(result);
+
+  return `${result} ${units[unitIndex]}`;
+}
