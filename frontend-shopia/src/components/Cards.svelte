@@ -3,36 +3,52 @@
   import Value from './Value.svelte';
 
   let {
-    columns = [],
+    fields = [],
     data = [],
     getValue = getFormattedValue,
     onChange = null,
     fieldId,
+    cardRender = null,
   } = $props();
 </script>
 
 <div class="cards">
-  {#each data as row (row[fieldId])}
-    <div
-      class="card"
-    >
-      {#each columns as column}
-        <div
-          class={`field ${column.className || ''}`}
-        >
-          {#if column.label}
-            {column.label}:
-          {/if}
-          <Value
-            data={row}
-            options={column}
-            getValue={getValue}
-            onChange={onChange}
-          />
-        </div>
-      {/each}
-    </div>
-  {/each}
+  {#if cardRender}
+    {#each data as row (row[fieldId])}
+      <div
+        class="card"
+      >
+        {@render cardRender({
+          data: row,
+          fields,
+          getValue,
+          onChange,
+        })}
+      </div>
+    {/each}
+  {:else}
+    {#each data as row (row[fieldId])}
+      <div
+        class="card"
+      >
+        {#each fields as field}
+          <div
+            class={`field ${field.className || ''}`}
+          >
+            {#if field.label}
+              {field.label}:
+            {/if}
+            <Value
+              data={row}
+              options={field}
+              getValue={getValue}
+              onChange={onChange}
+            />
+          </div>
+        {/each}
+      </div>
+    {/each}
+  {/if}
 </div>
 
 <style>

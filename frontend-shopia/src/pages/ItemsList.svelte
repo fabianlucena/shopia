@@ -2,12 +2,17 @@
   import List from '$components/List.svelte';
   import * as service from '$services/itemService.js';
   import { money } from '$libs/formatter.js';
+  import ItemCard from '$components/ItemCard.svelte';
 </script>
+
+{#snippet cardRender(props)}
+  <ItemCard {...props} />
+{/snippet}
 
 <List
   baseName="item"
   header="Artículos"
-  properties={[
+  fields={[
     { label: 'Nombre', field: 'name' },
     { label: 'Habilitado', field: 'isEnabled', control: 'switch' },
     { label: 'Imágenes', field: 'images', control: 'imagesView' },
@@ -20,4 +25,5 @@
   ]}
   {service}
   filters={[ 'includeDisabled' ]}
+  cardRender={cardRender}
 />

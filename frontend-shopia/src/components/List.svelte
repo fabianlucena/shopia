@@ -21,8 +21,9 @@
       'edit',
       'delete',
     ],
-    properties = [],
+    fields = [],
     filters : originalFilters = [],
+    cardRender = null,
     ...props
   } = $props();
 
@@ -258,9 +259,10 @@
   {/if}
   {#if $width < 800}
     <Cards
-      columns={[
-        ...properties,
+      fields={[
+        ...fields,
         {
+          type: 'actions',
           render: renderActions,
           className: 'actions item-actions',
         },
@@ -268,12 +270,14 @@
       fieldId="uuid"
       data={$data}
       onChange={onChange}
+      cardRender={cardRender}
     />
   {:else}  
     <Table
       columns={[
-        ...properties,
+        ...fields,
         {
+          type: 'actions',
           label: 'Acciones',
           render: renderActions,
           className: 'actions item-actions',
