@@ -161,7 +161,7 @@
               <span class="max">{limit.formatter?.($data.limits[limit.limitKey]) ?? ($data.limits[limit.limitKey] ?? '...')}</span>
             </div>
             <div class="value">
-              {percent($data.used[limit.usedKey] / $data.limits[limit.limitKey])}
+              {percent($data.used[limit.usedKey] / $data.limits[limit.limitKey], { ifIsNaN: '...' })}
             </div>
           </div>
         </div>

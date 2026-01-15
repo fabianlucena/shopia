@@ -57,7 +57,7 @@ namespace backend_shopia
 
             var basePlan = await PlanService.GetOrCreateAsync(new Plan {
                 Name = "Base",
-                Description = "Plan básico para todos los ususarios",
+                Description = "Plan inicial gratuito para todos los nuevos usuarios",
             });
             var basePlanId = basePlan.Id;
 

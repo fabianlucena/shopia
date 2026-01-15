@@ -15,10 +15,11 @@ export function money(value, { currency = 'ARS', locale = 'es-AR' } = {}) {
   return result;
 }
 
-export function percent(value, { locale = 'es-AR', fractionDigits = null } = {}) {
+// @ts-ignore
+export function percent(value, { locale = 'es-AR', fractionDigits = null, ifIsNaN } = {}) {
   let result = Number(value);
   if (Number.isNaN(result)) {
-    return value;
+    return ifIsNaN !== undefined ? ifIsNaN : value;
   }
 
   if (fractionDigits === null) {
@@ -83,16 +84,19 @@ export function getFormattedValue({data, options}) {
   return value;
 }
 
-export function bytes(value, { locale = 'es-AR', fractionDigits = 2 } = {}) {
+export function unit(
+  value,
+  { locale = 'es-AR', fractionDigits = 2, multiplier = 1000, unit = '' } = {}
+) {
   let result = Number(value);
   if (Number.isNaN(result)) {
     return value;
   }
 
-  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const units = ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
   let unitIndex = 0;
-  while (result >= 1024 && unitIndex < units.length - 1) {
-    result /= 1024;
+  while (result >= multiplier && unitIndex < units.length - 1) {
+    result /= multiplier;
     unitIndex++;
   }
   // @ts-ignore
@@ -104,5 +108,19 @@ export function bytes(value, { locale = 'es-AR', fractionDigits = 2 } = {}) {
     maximumFractionDigits: fractionDigits,
   }).format(result);
 
-  return `${result} ${units[unitIndex]}`;
+  return `${result} ${units[unitIndex]}${unit}`;
+}
+
+export function bytes(
+  value,
+  options
+) {
+  return unit(value, { ...options, multiplier: 1000, unit: 'B' });
+}
+
+export function ibytes(
+  value,
+  options
+) {
+  return unit(value, { ...options, multiplier: 1024, unit: 'iB' });
 }
