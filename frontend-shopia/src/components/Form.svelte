@@ -4,7 +4,7 @@
   import Button from './controls/Button.svelte';
   import LoadingIcon from '$icons/loading.svelte';
   import { pushNotification } from '$libs/notification';
-    import { navigate } from '$libs/router';
+  import { navigate } from '$libs/router';
 
   let {
     header = '',

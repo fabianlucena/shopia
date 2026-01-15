@@ -173,7 +173,11 @@
       pushNotification('Datos guardados correctamente', 'success');
       navigate(-1);
     } catch (err) {
-      pushNotification('Error al guardar los datos', 'error');
+      const message = err.response?.data?.message
+        || err.message
+        || 'Error al guardar los datos';
+
+      pushNotification(message, 'error');
     }
   }
 
