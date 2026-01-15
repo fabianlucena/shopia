@@ -20,6 +20,7 @@
   for={id}
   {label}
   {required}
+  class="switch-field"
 >
   <Switch
     {id}
@@ -29,3 +30,17 @@
     {...props}
   />
 </Field>
+
+<style>
+  :global(.field.switch-field) {
+    justify-content: flex-start;
+    display: flex;
+    flex-direction: row;
+    gap: .5em;
+    align-items: end;
+  }
+
+  :global(.switch-field .field-control) {
+    width: auto;
+  }
+</style>

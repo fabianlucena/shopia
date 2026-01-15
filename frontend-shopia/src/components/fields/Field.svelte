@@ -7,10 +7,13 @@
     required = false,
     children,
     postLabel = null,
+    class : className = '',
   } = $props();
 </script>
 
-<div class="field">
+<div
+  class={"field " + className}
+>
   <label for={forAttr}>
     {#if required}
       <RequiredIcon class="required" />
@@ -69,7 +72,8 @@
     .field textarea:focus,
     .field select:focus
   ) {
-    outline: none;
+    outline: var(--border-color) solid .1em;
+    box-shadow: 0 0 0 .1em var(--hover-background-color);
   }
 
   :global(.field textarea) {
