@@ -6,7 +6,7 @@
 <List
   baseName="store"
   header="Locales"
-  properties={[
+  fields={[
     { label: 'Nombre', field: 'name' },
     { label: 'Habilitado', field: 'isEnabled', control: 'switch' },
     { label: 'Descripción', field: 'description' },

@@ -33,6 +33,15 @@
       bind:value={data.images}
     />
   {/if}
+  <div class="is-enabled">
+    Habilitado:
+    <Value
+      data={data}
+      options={fields.find(field => field.field === 'isEnabled')}
+      getValue={getValue}
+      onChange={onChange}
+    />
+  </div>
   <div class="description">{data.description}</div>
   <div class="price">Precio: {money(data.price)}</div>
   <div class="stock">Disponibilidad: {data.stock}</div>
