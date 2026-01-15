@@ -1,6 +1,7 @@
 <script>
+  import ServiceForm from '$components/ServiceForm.svelte';
   import * as storeService from '$services/storeService.js';
-  import ServiceForm from '$components/ServiceForm.svelte';;
+  import * as commerceService from '$services/commerceService.js';
 
   let {
     ...restProps
@@ -26,7 +27,8 @@
   {validate}
   fields={[
     'isEnabled',
+    { name: 'commerceUuid', type: 'select',  label: 'Comercio', required: true, service: commerceService },
     'name',
-    'description',
+    '*description',
   ]}
 />

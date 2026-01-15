@@ -13,6 +13,14 @@ export async function get(query, options) {
   return data;
 }
 
+export async function getAllForSelect(query, options) {
+  const data = await get(query, options);
+  return data.rows.map(row => ({
+    label: row.name,
+    value: row.uuid,
+  }));
+}
+
 export async function getSingleForUuid(uuid, options) {
   var data = await get(null, {...options, path: uuid});
   if (!data?.rows?.length) {
