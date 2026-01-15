@@ -15,10 +15,17 @@ export function money(value, { currency = 'ARS', locale = 'es-AR' } = {}) {
   return result;
 }
 
-// @ts-ignore
-export function percent(value, { locale = 'es-AR', fractionDigits = null, ifIsNaN } = {}) {
-  let result = Number(value);
-  if (Number.isNaN(result)) {
+export function number(
+  value,
+  {
+    style = 'decimal',
+    locale = 'es-AR',
+    fractionDigits = null,
+    ifIsNaN = undefined,
+  } = {}
+) {
+  let num = Number(value);
+  if (Number.isNaN(num)) {
     return ifIsNaN !== undefined ? ifIsNaN : value;
   }
 
@@ -31,15 +38,41 @@ export function percent(value, { locale = 'es-AR', fractionDigits = null, ifIsNa
       fractionDigits = 1;
     }
   }
-  
-  // @ts-ignore
-  result = new Intl.NumberFormat(locale, {
-    style: 'percent',
+
+  let result = new Intl.NumberFormat(locale, {
+    // @ts-ignore
+    style,
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,
-  }).format(result);
+  }).format(num);
 
   return result;
+}
+
+export function percent(value, options = {}) {
+  let num = Number(value);
+  if (Number.isNaN(num)) {
+    // @ts-ignore
+    return options.ifIsNaN !== undefined ? options.ifIsNaN : value;
+  }
+
+  options.style ??= 'percent';
+
+  // @ts-ignore
+  if (options.fractionDigits === undefined) {
+    if (num > .1) {
+      // @ts-ignore
+      options.fractionDigits = 0;
+    } else if (num > .01) {
+      // @ts-ignore
+      options.fractionDigits = 1;
+    } else {
+      // @ts-ignore
+      options.fractionDigits = 2;
+    }
+  }
+
+  return number(value, options);
 }
 
 export function yesNo(value, { yes = 'Sí', no = 'No' } = {}) {
@@ -86,29 +119,58 @@ export function getFormattedValue({data, options}) {
 
 export function unit(
   value,
-  { locale = 'es-AR', fractionDigits = 2, multiplier = 1000, unit = '' } = {}
+  {
+    multiplier = 1000,
+    unit = '',
+    ...options
+  } = {}
 ) {
-  let result = Number(value);
-  if (Number.isNaN(result)) {
-    return value;
+  let num = Number(value);
+  if (Number.isNaN(num)) {
+    // @ts-ignore
+    return options.ifIsNaN !== undefined ? options.ifIsNaN : value;
   }
 
-  const units = ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
+  let sign = '';
+  if (num < 0)
+  {
+    sign = '-';
+    num = -num;
+  }
+
+  let units = [''];
   let unitIndex = 0;
-  while (result >= multiplier && unitIndex < units.length - 1) {
-    result /= multiplier;
-    unitIndex++;
+  if (num > 1) {
+    units = ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
+    while (num >= multiplier && unitIndex < units.length - 1) {
+      num /= multiplier;
+      unitIndex++;
+    }
+  } else if (num < 1) {
+    units = ['', 'm', 'µ', 'n', 'p', 'f', 'a', 'z', 'y'];
+    while (num < 1 && unitIndex < units.length - 1) {
+      num *= multiplier;
+      unitIndex++;
+    }
   }
-  // @ts-ignore
-  result = result.toFixed(fractionDigits);
 
   // @ts-ignore
-  result = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  }).format(result);
+  if (options.fractionDigits === undefined) {
+    if (num >= 100) {
+      // @ts-ignore
+      options.fractionDigits = 0;
+    } else if (num > 10) {
+      // @ts-ignore
+      options.fractionDigits = 1;
+    } else {
+      // @ts-ignore
+      options.fractionDigits = 2;
+    }
+  }
 
-  return `${result} ${units[unitIndex]}${unit}`;
+  let result = number(num, options);
+
+  return `${result} ${sign}${units[unitIndex]}${unit}`;
 }
 
 export function bytes(

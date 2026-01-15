@@ -150,6 +150,7 @@
             <DonutSector
               ratio={($data.used[limit.usedKey] ?? 0) / ($data.limits[limit.limitKey] ?? 1)}
               size={80}
+              stroke={.15}
               getColor={getColor}
               getBGColor={getBGColor}
             />
