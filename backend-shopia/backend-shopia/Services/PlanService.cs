@@ -90,5 +90,23 @@ namespace backend_shopia.Services
             var result = new PlanLimits(limits);
             return result;
         }
+
+        public async Task<MyPlanResponse> GetMyPlanAsync()
+        {
+            var userPlanService = serviceProvider.GetRequiredService<IUserPlanService>();
+            
+            var plan = await userPlanService.GetSinglePlanForCurrentUserAsync();
+            var limits = await GetLimitsForPlanAsync(plan);
+            var used = await userPlanService.GetUsedPlanForCurrentUserAsync();
+            return new MyPlanResponse
+            {
+                Uuid = plan.Uuid,
+                Name = plan.Name,
+                Description = plan.Description,
+                Price = plan.Price,
+                Limits = limits.ToDictionaryLCFirst(),
+                Used = used,
+            };
+        }
     }
 }

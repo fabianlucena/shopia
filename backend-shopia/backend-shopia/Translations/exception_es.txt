@@ -43,6 +43,9 @@ No se ha provisto propietario.
 No plan provided.
 No se ha provisto plan.
 
+No plan UUID provided.
+No se ha provisto un UUID para el plan.
+
 No store provided.
 No se ha provisto un local.
 

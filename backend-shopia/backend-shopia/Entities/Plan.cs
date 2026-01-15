@@ -13,5 +13,9 @@ namespace backend_shopia.Entities
         public Plan? ExtendTo { get; set; } = default;
 
         public string? Description { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Price { get; set; }
     }
 }

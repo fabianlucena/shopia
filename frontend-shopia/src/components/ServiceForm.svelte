@@ -16,6 +16,7 @@
   import { getDataForSend } from '$libs/fields';
 
   let {
+    noUuid = false,
     uuid = null,
     service,
     fields : originalFields = {},
@@ -120,13 +121,23 @@
       defaultData = JSON.parse(JSON.stringify($data));
     }
 
+    if (noUuid) {
+      service.getSingle()
+        .then(resData => {
+          data.update(d => ({ ...d, ...resData }));
+          defaultData = JSON.parse(JSON.stringify($data));
+        });
+      
+      return;
+    }
+
     if (uuid && uuid !== 'new' && _uuid !== uuid) {
       _uuid = uuid;
       service.getSingleForUuid(uuid)
         .then(resData => {
           data.update(d => ({ ...d, ...resData }));
           defaultData = JSON.parse(JSON.stringify($data));
-       });
+        });
     }
   }
   

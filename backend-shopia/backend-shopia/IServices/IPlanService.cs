@@ -18,5 +18,7 @@ namespace backend_shopia.IServices
         Task<Plan> GetSingleOrBaseAsync(QueryOptions options);
 
         Task<PlanLimits> GetLimitsForPlanAsync(Plan plan, QueryOptions? options = null);
+
+        Task<MyPlanResponse> GetMyPlanAsync();
     }
 }

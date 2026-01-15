@@ -13,6 +13,7 @@
   import CommerceForm from '$pages/CommerceForm.svelte';
   import StoresList from '$pages/StoresList.svelte';
   import StoreForm from '$pages/StoreForm.svelte';
+  import MyPlanForm from '$pages/MyPlanForm.svelte';
   import { writable } from 'svelte/store';
 
   const allRoutes = [
@@ -67,6 +68,11 @@
       path: '/store/:uuid',
       page: StoreForm,
       condition: () => $permissions.includes('store.get'),
+    },
+    {
+      path: '/my-plan',
+      page: MyPlanForm,
+      condition: () => $permissions.includes('my-plan.get'),
     },
   ];
   

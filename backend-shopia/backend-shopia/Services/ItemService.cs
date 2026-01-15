@@ -400,9 +400,7 @@ namespace backend_shopia.Services
             var storeService = serviceProvider.GetRequiredService<IStoreService>();
             var storesId = await storeService.GetListIdForOwnerIdAsync(ownerId, options);
 
-            options = (options != null) ?
-                new QueryOptions(options) :
-                new();
+            options = new QueryOptions(options);
             options.Join.Add(new From(
                 alias: "storeItem",
                 type: JoinType.Inner,

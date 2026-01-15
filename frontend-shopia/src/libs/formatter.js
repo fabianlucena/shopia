@@ -15,6 +15,32 @@ export function money(value, { currency = 'ARS', locale = 'es-AR' } = {}) {
   return result;
 }
 
+export function percent(value, { locale = 'es-AR', fractionDigits = null } = {}) {
+  let result = Number(value);
+  if (Number.isNaN(result)) {
+    return value;
+  }
+
+  if (fractionDigits === null) {
+    if (value >= 1) {
+      fractionDigits = 0;
+    } else if (value < 0.1) {
+      fractionDigits = 2;
+    } else {
+      fractionDigits = 1;
+    }
+  }
+  
+  // @ts-ignore
+  result = new Intl.NumberFormat(locale, {
+    style: 'percent',
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  }).format(result);
+
+  return result;
+}
+
 export function yesNo(value, { yes = 'Sí', no = 'No' } = {}) {
   if (value === true) {
     return yes;

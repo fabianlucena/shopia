@@ -31,6 +31,11 @@
       path: '/commerces',
     },
     {
+      name: 'plan',
+      label: 'Mi plan',
+      path: '/my-plan',
+    },
+    {
       name: 'about',
       label: 'Acerca de',
       path: '/about',
