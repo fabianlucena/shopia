@@ -1,6 +1,9 @@
 :root {
   --border-color: #29681b;
-  --background-color: #b5f6a7;
+  --background-color: #b1ff9f;
+  --item-background-color: #d3ffca;
+  --item-data-background-color: #f3fff1;
+  --item-price-color: #16490b;
   --hover-background-color: #afdfd0;
   --input-background-color: #DAF9D4;
   --header-background-color: #29681b;

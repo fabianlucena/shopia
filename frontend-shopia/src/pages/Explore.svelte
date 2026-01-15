@@ -31,5 +31,7 @@
     width: 100%;
     padding: 0 .3em;
     box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
   }
 </style>

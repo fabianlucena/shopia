@@ -1,6 +1,6 @@
-  import { getValue } from '$libs/object.js';
+import { getValue } from '$libs/object.js';
   
-  export function money(value, { currency = 'ARS', locale = 'es-AR' } = {}) {
+export function money(value, { currency = 'ARS', locale = 'es-AR' } = {}) {
   let result = Number(value);
   if (Number.isNaN(result)) {
     return value;
