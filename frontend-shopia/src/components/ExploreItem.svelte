@@ -14,7 +14,8 @@
     <ImagesGallery
       readonly={true}
       bind:value={item.images}
-      slideInterval={2000}
+      slideInterval={3000}
+      slideIntervalJitter={1000}
     />
   </div>
   <div

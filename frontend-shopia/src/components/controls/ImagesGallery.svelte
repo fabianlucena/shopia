@@ -19,6 +19,7 @@
     readonly = false,
     imageProps = {},
     slideInterval = -1,
+    slideIntervalJitter = 0,
     ...restProps
   } = $props();
 
@@ -29,7 +30,6 @@
   let showImageIndex = writable(null);
   let showImageMaximize = writable(false);
   let _imageProps = writable({});
-  let _slideInterval = writable(-1);
   let _slideIntervalHandler = null;
   let currentImage;
   let currentImageIndex = writable(0);
@@ -38,18 +38,14 @@
     // @ts-ignore
     _imageProps.set(arrangeProps(imageProps, {addValues: { class: 'image'}}));
 
-    var newSlideInterval = slideInterval;
+    var _slideInterval = slideInterval;
     if (readonly) {
-      if (newSlideInterval < 0) {
-        newSlideInterval = 3000;
-      }
-
-      if (newSlideInterval) {
-        _slideInterval.set(newSlideInterval);
+      if (_slideInterval < 0) {
+        _slideInterval = 3000;
       }
     }
 
-    if (newSlideInterval > 0) {
+    if (_slideInterval > 0) {
       if (!_slideIntervalHandler) {
         _slideIntervalHandler = setInterval(() => {
           if (!gallery)
@@ -86,11 +82,13 @@
 
             newLeft = 0;
           } else {
-            newLeft = currentImage.getBoundingClientRect().left;
+            newLeft = currentImage.getBoundingClientRect().left
+              - gallery.getBoundingClientRect().left
+              + gallery.scrollLeft;
           }
           
           gallery.scrollTo({ left: newLeft, behavior: 'smooth' });
-        }, newSlideInterval);
+        }, _slideInterval + Math.floor(Math.random() * (slideIntervalJitter + 1)));
       }
     }
 
