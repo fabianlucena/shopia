@@ -1,12 +1,19 @@
 <script>
   import ImagesGallery from './controls/ImagesGallery.svelte';
   import { money } from '$libs/formatter.js';
+  import { navigate } from '$libs/router.js';
 
   let item = $props();
 </script>
 
-<div 
-  class="item" 
+<button
+  class="item"
+  onclick={evt => {
+    console.log('navigating to item', item.uuid);
+    evt.stopPropagation();
+    evt.preventDefault();
+    navigate(`/item/${item.uuid}`);
+  }}
 >
   <div
     class="images"
@@ -32,7 +39,7 @@
     <div class="description">{item.description}</div>
     <div class="price">{money(item.price)}</div>
   </div>
-</div>
+</button>
 
 <style>
   .item {

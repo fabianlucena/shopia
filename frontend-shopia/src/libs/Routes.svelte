@@ -3,6 +3,7 @@
   import { isLoggedIn, permissions } from '$stores/session.js';
   import Home from '$pages/Home.svelte';
   import Explore from '$pages/Explore.svelte';
+  import Item from '$pages/Item.svelte';
   import About from '$pages/About.svelte';
   import Login from '$pages/Login.svelte';
   import OAuth2Callback from '$pages/OAuth2Callback.svelte';
@@ -27,6 +28,10 @@
       page: Explore,
     },
     {
+      path: '/item/:uuid',
+      page: Item,
+    },
+    {
       path: '/about',
       page: About,
     },
@@ -45,32 +50,32 @@
       condition: !$isLoggedIn,
     },
     {
-      path: '/items',
+      path: '/items-list',
       page: ItemsList,
       condition: () => $permissions.includes('item.get'),
     },
     {
-      path: '/item/:uuid',
+      path: '/item-form/:uuid',
       page: ItemForm,
       condition: () => $permissions.includes('item.get'),
     },
     {
-      path: '/commerces',
+      path: '/commerces-list',
       page: CommercesList,
       condition: () => $permissions.includes('commerce.get'),
     },
     {
-      path: '/commerce/:uuid',
+      path: '/commerce-form/:uuid',
       page: CommerceForm,
       condition: () => $permissions.includes('commerce.get'),
     },
     {
-      path: '/stores',
+      path: '/stores-list',
       page: StoresList,
       condition: () => $permissions.includes('store.get'),
     },
     {
-      path: '/store/:uuid',
+      path: '/store-form/:uuid',
       page: StoreForm,
       condition: () => $permissions.includes('store.get'),
     },

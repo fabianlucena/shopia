@@ -18,19 +18,19 @@
     {
       name: 'items',
       label: 'Mis artículos',
-      path: '/items',
+      path: '/items-list',
       condition: () => $permissions.includes('item.get'),
     },
     {
       name: 'stores',
       label: 'Mis locales',
-      path: '/stores',
+      path: '/stores-list',
       condition: () => $permissions.includes('store.get'),
     },
     {
       name: 'commerces',
       label: 'Mis comercios',
-      path: '/commerces',
+      path: '/commerces-list',
       condition: () => $permissions.includes('commerce.get'),
     },
     {

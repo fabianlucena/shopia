@@ -42,7 +42,7 @@
               title: 'Agregar nuevo elemento',
               component: addButton,
               permission: `${baseName}.add`,
-              action: () => navigate(`/${baseName}/new`),
+              action: () => navigate(`/${baseName}-form/new`),
             };
           }
 
@@ -52,7 +52,7 @@
               title: 'Editar elemento',
               component: editButton,
               permission: `${baseName}.edit`,
-              action: ({ data }) => navigate(`/${baseName}/${data.uuid}`),
+              action: ({ data }) => navigate(`/${baseName}-form/${data.uuid}`),
             };
           }
           
