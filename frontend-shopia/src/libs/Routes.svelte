@@ -148,6 +148,8 @@
 
 {#if Component}
   <Component {...$params}/>
+{:else if !$isLoggedIn}
+  <Login />
 {:else}
   <NotFound />
 {/if}

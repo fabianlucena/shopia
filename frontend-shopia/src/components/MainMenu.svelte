@@ -19,27 +19,30 @@
       name: 'items',
       label: 'Mis artículos',
       path: '/items',
+      condition: () => $permissions.includes('item.get'),
     },
     {
       name: 'stores',
       label: 'Mis locales',
       path: '/stores',
+      condition: () => $permissions.includes('store.get'),
     },
     {
       name: 'commerces',
       label: 'Mis comercios',
       path: '/commerces',
+      condition: () => $permissions.includes('commerce.get'),
     },
     {
       name: 'plan',
       label: 'Mi plan',
       path: '/my-plan',
+      condition: () => $permissions.includes('my-plan.get'),
     },
     {
       name: 'about',
       label: 'Acerca de',
       path: '/about',
-      condition: () => $permissions.includes('item.get'),
     },
   ];
 
