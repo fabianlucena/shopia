@@ -140,13 +140,13 @@ export function unit(
 
   let units = [''];
   let unitIndex = 0;
-  if (num > 1) {
+  if (num >= 1) {
     units = ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
     while (num >= multiplier && unitIndex < units.length - 1) {
       num /= multiplier;
       unitIndex++;
     }
-  } else if (num < 1) {
+  } else if (num > 0) {
     units = ['', 'm', 'µ', 'n', 'p', 'f', 'a', 'z', 'y'];
     while (num < 1 && unitIndex < units.length - 1) {
       num *= multiplier;
