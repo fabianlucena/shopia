@@ -24,6 +24,7 @@
     fields = [],
     filters : originalFilters = [],
     cardRender = null,
+    getFilters = null,
     ...props
   } = $props();
 
@@ -127,7 +128,7 @@
       return;
     }
 
-    var query = { limit: 10 };
+    var query = { ...getFilters, limit: 10 };
     dFilters.forEach(filter => {
       if (filter.name && filter.value !== undefined) {
         query[filter.name] = filter.value;

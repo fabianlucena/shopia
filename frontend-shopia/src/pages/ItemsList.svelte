@@ -12,6 +12,10 @@
 <List
   baseName="item"
   header="Artículos"
+  getFilters={{
+    includeDisabled: true,
+    mine: true,
+  }}
   fields={[
     { label: 'Nombre', field: 'name' },
     { label: 'Habilitado', field: 'isEnabled', control: 'switch' },

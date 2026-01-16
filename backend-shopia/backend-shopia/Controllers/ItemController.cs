@@ -72,6 +72,13 @@ namespace backend_shopia.Controllers
                 .AddFilter("InheritedIsEnabled", true)
                 .Include("Category")
                 .Include("Commerce");
+
+            if (HttpContext.Request.Query.TryGetBool("mine", out var mine) && mine)
+            {
+                var commercesId = await commerceService.GetListIdForCurrentUserAsync(QueryOptions.IncludeDisabled);
+                options.AddFilter("CommerceId", commercesId);
+            }
+            
             var itemsList = await itemService.GetListAsync(options);
 
             var response = itemsList.Select(mapper.Map<Item, ItemResponse>);
