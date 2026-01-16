@@ -1,4 +1,5 @@
 <script>
+  import { navigate } from '$libs/router';
   import { getContext } from 'svelte';
 
   let {
@@ -10,18 +11,29 @@
     children,
     onClick = null,
     onclick = null,
+    navigateTo = '',
     ...props
   } = $props();
 
   let disabledForm = getContext('disabled-form');
   let isDisabled = $derived(disabledForm);
+
+  function clickHandler(evt) {
+    onClick?.(evt);
+    onclick?.(evt);
+
+    if (navigateTo) {
+      evt.preventDefault();
+      navigate(navigateTo);
+    }
+  }
 </script>
 
 <button 
   {type}
   class={`button ${variant} ${className} ${theClass}`}
   disabled={disabled ?? $isDisabled}
-  onclick={evt => {onClick?.(evt); onclick?.(evt);}}
+  onclick={clickHandler}
   {...props}
 >
   {@render children()}

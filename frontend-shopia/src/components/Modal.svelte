@@ -29,6 +29,7 @@
 
 <style>
   .backdrop {
+    z-index: 2;
     position: fixed;
     inset: 0;
     background: rgba(32,32,32,0.5);
