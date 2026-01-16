@@ -17,10 +17,7 @@
     }
 
     storeService.getSingleForUuid(uuid)
-      .then(storeData => {
-        console.log(storeData);
-        data.set(storeData);
-      })
+      .then(storeData => data.set(storeData))
       .catch(err => {
         pushNotification('Error al cargar el local', 'error');
       });
