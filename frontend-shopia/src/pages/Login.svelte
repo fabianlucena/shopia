@@ -83,6 +83,18 @@
         window.location.href = url;
       }}
     />
+  {:else}
+    <Button
+      class={"oauth-provider-" + provider.name}
+      on:click={evt => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        const url = provider.url + '&state=' + encodeURIComponent(getState());
+        window.location.href = url;
+      }}
+    >
+      {provider.label}
+    </Button>
   {/if}
 {/each}
 
