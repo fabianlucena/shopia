@@ -23,11 +23,13 @@ namespace backend_shopia.Entities
         [Virtual]
         public IEnumerable<ItemStore>? ItemsStores { get; set; } = default;
 
-        [Virtual]
-        public IEnumerable<Store>? Stores { get; set; } = default;
+        [Required]
+        [ForeignKey("Commerce")]
+        public Int64 CommerceId { get; set; } = default;
+        public Commerce? Commerce { get; set; } = default;
 
         [Virtual]
-        public Commerce? Commerce { get; set; } = default;
+        public IEnumerable<Store>? Stores { get; set; } = default;
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]

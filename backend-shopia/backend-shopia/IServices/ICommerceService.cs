@@ -25,6 +25,10 @@ namespace backend_shopia.IServices
 
         Task<IEnumerable<Int64>> GetListIdForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);
 
+        Task<IEnumerable<Guid>> GetListUuidForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);
+
         Task<IEnumerable<Int64>> GetListIdForCurrentUserAsync(QueryOptions? options = null);
+
+        Task<IEnumerable<Guid>> GetListUuidForCurrentUserAsync(QueryOptions? options = null);
     }
 }

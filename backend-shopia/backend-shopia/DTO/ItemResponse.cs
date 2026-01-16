@@ -10,6 +10,10 @@
 
         public required string Description { get; set; }
 
+        public Guid? CommerceUuid { get; set; }
+
+        public required CommerceMinimalDTO Commerce { get; set; }
+
         public required CategoryMinimalDTO Category { get; set; }
 
         public Guid? CategoryUuid { get; set; }

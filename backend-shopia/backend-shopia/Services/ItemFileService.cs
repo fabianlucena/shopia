@@ -35,7 +35,7 @@ namespace backend_shopia.Services
                     data.ItemId,
                     new QueryOptions
                     {
-                        Switches = { { "IncludeCommerce", true } }
+                        Join = { "Commerce" },
                     }
                 );
                 if (data.Item == null)

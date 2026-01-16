@@ -67,6 +67,7 @@ namespace backend_shopia
         {
             CreateMap<CommerceAddRequest, Commerce>();
             CreateMap<Commerce, CommerceResponse>();
+            CreateMap<Commerce, CommerceMinimalDTO>();
 
             CreateMap<StoreAddRequest, Store>()
                 .ForMember(dest => dest.CommerceId, opt => opt.MapFrom<StoreAddRequest_CommerceIdResolverAsync>())
@@ -82,6 +83,7 @@ namespace backend_shopia
                 .ForMember(dest => dest.Stores, opt => opt.MapFrom<ItemAddRequest_StoresResolverAsync>());
             CreateMap<Item, ItemResponse>()
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price.ToString(CultureInfo.InvariantCulture)))
+                .ForMember(dest => dest.CommerceUuid, opt => opt.MapFrom(src => src.Commerce != null ? (Guid?)src.Commerce.Uuid : null))
                 .ForMember(dest => dest.CategoryUuid, opt => opt.MapFrom(src => src.Category != null ? (Guid?)src.Category.Uuid : null))
                 .ForMember(dest => dest.StoresUuid, opt => opt.MapFrom(src => src.Stores != null ? (Guid[]?)src.Stores.Select(s => s.Uuid) : null));
 

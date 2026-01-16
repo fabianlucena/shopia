@@ -55,8 +55,14 @@ El plan ya existe.
 Plan feature already exists.
 La característica de plan ya existe.
 
-Store does not exist.
-No existe el local.
+Some store belongs to another commerce
+Algúno locale pertenece a otro comercio
+
+Some store does not exist
+Algúno locale no existe
+
+Store does not exist
+No existe el local
 
 The maximum limit of enabled commerce images has been reached.
 Se ha alcanzado el límite máximo de imágenes de comercio habilitadas.
@@ -78,6 +84,9 @@ Se ha alcanzado el límite máximo de artículos habilitadas.
 
 The maximum limit of enabled stores has been reached.
 Se ha alcanzado el límite máximo de locales habilitados.
+
+The store belongs to another commerce
+El local pertenece a otro comercio
 
 You already own a commerce with that name.
 Uste ya posee un comercio con ese nombre.

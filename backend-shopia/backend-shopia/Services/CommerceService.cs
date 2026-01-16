@@ -123,9 +123,7 @@ namespace backend_shopia.Services
 
         public QueryOptions GetFilterForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
         {
-            options = (options != null) ?
-                new QueryOptions(options) :
-                new();
+            options = new QueryOptions(options);
             options.AddFilter("OwnerId", ownerId);
 
             return options;
@@ -140,8 +138,14 @@ namespace backend_shopia.Services
         public async Task<IEnumerable<Int64>> GetListIdForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
             => await GetListIdAsync(GetFilterForOwnerIdAsync(ownerId, options));
 
+        public async Task<IEnumerable<Guid>> GetListUuidForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
+            => await GetListUuidAsync(GetFilterForOwnerIdAsync(ownerId, options));
+
         public async Task<IEnumerable<Int64>> GetListIdForCurrentUserAsync(QueryOptions? options = null)
             => await GetListIdForOwnerIdAsync(GetCurrentUserId(), options);
+
+        public async Task<IEnumerable<Guid>> GetListUuidForCurrentUserAsync(QueryOptions? options = null)
+            => await GetListUuidForOwnerIdAsync(GetCurrentUserId(), options);
     }
 }
 

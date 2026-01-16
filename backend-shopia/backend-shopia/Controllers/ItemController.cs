@@ -21,6 +21,7 @@ namespace backend_shopia.Controllers
         IItemService itemService,
         IItemFileService itemFileService,
         IItemStoreService itemStoreService,
+        ICommerceService commerceService,
         IMapper mapper
     )
         : ControllerBase
@@ -69,27 +70,28 @@ namespace backend_shopia.Controllers
 
             options
                 .AddFilter("InheritedIsEnabled", true)
-                .Include("Category");
+                .Include("Category")
+                .Include("Commerce");
             var itemsList = await itemService.GetListAsync(options);
 
             var response = itemsList.Select(mapper.Map<Item, ItemResponse>);
 
             if (response.Any())
             {
-                HashSet<Guid> uuidList;
+                HashSet<Guid> commercesUuidList;
                 if (itemService.GetCurrentUserIdOrDefault() is not null)
                 {
-                    uuidList = [.. (await itemService.GetListUuidForCurrentUserAsync())];
+                    commercesUuidList = [.. (await commerceService.GetListUuidForCurrentUserAsync())];
                 } else
                 {
-                    uuidList = [];
+                    commercesUuidList = [];
                 }
 
                 var itemIdMap = itemsList.ToDictionary(i => i.Uuid, i => i.Id);
 
                 response = await Task.WhenAll(response.Select(async item =>
                 {
-                    item.IsMine = uuidList.Contains(item.Uuid);
+                    item.IsMine = commercesUuidList.Contains(item.Commerce.Uuid);
                     if (itemIdMap.TryGetValue(item.Uuid, out var itemId))
                     {
                         var files = await itemFileService.GetListForItemIdAsync(itemId);
