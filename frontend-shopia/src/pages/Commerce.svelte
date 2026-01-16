@@ -3,6 +3,8 @@
   import * as commerceService from '$services/commerceService.js';
   import { pushNotification } from '$libs/notification';
   import ImagesGallery from '$components/controls/ImagesGallery.svelte';
+  import Button from '$components/controls/Button.svelte';
+  import QRCode from 'qrcode';
 
   let {
     uuid = null,
@@ -15,12 +17,27 @@
     }
 
     commerceService.getSingleForUuid(uuid, { query: { includeStores: true }})
-      .then(commerceData => {
-        console.log(commerceData);
-        data.set(commerceData);
-      })
+      .then(commerceData => data.set(commerceData))
       .catch(err => {
         pushNotification('Error al cargar el comercio', 'error');
+      });
+  });
+
+  const qrDataUrl = writable(null);
+  $effect(() => {
+    if (!$data)
+      return;
+
+    const url = new URL(window.location.href);
+    url.pathname = '/explore';
+    url.search = `commerce=${uuid}`
+
+    QRCode.toDataURL(url.href, { width: 200 })
+      .then(url => {
+        qrDataUrl.set(url);
+      })
+      .catch(err => {
+        pushNotification('Error al generar el código QR', 'error');
       });
   });
 </script>
@@ -48,7 +65,17 @@
       {/each}
     </div>
   {/if}
-  <a href="/explore?commerce={uuid}">Explorar artículos</a>
+  <Button
+    class="explore-button"
+    navigateTo="/explore?commerce={uuid}"
+  >
+    Explorar artículos
+  </Button>
+  <img
+    class="qr-code"
+    src="{$qrDataUrl}"
+    alt="QR code"
+  />
 </div>
 
 <style>
@@ -112,5 +139,17 @@
   a.store {
     border: .1em solid var(--border-color);
     padding: .5em 1em;    
+  }
+
+  :global(.explore-button) {
+    margin-top: 1em;
+    align-self: center;
+  }
+
+  .qr-code {
+    width: 16em;
+    height: 16em;
+    align-self: center;
+    margin-top: 1em;
   }
 </style>

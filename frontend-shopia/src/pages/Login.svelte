@@ -21,7 +21,7 @@
   $effect(() => {
     getProviders()
       .then(result => providers.set(result))
-      .catch((error) => {
+      .catch(err => {
         pushNotification('Error al cargar proveedores de inicio de sesión', 'error');
       });
   });
