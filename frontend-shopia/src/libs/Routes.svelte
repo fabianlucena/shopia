@@ -106,13 +106,18 @@
   let Component = $state(null);
   let params = writable({});
   $effect(() => {
-    let theRoute = $routes.find(r => r.path === $route);
+    let path = $route;
+    if (path.includes('?')) {
+      path = path.split('?')[0];
+    }
+    
+    let theRoute = $routes.find(r => r.path === path);
     if (!theRoute) {
       // Check for dynamic routes
       for (let r of $routes) {
         if (r.path.includes(':')) {
           const routeParts = r.path.split('/');
-          const pathParts = $route.split('/');
+          const pathParts = path.split('/');
           if (routeParts.length === pathParts.length) {
             let isMatch = true;
             for (let i = 0; i < routeParts.length; i++) {
@@ -130,7 +135,7 @@
 
         if (r.path.endsWith('/*')) {
           const basePath = r.path.slice(0, -2);
-          if ($route.startsWith(basePath)) {
+          if (path.startsWith(basePath)) {
             theRoute = r;
             break;
           }
@@ -143,7 +148,7 @@
         params.set({});
       if (theRoute.path.includes(':')) {
         const routeParts = theRoute.path.split('/');
-        const pathParts = $route.split('/');
+        const pathParts = path.split('/');
         routeParts.forEach((part, index) => {
           if (part.startsWith(':')) {
             const paramName = part.slice(1);
