@@ -43,6 +43,7 @@
       <span class="label">Comercio:</span>
       <a href="/commerce/{$data.commerce.uuid}">{$data.commerce.name}</a>
     </div>
+    <a href="/explore?store={uuid}">Explorar artículos</a>
   {/if}
 </div>
 

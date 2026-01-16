@@ -49,7 +49,7 @@ namespace backend_shopia.Controllers
             var options = QueryOptions.CreateFromQuery(HttpContext);
             if (uuid != null)
                 options.AddFilter("Uuid", uuid);
-
+            
             if (HttpContext.Request.Query.TryGetBool("mine", out var mine) && mine)
             {
                 var ownerId = (HttpContext.Items["UserId"] as Int64?)
@@ -57,6 +57,9 @@ namespace backend_shopia.Controllers
 
                 options.AddFilter("OwnerId", ownerId);
             }
+
+            if (HttpContext.Request.Query.TryGetBool("includeStores", out var includeStores) && includeStores)
+                options.Switches.Add("IncludeStores", true);
 
             var commerceList = await commerceService.GetListAsync(options);
 

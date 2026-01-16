@@ -14,7 +14,7 @@
       return;
     }
 
-    commerceService.getSingleForUuid(uuid)
+    commerceService.getSingleForUuid(uuid, { query: { includeStores: true }})
       .then(commerceData => {
         console.log(commerceData);
         data.set(commerceData);
@@ -39,7 +39,16 @@
       />
     {/if}
     <div class="description">{$data.description}</div>
+    <div class="stores">
+      {#each $data.stores as store (store.uuid)}
+        <a href="/store/{store.uuid}" class="store">
+          <div>{store.name}</div>
+          <div>{store.description}</div>
+        </a>
+      {/each}
+    </div>
   {/if}
+  <a href="/explore?commerce={uuid}">Explorar artículos</a>
 </div>
 
 <style>
@@ -78,5 +87,30 @@
     max-height: 3em;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .stores {
+    margin-top: .5em;
+    display: flex;
+    gap: .5em;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  a {
+    text-decoration: none;
+    color: var(--color);
+    display: block;
+    border-radius: .5em;
+  }
+
+  a:hover {
+    box-shadow: .1em .1em .3em rgba(0, 0, 0, 0.5);
+  }
+
+  a.store {
+    border: .1em solid var(--border-color);
+    padding: .5em 1em;    
   }
 </style>

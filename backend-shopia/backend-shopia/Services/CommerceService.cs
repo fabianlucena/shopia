@@ -61,6 +61,34 @@ namespace backend_shopia.Services
             return data;
         }
 
+        public override async Task<IEnumerable<Commerce>> GetListAsync(QueryOptions options)
+        {
+            var commerces = await base.GetListAsync(options);
+            if (commerces.Any())
+            {
+                if (options.Switches.TryGetValue("IncludeStores", out var includeStores)
+                    && includeStores)
+                {
+                    var storeService = serviceProvider.GetRequiredService<IStoreService>();
+                    foreach (var commerce in commerces)
+                    {
+                        var stores = await storeService.GetListAsync(
+                            new QueryOptions
+                            {
+                                Filters = { { "CommerceId", commerce.Id } }
+                            }
+                        );
+                        if (!stores.Any())
+                            continue;
+
+                        commerce.Stores = stores;
+                    }
+                }
+            }
+
+            return commerces;
+        }
+
         public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, QueryOptions options)
         {
             data = await base.ValidateForUpdateAsync(data, options);

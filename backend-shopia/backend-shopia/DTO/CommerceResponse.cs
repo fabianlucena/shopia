@@ -1,6 +1,4 @@
-﻿using backend_shopia.Entities;
-
-namespace backend_shopia.DTO
+﻿namespace backend_shopia.DTO
 {
     public class CommerceResponse
     {
@@ -12,12 +10,14 @@ namespace backend_shopia.DTO
 
         public required string Description { get; set; }
 
+        public required PlanDTO Plan { get; set; }
+
+        public required StoreMinimalDTO[] Stores { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
 
         public DateTime? DeletedAt { get; set; }
-
-        public required PlanDTO Plan { get; set; }
     }
 }

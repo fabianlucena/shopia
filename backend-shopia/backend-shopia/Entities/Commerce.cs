@@ -1,4 +1,5 @@
 ﻿using RFAuth.Entities;
+using RFService.Attributes;
 using RFService.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -21,5 +22,7 @@ namespace backend_shopia.Entities
         public Int64? PlanId { get; set; } = default;
         public Plan? Plan { get; set; } = default;
 
+        [Virtual]
+        public IEnumerable<Store>? Stores { get; set; } = default;
     }
 }

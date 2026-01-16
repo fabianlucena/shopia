@@ -141,7 +141,11 @@ namespace backend_shopia.Services
                             i.Store!.Commerce = i.Commerce;  
                             return i.Store;
                         });
-                        item.Commerce = item.Stores.First().Commerce;
+
+                        if (item.CommerceId <= 0)
+                            item.CommerceId = item.Stores.First().CommerceId;
+
+                        item.Commerce ??= item.Stores.First().Commerce;
                     }
                 }
             }
