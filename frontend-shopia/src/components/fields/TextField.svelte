@@ -2,9 +2,10 @@
   import Field from '$components/fields/Field.svelte';
   import Text from '$components/controls/Text.svelte';
   import { getContext } from 'svelte';
+  import { generateUuid } from '$libs/uuid.js';
 
   let {
-    id = crypto.randomUUID(),
+    id = generateUuid(),
     label = '',
     type = 'text',
     value = $bindable(''),
