@@ -66,7 +66,7 @@
 
 {#if $selectedCommerce}
   <h3>
-    Comercio: {$selectedCommerce.label}
+    <a href="/commerce/{$selectedCommerce.value}">{$selectedCommerce.label}</a>
   </h3>
 {/if}
 
@@ -110,5 +110,10 @@
     box-sizing: border-box;
     display: flex;
     flex-wrap: wrap;
+  }
+
+  a {
+    color: var(--link-color);
+    text-decoration: none;
   }
 </style>
