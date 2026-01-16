@@ -7,11 +7,36 @@
   import { login } from '$services/loginService.js';
   import { pushNotification } from '$libs/notification.js';
   import { navigate } from '$libs/router';
+  import AccederConGoogle from '$components/buttons/AccederConGoogle.svelte';
+  import { writable } from 'svelte/store';
+  import { getProviders } from '$services/oAuth2Service.js';
 
   let data = {
     username: '',
     password: '',
   };
+
+  let providers = writable([]);
+
+  $effect(() => {
+    getProviders()
+      .then(result => providers.set(result))
+      .catch((error) => {
+        pushNotification('Error al cargar proveedores de inicio de sesión', 'error');
+      });
+  });
+
+  function getState() {
+    let state = location.pathname;
+
+    if (location.search)
+      state += location.search;
+
+    if (location.hash)
+      state += location.hash;
+
+    return state;
+  }
 
   async function handleSubmit(evt) {
     evt.preventDefault();
@@ -25,11 +50,6 @@
     
     navigate('/');
     pushNotification('Inicio de sesión exitoso', 'success');
-  }
-
-  function passwordRecoveryHandler(evt) {
-    evt.preventDefault();
-    navigate('/password-recovery');
   }
 </script>
 
@@ -50,14 +70,24 @@
     bind:value={data.password}
     required={true}
   />
-
-  <LinkField
-    onclick={passwordRecoveryHandler}
-  >
-    Recuperar contraseña
-  </LinkField>
-
-  {#snippet footer()}
-    <Button>Registrarse</Button>
-  {/snippet}
 </Form>
+
+{#each $providers as provider}
+  {#if provider.name === 'google'}
+    <AccederConGoogle
+      class="oauth-provider-google"
+      onclick={evt => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        const url = provider.url + '&state=' + encodeURIComponent(getState());
+        window.location.href = url;
+      }}
+    />
+  {/if}
+{/each}
+
+<style>
+  :global(button.oauth-provider-google) {
+    margin: .5em auto;
+  }
+</style>

@@ -5,6 +5,7 @@
   import Explore from '$pages/Explore.svelte';
   import About from '$pages/About.svelte';
   import Login from '$pages/Login.svelte';
+  import OAuth2Callback from '$pages/OAuth2Callback.svelte';
   import NotFound from '$pages/NotFound.svelte';
   import PasswordRecovery from '$pages/PasswordRecovery.svelte';
   import ItemsList from '$pages/ItemsList.svelte';
@@ -33,6 +34,10 @@
       path: '/login',
       page: Login,
       condition: !$isLoggedIn,
+    },
+    {
+      path: '/oauth2callback/*',
+      page: OAuth2Callback,
     },
     {
       path: '/password-recovery',
@@ -105,6 +110,14 @@
               theRoute = r;
               break;
             }
+          }
+        }
+
+        if (r.path.endsWith('/*')) {
+          const basePath = r.path.slice(0, -2);
+          if ($route.startsWith(basePath)) {
+            theRoute = r;
+            break;
           }
         }
       }

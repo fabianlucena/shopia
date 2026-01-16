@@ -20,6 +20,7 @@ using RFL10n;
 using RFLogger;
 using RFLoggerProvider;
 using RFLoggerProviderDapper;
+using RFOauth2Client;
 using RFRBAC;
 using RFRBAC.Authorization;
 using RFRBACDapper;
@@ -27,6 +28,8 @@ using RFRegister;
 using RFService;
 using RFService.Attributes;
 using RFService.IRepo;
+using RFService.IServices;
+using RFService.Libs;
 using RFUserEmailVerified;
 using RFUserEmailVerifiedDapper;
 using System.ComponentModel.DataAnnotations;
@@ -67,6 +70,8 @@ namespace backend_shopia
             services.AddRFHttpAction();
             services.AddRFHttpExceptionsL10n();
             services.AddRFDBLocalizer();
+            services.AddRFOauth2Client();
+            services.AddScoped<IEventBus, EventBus>();
 
             services.AddSingleton<IEmbeddingService>(provider =>
             {

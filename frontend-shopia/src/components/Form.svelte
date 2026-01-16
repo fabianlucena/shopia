@@ -40,10 +40,12 @@
   async function handleSubmit(evt) {
     evt.preventDefault();
 
-    const validationMessage = validate?.();
-    if (validationMessage !== true) {
-      pushNotification(validationMessage ?? 'Error de validación', 'error');
-      return;
+    if (validate) {
+      const validationMessage = validate();
+      if (validationMessage !== true) {
+        pushNotification(validationMessage ?? 'Error de validación', 'error');
+        return;
+      }
     }
 
     const setDisabled = !disabled && disabled !== false;

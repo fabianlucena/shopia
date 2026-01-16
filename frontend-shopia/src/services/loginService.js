@@ -25,32 +25,39 @@ export async function _login(url, body) {
 
   try {
     const data = await Api.postJson(url, { body });
-    if (!data?.authorizationToken) {
-      isLoggedIn.set(false);
-      permissions.set([]);
-      return;
-    }
-
-    Api.headers.Authorization = 'Bearer ' + data.authorizationToken;
-    isLoggedIn.set(true);
-
-    if (data.deviceToken) {
-      localStorage.setItem('deviceToken', data.deviceToken);
-    }
-    
-    if (data.autoLoginToken) {
-      localStorage.setItem('autoLoginToken', data.autoLoginToken);
-    }
-
-    if (data.attributes?.permissions) {
-      permissions.set(data.attributes?.permissions ?? []);
-    }
-
-    return true;
+    return setLogin(data);
   } catch(err) {
     console.error(err);
     throw err;
   }
+}
+
+export function setLogin(data) {
+  if (!data?.authorizationToken) {
+    isLoggedIn.set(false);
+    permissions.set([]);
+    localStorage.removeItem('autoLoginToken');
+    return;
+  }
+
+  Api.headers.Authorization = 'Bearer ' + data.authorizationToken;
+  isLoggedIn.set(true);
+
+  if (data.deviceToken) {
+    localStorage.setItem('deviceToken', data.deviceToken);
+  }
+  
+  if (data.autoLoginToken) {
+    localStorage.setItem('autoLoginToken', data.autoLoginToken);
+  } else {
+    localStorage.removeItem('autoLoginToken');
+  }
+
+  if (data.attributes?.permissions) {
+    permissions.set(data.attributes?.permissions ?? []);
+  }
+
+  return true;
 }
 
 export function logout() {

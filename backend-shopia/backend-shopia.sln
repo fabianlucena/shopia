@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.1.11312.151 d18.0
+VisualStudioVersion = 18.1.11312.151
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "backend-shopia", "backend-shopia\backend-shopia.csproj", "{66CC3ECA-2C5D-48A3-8418-75BA82565E66}"
 EndProject
@@ -62,6 +62,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFDapperDriverPostgreSQL", "rf-nugets\RFDapperDriverPostgreSQL\RFDapperDriverPostgreSQL.csproj", "{84C3F3C8-ED7C-45C5-BE20-1687FEF6327F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFDapperDriverMySQL", "rf-nugets\RFDapperDriverMySQL\RFDapperDriverMySQL.csproj", "{2C517CB9-904D-1BCA-265D-658F8604F8DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFOauth2Client", "rf-nugets\RFOauth2Client\RFOauth2Client.csproj", "{EC989359-7805-6939-6BA2-9C8425DF27AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -185,6 +187,10 @@ Global
 		{2C517CB9-904D-1BCA-265D-658F8604F8DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C517CB9-904D-1BCA-265D-658F8604F8DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C517CB9-904D-1BCA-265D-658F8604F8DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC989359-7805-6939-6BA2-9C8425DF27AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC989359-7805-6939-6BA2-9C8425DF27AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC989359-7805-6939-6BA2-9C8425DF27AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC989359-7805-6939-6BA2-9C8425DF27AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -218,6 +224,7 @@ Global
 		{2C9F48C5-6DA9-44FA-8643-CCF4D04C4E17} = {97C7CD0C-457F-4439-B1CE-0A524B391FBC}
 		{84C3F3C8-ED7C-45C5-BE20-1687FEF6327F} = {97C7CD0C-457F-4439-B1CE-0A524B391FBC}
 		{2C517CB9-904D-1BCA-265D-658F8604F8DF} = {97C7CD0C-457F-4439-B1CE-0A524B391FBC}
+		{EC989359-7805-6939-6BA2-9C8425DF27AB} = {97C7CD0C-457F-4439-B1CE-0A524B391FBC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7DED2E2E-A009-4B14-9ACC-73D803EC810B}
