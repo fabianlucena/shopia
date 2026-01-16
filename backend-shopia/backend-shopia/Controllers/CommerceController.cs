@@ -42,21 +42,21 @@ namespace backend_shopia.Controllers
         }
 
         [HttpGet("{uuid?}")]
-        [Permission("commerce.get")]
         public async Task<IActionResult> GetAsync([FromRoute] Guid? uuid)
         {
             logger.LogInformation("Getting commerces");
 
-            if (uuid != null)
-                await commerceService.CheckForUuidAndCurrentUserAsync(uuid.Value);
-
-            var ownerId = (HttpContext.Items["UserId"] as Int64?)
-                ?? throw new NoAuthorizationHeaderException();
-
             var options = QueryOptions.CreateFromQuery(HttpContext);
-            options.AddFilter("OwnerId", ownerId);
             if (uuid != null)
                 options.AddFilter("Uuid", uuid);
+
+            if (HttpContext.Request.Query.TryGetBool("mine", out var mine) && mine)
+            {
+                var ownerId = (HttpContext.Items["UserId"] as Int64?)
+                    ?? throw new NoAuthorizationHeaderException();
+
+                options.AddFilter("OwnerId", ownerId);
+            }
 
             var commerceList = await commerceService.GetListAsync(options);
 

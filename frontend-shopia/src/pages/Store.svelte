@@ -1,10 +1,8 @@
 <script>
   import { writable } from 'svelte/store';
-  import * as itemService from '$services/itemService.js';
+  import * as storeService from '$services/storeService.js';
   import { pushNotification } from '$libs/notification';
   import ImagesGallery from '$components/controls/ImagesGallery.svelte';
-  import { money } from '$libs/formatter.js';
-  import { yesNo } from '$libs/formatter.js';
 
   let {
     uuid = null,
@@ -16,21 +14,22 @@
       return;
     }
 
-    itemService.getSingleForUuid(uuid)
-      .then(itemData => {
-        data.set(itemData);
+    storeService.getSingleForUuid(uuid)
+      .then(storeData => {
+        console.log(storeData);
+        data.set(storeData);
       })
       .catch(err => {
-        pushNotification('Error al cargar el artículo', 'error');
+        pushNotification('Error al cargar el local', 'error');
       });
   });
 </script>
 
 <div
-  class="item"
+  class="store"
 >
   {#if !$data}
-    <div class="disabled-banner">Artículo no encontrado</div>
+    <div class="disabled-banner">Local no encontrado</div>
   {:else}
     <div class="name">{$data.name}</div>
     {#if $data.images && $data.images.length > 0}
@@ -39,32 +38,17 @@
         readonly={true}
       />
     {/if}
-    <div class="category">{$data.category.name}</div>
     <div class="description">{$data.description}</div>
-    <div class="price">Precio: {money($data.price)}</div>
-    <div class="stock">Disponibilidad: {$data.stock}</div>
     <div class="commerce">
       <span class="label">Comercio:</span>
       <a href="/commerce/{$data.commerce.uuid}">{$data.commerce.name}</a>
     </div>
-    <div class="stores">
-      <span class="label">Locales:</span> 
-      {#each $data.stores as store (store.uuid)}
-        <a href="/store/{store.uuid}" class="store">{store.name}</a>
-      {/each}
-    </div>
-    <div class="is-present">¿Para regalar? {yesNo($data.isPresent)}</div>
-    {#if $data.isPresent}
-      <div class="ages">
-        {$data.minAge} - {$data.maxAge} años
-      </div>
-    {/if}
   {/if}
 </div>
 
 <style>
-  .item {
-    background-color: var(--item-background-color);
+  .store {
+    background-color: var(--background-color);
     padding: .1em;
     margin: .1em;
     border-radius: .8em;
@@ -86,12 +70,6 @@
     font-size: 1.5em;
     font-weight: bold;
     text-align: center;
-  }
-
-  .price {
-    font-size: 1.2em;
-    text-align: left;
-    color: var(--item-price-color);
   }
 
   .description {
@@ -116,24 +94,10 @@
     border-radius: .3em;
   }
 
-  .commerce,
-  .stores {
+  .commerce {
     display: flex;
     gap: .3em;
     align-items: baseline;
-  }
-
-  .category {
-    font-size: 0.7em;
-    font-style: italic;
-    border: .15em solid var(--border-color);
-    border-radius: .5em;
-    background-color: var(--background-color);
-    display: block;
-    padding: .1em .3em;
-    margin-top: .3em;
-    margin-left: auto;
-    margin-right: auto;
   }
 
   .description {

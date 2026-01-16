@@ -48,20 +48,21 @@ namespace backend_shopia.Controllers
         }
 
         [HttpGet("{uuid?}")]
-        [Permission("store.get")]
         public async Task<IActionResult> GetAsync([FromRoute] Guid? uuid)
         {
             logger.LogInformation("Getting stores");
 
-            if (uuid != null)
-                await storeService.CheckForUuidAndCurrentUserAsync(uuid.Value);
-
-            var commercesIdList = await commerceService.GetListIdForCurrentUserAsync();
-
             var options = QueryOptions.CreateFromQuery(HttpContext);
-            options.AddFilter("CommerceId", commercesIdList);
+            options.Include("Commerce");
+
             if (uuid != null)
                 options.AddFilter("Uuid", uuid);
+
+            if (HttpContext.Request.Query.TryGetBool("mine", out var mine) && mine)
+            {
+                var commercesId = await commerceService.GetListIdForCurrentUserAsync(QueryOptions.IncludeDisabled);
+                options.AddFilter("CommerceId", commercesId);
+            }
 
             var storeList = await storeService.GetListAsync(options);
 

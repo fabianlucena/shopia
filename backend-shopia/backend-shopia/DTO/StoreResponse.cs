@@ -12,6 +12,8 @@ namespace backend_shopia.DTO
 
         public required string Description { get; set; }
 
+        public required CommerceMinimalDTO Commerce { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }

@@ -4,6 +4,8 @@
   import Home from '$pages/Home.svelte';
   import Explore from '$pages/Explore.svelte';
   import Item from '$pages/Item.svelte';
+  import Store from '$pages/Store.svelte';
+  import Commerce from '$pages/Commerce.svelte';
   import About from '$pages/About.svelte';
   import Login from '$pages/Login.svelte';
   import OAuth2Callback from '$pages/OAuth2Callback.svelte';
@@ -30,6 +32,14 @@
     {
       path: '/item/:uuid',
       page: Item,
+    },
+    {
+      path: '/store/:uuid',
+      page: Store,
+    },
+    {
+      path: '/commerce/:uuid',
+      page: Commerce,
     },
     {
       path: '/about',
