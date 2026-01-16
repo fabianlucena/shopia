@@ -22,6 +22,12 @@
     class="data"
   >
     <div class="name">{item.name}</div>
+    <div class="commerce">{item.commerce.name}</div>
+    <div class="stores">
+      {#each item.stores as store, index (store.uuid)}
+        <div class="store">{store.name}</div>
+      {/each}
+    </div>
     <div class="category">{item.category.name}</div>
     <div class="description">{item.description}</div>
     <div class="price">{money(item.price)}</div>
@@ -62,6 +68,14 @@
     text-align: center;
   }
 
+  .commerce {
+    font-size: 0.9em;
+    text-align: center;
+    margin: 0 1em;
+    padding: .2em 0;
+    background-color: var(--background-color);
+  }
+
   .price {
     font-size: 1.2em;
     text-align: left;
@@ -72,6 +86,17 @@
     margin-top: .5em;
     font-size: 0.9em;
     text-align: left;
+  }
+
+  .store {
+    font-size: 0.7em;
+    font-style: italic;
+    border: .15em solid var(--border-color);
+    border-radius: .5em;
+    background-color: var(--background-color);
+    display: inline-block;
+    padding: .1em .3em;
+    margin: auto;
   }
 
   .category {

@@ -22,12 +22,13 @@
   class="item"
 >
   <div class="name">{data.name}</div>
-  <div class="category">Rubro: {data.category.name}</div>
+  <div class="commerce">{data.commerce.name}</div>
   <div class="stores">
     {#each data.stores as store (store.uuid)}
       <span class="store">{store.name}</span>
     {/each}
   </div>
+  <div class="category">{data.category.name}</div>
   {#if data.images && data.images.length > 0}
     <ImagesView
       bind:value={data.images}
@@ -82,6 +83,14 @@
   .name {
     font-weight: bold;
     text-align: center;
+  }
+
+  .commerce {
+    font-size: 0.9em;
+    text-align: center;
+    margin: 0 1em;
+    padding: .2em 0;
+    background-color: var(--background-color);
   }
 
   .price {
