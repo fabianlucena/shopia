@@ -16,14 +16,14 @@
       path: '/',
     },
     {
-      name: 'mySelectedCommerce',
-      snippet: MyCommerceSelector,
-      condition: () => $permissions.includes('commerce.get'),
-    },
-    {
       name: 'commerces',
       label: 'Mis comercios',
       path: '/commerces-list',
+      condition: () => $permissions.includes('commerce.get'),
+    },
+    {
+      name: 'mySelectedCommerce',
+      snippet: MyCommerceSelector,
       condition: () => $permissions.includes('commerce.get'),
     },
     {

@@ -4,6 +4,7 @@
   let {
     items = [],
     onclose = null,
+    class : theClass = null,
     ...restProps
   } = $props();
 
@@ -39,6 +40,7 @@
 </script>
 
 <nav
+  class={`menu ${theClass ?? ''}`}
   {...restProps}
 >
   {#each items as item}
@@ -79,5 +81,13 @@
 
   button:hover {
     background-color: var(--hover-background-color);
+  }
+
+  :global(.menu select) {
+    background-color: transparent;
+    border: none;
+    font-size: inherit;
+    color: inherit;
+    padding: .5em 1em .5em 1.8em;
   }
 </style>
