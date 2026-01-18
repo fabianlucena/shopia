@@ -60,8 +60,6 @@
 
   function cancelHandler(evt) {
     evt.preventDefault();
-    
-    console.log(onCancel);
 
     if (onCancel) {
       onCancel(evt);

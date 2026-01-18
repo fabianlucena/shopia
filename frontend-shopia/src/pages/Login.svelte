@@ -11,10 +11,10 @@
   import { writable } from 'svelte/store';
   import { getProviders } from '$services/oAuth2Service.js';
 
-  let data = {
+  let data = writable({
     username: '',
     password: '',
-  };
+  });
 
   let providers = writable([]);
 
@@ -42,7 +42,7 @@
     evt.preventDefault();
     
     try {
-      await login(data);
+      await login($data);
     } catch (error) {
       pushNotification('Error de inicio de sesión', 'error');
       return;
@@ -61,13 +61,13 @@
 >
   <TextField
     label="Nombre de usuario"
-    bind:value={data.username}
+    bind:value={$data.username}
     required={true}
   />
 
   <PasswordField
     label="Contraseña"
-    bind:value={data.password}
+    bind:value={$data.password}
     required={true}
   />
 </Form>
