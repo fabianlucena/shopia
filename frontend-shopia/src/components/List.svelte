@@ -25,6 +25,7 @@
     filters : originalFilters = [],
     cardRender = null,
     getFilters = null,
+    afterSubmit = null,
     ...props
   } = $props();
 
@@ -152,13 +153,13 @@
     return () => observer.disconnect();
   });
 
-  async function onChange({ row, column, value }) {
-    const index = $data.findIndex(r => r.uuid === row.uuid);
+  async function onChange({ data: theData, options, value }) {
+    const index = $data.findIndex(r => r.uuid === theData.uuid);
     if (index < 0)
       return;
 
     data.update(d => {
-      d[index] = { ...$data[index], [column.field]: value };
+      d[index] = { ...$data[index], [options.field]: value };
       return d;
     });
 
@@ -167,12 +168,14 @@
     } else if (!$permissions.includes(`${baseName}.edit`)) {
       pushNotification('Error no tiene permiso para actualizar el elemento.', 'error');
     } else {
-      try {
-        await service.updateForUuid(row.uuid, { [column.field]: value });
+      try { 
+        await service.updateForUuid(theData.uuid, { [options.field]: value });
         pushNotification('Elemento actualizado correctamente.', 'success');
-      } catch {
-        pushNotification('Error al actualizar el elemento.', 'error');
+      } catch (err) {
+        pushNotification(err.message || 'Error al actualizar el elemento.', 'error');
       }
+
+      afterSubmit?.();
     }
 
     updateData();

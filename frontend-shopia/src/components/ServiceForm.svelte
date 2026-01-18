@@ -162,7 +162,7 @@
     let sendData = getDataForSend({
       fields: $fields,
       data: $data,
-      defaultData: defaultData,
+      defaultData: !uuid || uuid === 'new' ? {} : defaultData,
     });
 
     let isEmpty;

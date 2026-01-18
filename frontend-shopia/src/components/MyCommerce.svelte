@@ -35,7 +35,6 @@
     border: none;
     background-color: transparent;
     color: inherit;
-    background-color: var(--header-background-color);
     margin: 0;
     padding: 0 0 0 .5em;
     font-weight: normal;

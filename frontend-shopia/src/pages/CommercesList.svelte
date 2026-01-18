@@ -1,7 +1,8 @@
 <script>
   import List from '$components/List.svelte';
-    import MyCommerce from '$components/MyCommerce.svelte';
+  import MyCommerce from '$components/MyCommerce.svelte';
   import * as service from '$services/commerceService.js';
+  import { loadMyCommerces } from '$stores/session.js';
 </script>
 
 <MyCommerce />
@@ -19,4 +20,5 @@
   ]}
   {service}
   filters={[ 'includeDisabled' ]}
+  afterSubmit={() => loadMyCommerces()}
 />

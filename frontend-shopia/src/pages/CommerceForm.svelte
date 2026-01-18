@@ -33,6 +33,6 @@
   fields={[
     'isEnabled',
     'name',
-    'description',
+    '*description',
   ]}
 />
