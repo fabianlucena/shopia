@@ -2,7 +2,7 @@
   import ServiceForm from '$components/ServiceForm.svelte';
   import * as storeService from '$services/storeService.js';
   import MyCommerce from '$components/MyCommerce.svelte';
-  import { myCommerces } from '$stores/session';
+  import { mySelectedCommerceUuid } from '$stores/session';
 
   let {
     ...restProps
@@ -27,10 +27,13 @@
   {...restProps}
   header="Local"
   service={storeService}
+  prepareData={({data, uuid}) => {
+    if (!uuid || uuid === 'new')
+      data.commerceUuid = $mySelectedCommerceUuid;
+  }}
   {validate}
   fields={[
     'isEnabled',
-    { name: 'commerceUuid', type: 'select',  label: 'Comercio', required: true, options: $myCommerces?.map(c => ({ label: c.name, value: c.uuid })) },
     'name',
     '*description',
   ]}

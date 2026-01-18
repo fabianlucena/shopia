@@ -22,6 +22,7 @@
     fields : originalFields = {},
     data : originalData = {},
     submitLabel = 'Guardar',
+    prepareData = null,
     onSubmit = null,
     cancelable = true,
     validate = null,
@@ -166,7 +167,6 @@
       return;
     }
 
-    onSubmit?.(sendData);
     if (!service) {
       if (!onSubmit) {
         pushNotification('ServiceForm: service no está definido', 'error');
@@ -174,6 +174,10 @@
 
       return;
     }
+
+    prepareData?.({uuid, data: sendData});
+
+    onSubmit?.({uuid, data: sendData});
 
     try {
       if (!uuid || uuid === 'new')

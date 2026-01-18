@@ -3,8 +3,8 @@
   import ServiceForm from '$components/ServiceForm.svelte';
   import * as categoryService from '$services/categoryService.js';
   import MyCommerce from '$components/MyCommerce.svelte';
-  import { getMySelectedCommerceStores } from '$stores/session.js';
-    import { writable } from 'svelte/store';
+  import { getMySelectedCommerceStores, mySelectedCommerceUuid } from '$stores/session.js';
+  import { writable } from 'svelte/store';
   let {
     ...restProps
   } = $props();
@@ -51,6 +51,10 @@
   {...restProps}
   header="Artículo"
   service={itemService}
+  prepareData={({data, uuid}) => {
+    if (!uuid || uuid === 'new')
+      data.commerceUuid = $mySelectedCommerceUuid;
+  }}
   {validate}
   fields={[
     'isEnabled',
