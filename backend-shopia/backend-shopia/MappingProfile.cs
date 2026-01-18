@@ -21,6 +21,20 @@ namespace backend_shopia
         }
     }
 
+    public class ItemAddRequest_CommerceIdResolverAsync(ICommerceService commerceService)
+        : IValueResolver<ItemAddRequest, Item, Int64>
+    {
+        public Int64 Resolve(
+            ItemAddRequest source,
+            Item destination,
+            Int64 destMember,
+            ResolutionContext context)
+        {
+            return commerceService.GetSingleOrDefaultIdForUuidAsync(source.CommerceUuid)?.Result
+                ?? throw new CommerceDoesNotExistException();
+        }
+    }
+
     public class ItemAddRequest_CategoryIdResolverAsync(ICategoryService categoryService)
         : IValueResolver<ItemAddRequest, Item, Int64>
     {
@@ -79,6 +93,7 @@ namespace backend_shopia
             CreateMap<Category, CategoryMinimalDTO>();
 
             CreateMap<ItemAddRequest, Item>()
+                .ForMember(dest => dest.CommerceId, opt => opt.MapFrom<ItemAddRequest_CommerceIdResolverAsync>())
                 .ForMember(dest => dest.CategoryId, opt => opt.MapFrom<ItemAddRequest_CategoryIdResolverAsync>())
                 .ForMember(dest => dest.Stores, opt => opt.MapFrom<ItemAddRequest_StoresResolverAsync>());
             CreateMap<Item, ItemResponse>()

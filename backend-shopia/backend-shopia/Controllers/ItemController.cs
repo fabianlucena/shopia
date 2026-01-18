@@ -32,6 +32,9 @@ namespace backend_shopia.Controllers
         {
             logger.LogInformation("Creating item");
 
+            if (data.CommerceUuid == default)
+                throw new NoCommerceException();
+
             if (data.CategoryUuid == default)
                 throw new NoCategoryException();
 
@@ -43,6 +46,8 @@ namespace backend_shopia.Controllers
 
             if (data.Price < 0)
                 return BadRequest("Price cannot be negative.");
+
+            await commerceService.CheckForUuidAndCurrentUserAsync(data.CommerceUuid);
 
             var item = mapper.Map<ItemAddRequest, Item>(data);
 
@@ -132,6 +137,8 @@ namespace backend_shopia.Controllers
         {
             logger.LogInformation("Updating item");
 
+            await itemService.CheckForUuidAndCurrentUserAsync(uuid);
+
             DataDictionary data;
             List<Guid>? deletedImages = null;
             if (Request.HasFormContentType)
@@ -147,11 +154,6 @@ namespace backend_shopia.Controllers
 
                 if (deletedImagesStrings.Count == 1)
                     deletedImages = JsonSerializer.Deserialize<List<Guid>>(deletedImagesStrings[0]!);
-
-                if (data.ContainsKey("storesUuid"))
-                {
-
-                }
             }
             else
             {
@@ -167,7 +169,7 @@ namespace backend_shopia.Controllers
                 }
             }
 
-            if (data.ContainsKey("Price") && data["Price"] is string priceText)
+            if (data.TryGetValue("Price", out object? value) && value is string priceText)
                 data["Price"] = decimal.Parse(priceText, CultureInfo.InvariantCulture);
 
             var result = await itemService.UpdateForUuidAsync(data, uuid);

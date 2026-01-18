@@ -8,6 +8,8 @@
 
         public required string Description { get; set; }
 
+        public required Guid CommerceUuid { get; set; }
+
         public required Guid CategoryUuid { get; set; }
 
         public required Guid[] StoresUuid { get; set; }
