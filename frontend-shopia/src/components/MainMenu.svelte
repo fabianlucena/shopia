@@ -1,8 +1,8 @@
 <script>
   import { writable } from 'svelte/store';
   import Menu from '$components/Menu.svelte';
-  import { showMainMenu } from '$stores/session.js';
-  import { permissions } from '$stores/session.js';
+  import { showMainMenu, permissions, selectedMyCommerceUuid, myCommerces } from '$stores/session.js';
+  import Select from './controls/Select.svelte';
 
   const allOptions = [
     {
@@ -16,22 +16,29 @@
       path: '/',
     },
     {
-      name: 'items',
-      label: 'Mis artículos',
-      path: '/items-list',
-      condition: () => $permissions.includes('item.get'),
-    },
-    {
-      name: 'stores',
-      label: 'Mis locales',
-      path: '/stores-list',
-      condition: () => $permissions.includes('store.get'),
+      name: 'mySelectedCommerce',
+      snippet: MyCommerceSelector,
+      condition: () => $permissions.includes('commerce.get'),
     },
     {
       name: 'commerces',
       label: 'Mis comercios',
       path: '/commerces-list',
       condition: () => $permissions.includes('commerce.get'),
+    },
+    {
+      name: 'stores',
+      label: 'Mis locales',
+      path: '/stores-list',
+      condition: () => $permissions.includes('store.get')
+        && $selectedMyCommerceUuid,
+    },
+    {
+      name: 'items',
+      label: 'Mis artículos',
+      path: '/items-list',
+      condition: () => $permissions.includes('item.get')
+        && $selectedMyCommerceUuid,
     },
     {
       name: 'plan',
@@ -54,6 +61,14 @@
     ));
   });
 </script>
+
+{#snippet MyCommerceSelector()}
+  <Select
+    bind:value={$selectedMyCommerceUuid}
+    options={$myCommerces?.map(c => ({ label: c.name, value: c.uuid }))}
+    placeholder="Seleccionar comercio"
+  />
+{/snippet}
 
 <Menu
   onclose={() => $showMainMenu = false}

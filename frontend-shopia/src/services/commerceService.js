@@ -21,6 +21,10 @@ export async function getAllForSelect(query, options) {
   }));
 }
 
+export async function getMyCommerces(options) {
+  return await get({mine: true}, options);
+}
+
 export async function getSingleForUuid(uuid, options) {
   var data = await get(null, {...options, path: uuid});
   if (!data?.rows?.length) {

@@ -96,7 +96,7 @@
               name: 'includeDisabled',
               label: 'Ver deshabilitados',
               title: 'Incluir elementos deshabilitados',
-              value: false,
+              value: true,
               component: switchControl,
               onChange: value => {
                 let update = false;
@@ -297,18 +297,6 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-  }
-  
-  .header {
-    color: var(--header-text-color);
-    background-color: var(--header-background-color);
-    margin-top: 0.5em;
-    padding: .5em;
-    font-size: 1.5em;
-    font-weight: bold;
-    text-align: center;
-    display: flex;
-    flex-direction: row;
   }
 
   .header .title {

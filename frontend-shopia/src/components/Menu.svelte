@@ -8,7 +8,9 @@
   } = $props();
 
   function handleClose(evt) {
-    onclose?.();
+    if (!evt.target.closest('nav')) {
+      onclose?.();
+    }
   }
 
   $effect(() => {
@@ -40,11 +42,15 @@
   {...restProps}
 >
   {#each items as item}
-    <button
-      onclick={() => handleClick(item.name)}
-    >
-      {item.label}
-    </button>
+    {#if item.snippet}
+      {@render item.snippet({ item })}
+    {:else}
+      <button
+        onclick={() => handleClick(item.name)}
+      >
+        {item.label}
+      </button>
+    {/if}
   {/each}
 </nav>
 

@@ -3,18 +3,22 @@
   import * as service from '$services/itemService.js';
   import { money } from '$libs/formatter.js';
   import ItemCard from '$components/ItemCard.svelte';
+  import { selectedMyCommerce } from '$stores/session.js';
 </script>
 
 {#snippet cardRender(props)}
   <ItemCard {...props} />
 {/snippet}
 
+<div class="header">
+  {$selectedMyCommerce ? `Commercio: ${$selectedMyCommerce.name}` : 'Selecciona un comercio para ver sus artículo'}
+</div>
 <List
   baseName="item"
   header="Artículos"
   getFilters={{
-    includeDisabled: true,
     mine: true,
+    commerce: $selectedMyCommerce?.uuid
   }}
   fields={[
     { label: 'Nombre', field: 'name' },
