@@ -8,7 +8,7 @@
     ...restProps
   } = $props();
 
-  function validate(data, fields) {
+  function validate({ data }) {
     if (!data.name) {
       return 'Debe proporcionar un nombre para el comercio.';
     }

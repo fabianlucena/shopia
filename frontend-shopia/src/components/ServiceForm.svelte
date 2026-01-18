@@ -213,7 +213,7 @@
 <Form
   {submitLabel}
   {cancelable}
-  validate={() => validate?.($data, $fields)}
+  validate={() => validate?.({ uuid, data: $data, fields: $fields })}
   onSubmit={handleSubmit}
   canSubmit={modified}
   {...restProps}

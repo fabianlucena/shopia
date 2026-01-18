@@ -28,7 +28,10 @@
     }
 
     if (!service) {
-      options.set(originalOptions);
+      options.set(originalOptions.map(o => {
+        o.id ??= crypto.randomUUID();
+        return o;
+      }));
       return;
     }
 
