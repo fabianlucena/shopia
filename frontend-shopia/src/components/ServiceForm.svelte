@@ -153,6 +153,9 @@
   
   $effect(() => {
     prepareFields();
+  });
+
+  $effect(() => {
     loadData();
   });
 
