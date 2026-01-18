@@ -1,6 +1,6 @@
 <script>
   import { route } from '$stores/route.js';
-  import { isLoggedIn, permissions } from '$stores/session.js';
+  import { isLoggedIn, permissions, mySelectedCommerceUuid } from '$stores/session.js';
   import Home from '$pages/Home.svelte';
   import Explore from '$pages/Explore.svelte';
   import Item from '$pages/Item.svelte';
@@ -60,16 +60,6 @@
       condition: !$isLoggedIn,
     },
     {
-      path: '/items-list',
-      page: ItemsList,
-      condition: () => $permissions.includes('item.get'),
-    },
-    {
-      path: '/item-form/:uuid',
-      page: ItemForm,
-      condition: () => $permissions.includes('item.get'),
-    },
-    {
       path: '/commerces-list',
       page: CommercesList,
       condition: () => $permissions.includes('commerce.get'),
@@ -82,12 +72,26 @@
     {
       path: '/stores-list',
       page: StoresList,
-      condition: () => $permissions.includes('store.get'),
+      condition: () => $permissions.includes('store.get')
+        && $mySelectedCommerceUuid,
     },
     {
       path: '/store-form/:uuid',
       page: StoreForm,
-      condition: () => $permissions.includes('store.get'),
+      condition: () => $permissions.includes('store.get')
+        && $mySelectedCommerceUuid,
+    },
+    {
+      path: '/items-list',
+      page: ItemsList,
+      condition: () => $permissions.includes('item.get')
+        && $mySelectedCommerceUuid,
+    },
+    {
+      path: '/item-form/:uuid',
+      page: ItemForm,
+      condition: () => $permissions.includes('item.get')
+        && $mySelectedCommerceUuid,
     },
     {
       path: '/my-plan',

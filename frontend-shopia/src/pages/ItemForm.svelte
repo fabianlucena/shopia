@@ -2,8 +2,9 @@
   import * as itemService from '$services/itemService.js';
   import ServiceForm from '$components/ServiceForm.svelte';
   import * as categoryService from '$services/categoryService.js';
-  import * as storeService from '$services/storeService.js';
-
+  import MyCommerce from '$components/MyCommerce.svelte';
+  import { getMySelectedCommerceStores } from '$stores/session.js';
+    import { writable } from 'svelte/store';
   let {
     ...restProps
   } = $props();
@@ -38,7 +39,13 @@
     
     return true;
   }
+
+  const storesOptions = writable([]);
+  getMySelectedCommerceStores()
+    .then(stores => storesOptions.set(stores.map(s => ({ label: s.name, value: s.uuid }))));
 </script>
+
+<MyCommerce />
 
 <ServiceForm
   {...restProps}
@@ -51,7 +58,7 @@
     '*description',
     { name: 'images',       type: 'imageGallery', label: 'Imágenes',         aspectRatio: 9 / 16, defaultSelSize: 1, deleteFieldName: 'deletedImages', maxWidth: 400, maxHeight: 800, imageProps: {style: { width: '25%' }}},
     { name: 'categoryUuid', type: 'select',       label: 'Rubro',            required: true, service: categoryService },
-    { name: 'storesUuid',   type: 'multiSelect',  label: 'Locales',          required: true, service: storeService },
+    { name: 'storesUuid',   type: 'multiSelect',  label: 'Locales',          required: true, options: $storesOptions },
     { name: 'price',        type: 'currency',     label: 'Precio',           required: true },
     { name: 'stock',        type: 'number',       label: 'Disponibilidad',   required: true },
     { name: 'isPresent',    type: 'switch',       label: 'Apto para regalar' },

@@ -3,7 +3,7 @@
   import * as service from '$services/itemService.js';
   import { money } from '$libs/formatter.js';
   import ItemCard from '$components/ItemCard.svelte';
-  import { selectedMyCommerce } from '$stores/session.js';
+  import { mySelectedCommerce } from '$stores/session.js';
 </script>
 
 {#snippet cardRender(props)}
@@ -11,14 +11,14 @@
 {/snippet}
 
 <div class="header">
-  {$selectedMyCommerce ? `Commercio: ${$selectedMyCommerce.name}` : 'Selecciona un comercio para ver sus artículo'}
+  {$mySelectedCommerce ? `Commercio: ${$mySelectedCommerce.name}` : 'Selecciona un comercio para ver sus artículo'}
 </div>
 <List
   baseName="item"
   header="Artículos"
   getFilters={{
     mine: true,
-    commerce: $selectedMyCommerce?.uuid
+    commerce: $mySelectedCommerce?.uuid
   }}
   fields={[
     { label: 'Nombre', field: 'name' },

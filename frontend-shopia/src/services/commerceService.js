@@ -13,14 +13,6 @@ export async function get(query, options) {
   return data;
 }
 
-export async function getAllForSelect(query, options) {
-  const data = await get(query, options);
-  return data.rows.map(row => ({
-    label: row.name,
-    value: row.uuid,
-  }));
-}
-
 export async function getMyCommerces(options) {
   return await get({mine: true}, options);
 }

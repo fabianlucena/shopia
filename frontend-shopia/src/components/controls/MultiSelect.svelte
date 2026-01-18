@@ -14,8 +14,6 @@
 
   let disabledForm = getContext('disabled-form');
   let isDisabled = $derived(() => disabled ?? $disabledForm);
-  let _originalOptions = originalOptions || [];
-  let _service = service;
   let _value = value;
 
   // @ts-ignore
@@ -29,14 +27,14 @@
       value = _value.filter(v => v.trim() !== '');
     }
 
-    if (!_service) {
-      options.set(_originalOptions);
+    if (!service) {
+      options.set(originalOptions);
       return;
     }
 
-    _service()
+    service()
       .then(opt => {
-        const newOptions = [..._originalOptions, ...opt]
+        const newOptions = [...originalOptions, ...opt]
           .map(o => {
             o.id ??= crypto.randomUUID();
             return o;

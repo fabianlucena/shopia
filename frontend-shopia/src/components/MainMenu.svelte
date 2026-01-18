@@ -1,7 +1,7 @@
 <script>
   import { writable } from 'svelte/store';
   import Menu from '$components/Menu.svelte';
-  import { showMainMenu, permissions, selectedMyCommerceUuid, myCommerces } from '$stores/session.js';
+  import { showMainMenu, permissions, mySelectedCommerceUuid, myCommerces } from '$stores/session.js';
   import Select from './controls/Select.svelte';
 
   const allOptions = [
@@ -31,14 +31,14 @@
       label: 'Mis locales',
       path: '/stores-list',
       condition: () => $permissions.includes('store.get')
-        && $selectedMyCommerceUuid,
+        && $mySelectedCommerceUuid,
     },
     {
       name: 'items',
       label: 'Mis artículos',
       path: '/items-list',
       condition: () => $permissions.includes('item.get')
-        && $selectedMyCommerceUuid,
+        && $mySelectedCommerceUuid,
     },
     {
       name: 'plan',
@@ -64,7 +64,7 @@
 
 {#snippet MyCommerceSelector()}
   <Select
-    bind:value={$selectedMyCommerceUuid}
+    bind:value={$mySelectedCommerceUuid}
     options={$myCommerces?.map(c => ({ label: c.name, value: c.uuid }))}
     placeholder="Seleccionar comercio"
   />

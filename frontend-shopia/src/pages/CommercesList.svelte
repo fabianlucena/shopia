@@ -1,12 +1,11 @@
 <script>
   import List from '$components/List.svelte';
+    import MyCommerce from '$components/MyCommerce.svelte';
   import * as service from '$services/commerceService.js';
-  import { selectedMyCommerce } from '$stores/session.js';
 </script>
 
-<div class="header">
-  {$selectedMyCommerce ? `Commercio: ${$selectedMyCommerce.name}` : 'Selecciona un comercio para ver sus locales'}
-</div>
+<MyCommerce />
+
 <List
   baseName="commerce"
   header="Comercios"

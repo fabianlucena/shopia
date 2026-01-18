@@ -1,18 +1,18 @@
 <script>
   import List from '$components/List.svelte';
   import * as service from '$services/storeService.js';
-  import { selectedMyCommerce } from '$stores/session.js';
+  import MyCommerce from '$components/MyCommerce.svelte';
+  import { mySelectedCommerce } from '$stores/session.js';
 </script>
 
-<div class="header">
-  {$selectedMyCommerce ? `Commercio: ${$selectedMyCommerce.name}` : 'Selecciona un comercio para ver sus locales'}
-</div>
+<MyCommerce />
+
 <List
   baseName="store"
   header="Locales"
   getFilters={{
     mine: true,
-    commerce: $selectedMyCommerce?.uuid
+    commerce: $mySelectedCommerce?.uuid
   }}
   fields={[
     { label: 'Nombre', field: 'name' },
