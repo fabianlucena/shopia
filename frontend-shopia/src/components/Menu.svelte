@@ -84,10 +84,10 @@
   }
 
   :global(.menu select) {
-    background-color: transparent;
+    background-color: var(--menu-item-background-color);
     border: none;
     font-size: inherit;
-    color: inherit;
+    color: var(--menu-item-color);
     padding: .5em 1em .5em 1.8em;
   }
 </style>
