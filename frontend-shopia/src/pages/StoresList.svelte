@@ -12,7 +12,7 @@
   header="Locales"
   getFilters={{
     mine: true,
-    commerce: $mySelectedCommerce?.uuid
+    commerce: $mySelectedCommerce?.uuid,
   }}
   fields={[
     { label: 'Nombre', field: 'name' },

@@ -66,7 +66,8 @@
   <Select
     bind:value={$mySelectedCommerceUuid}
     options={$myCommerces?.map(c => ({ label: c.name, value: c.uuid }))}
-    placeholder="Seleccionar comercio"
+    placeholder={$myCommerces.length ? "Seleccionar comercio" : "Sin comercio"}
+    disabled={$myCommerces.length === 0}
   />
 {/snippet}
 

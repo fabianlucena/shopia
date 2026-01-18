@@ -2,6 +2,7 @@
   import * as commerceService from '$services/commerceService.js';
   import ServiceForm from '$components/ServiceForm.svelte';
   import MyCommerce from '$components/MyCommerce.svelte';
+  import { loadMyCommerces } from '$stores/session.js';
 
   let {
     ...restProps
@@ -26,6 +27,8 @@
   {...restProps}
   header="Comercio"
   service={commerceService}
+  serviceOptions={{ query: { includeDisabled: true } }}
+  afterSubmit={() => loadMyCommerces()}
   {validate}
   fields={[
     'isEnabled',

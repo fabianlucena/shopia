@@ -9,6 +9,9 @@
 <List
   baseName="commerce"
   header="Comercios"
+  getFilters={{
+    mine: true,
+  }}
   fields={[
     { label: 'Nombre', field: 'name' },
     { label: 'Habilitado', field: 'isEnabled', control: 'switch' },

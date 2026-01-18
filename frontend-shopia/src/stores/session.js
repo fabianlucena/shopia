@@ -52,6 +52,8 @@ isLoggedIn.subscribe(async (value) => {
 });
 
 export function loadMyCommerces() {
+  mySelectedCommerceUuid.set(null);
+  
   commerceService.getMyCommerces()
     .then(commerces => {
       myCommerces.set(commerces.rows);

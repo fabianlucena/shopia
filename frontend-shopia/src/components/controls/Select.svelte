@@ -10,26 +10,48 @@
     disabled = null,
     required = false,
     multiple = false,
+    placeholder = null,
     ...rest
   } = $props();
 
   let disabledForm = getContext('disabled-form');
   let isDisabled = $derived(disabledForm);
-  let _originalOptions = originalOptions || [];
-  let _service = service;
 
   // @ts-check
   let options = writable([]);
   $effect(() => {
-    if (!_service) {
-      options.set(_originalOptions);
+    if (!service) {
+      setOptions(originalOptions);
       return;
     }
 
-    _service()
-      .then(opt => {
-        options.set([..._originalOptions, ...opt]);
-      });
+    service()
+      .then(opt => setOptions([...originalOptions, ...opt]));
+  });
+
+  function setOptions(newOptions) {
+    if (placeholder) {
+      const placeholderOption = {
+        label: placeholder,
+        value: '',
+        disabled: true,
+        hidden: true,
+      };
+
+      if (!value) {
+        placeholderOption.selected = true;
+      }
+
+      newOptions = [placeholderOption, ...newOptions];
+    }
+
+    options.set(newOptions);
+  }
+
+  $effect(() => {
+    if (placeholder && !value) {
+      value = '';
+    }
   });
 </script>
 
@@ -41,6 +63,6 @@
   {...rest}
 >
   {#each $options as option (option.value)}
-    <option value={option.value}>{option.label}</option>
+    <option value={option.value} disabled={option.disabled} hidden={option.hidden} selected={option.selected} >{option.label}</option>
   {/each}
 </select>

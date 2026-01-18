@@ -19,11 +19,13 @@
     noUuid = false,
     uuid = null,
     service,
+    serviceOptions = {},
     fields : originalFields = {},
     data : originalData = {},
     submitLabel = 'Guardar',
     prepareData = null,
     onSubmit = null,
+    afterSubmit = null,
     cancelable = true,
     validate = null,
     ...restProps
@@ -122,8 +124,15 @@
       defaultData = JSON.parse(JSON.stringify($data));
     }
 
+    let options;
+    if (typeof serviceOptions === 'function') {
+      options = serviceOptions({ uuid, data: $data });
+    } else {
+      options = serviceOptions || {};
+    }
+
     if (noUuid) {
-      service.getSingle()
+      service.getSingle(options)
         .then(resData => {
           data.update(d => ({ ...d, ...resData }));
           defaultData = JSON.parse(JSON.stringify($data));
@@ -134,7 +143,7 @@
 
     if (uuid && uuid !== 'new' && _uuid !== uuid) {
       _uuid = uuid;
-      service.getSingleForUuid(uuid)
+      service.getSingleForUuid(uuid, options)
         .then(resData => {
           data.update(d => ({ ...d, ...resData }));
           defaultData = JSON.parse(JSON.stringify($data));
@@ -194,6 +203,8 @@
 
       pushNotification(message, 'error');
     }
+
+    afterSubmit?.();
   }
 
   let modified = $state(false);

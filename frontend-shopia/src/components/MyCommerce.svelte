@@ -1,7 +1,7 @@
 <script>
   import Button from '$components/controls/Button.svelte';
   import Select from '$components/controls/Select.svelte';
-  import { mySelectedCommerce, myCommerces, mySelectedCommerceUuid } from '$stores/session.js';
+  import { myCommerces, mySelectedCommerceUuid } from '$stores/session.js';
 </script>
 
 <div class="header my-commerce">
@@ -26,6 +26,8 @@
   .header {
     font-size: 1.2em;
     font-weight: normal;
+    background-color: var(--my-commerce-background-color);
+    color: var(--my-commerce-text-color);
   }
 
   :global(.my-commerce select) {
