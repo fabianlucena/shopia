@@ -29,7 +29,7 @@
 
 <style>
   .backdrop {
-    z-index: 2;
+    z-index: 3;
     position: fixed;
     inset: 0;
     background: rgba(32,32,32,0.5);
@@ -58,6 +58,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-top: 0;
   }
 
   .body {
