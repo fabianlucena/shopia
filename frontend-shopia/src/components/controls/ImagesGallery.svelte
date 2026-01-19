@@ -286,7 +286,6 @@
   .container {
     width: 100%;
     height: 100%;
-    overflow: hidden;
     position: relative;
   }
 
@@ -300,6 +299,9 @@
     gap: .5em;
     scroll-behavior: smooth;
     align-items: stretch;
+    padding: .15em;
+    background-color: var(--tag-background-color);
+    box-sizing: border-box;
   }
 
   .gallery.no-scroll {
@@ -313,6 +315,7 @@
     cursor: pointer;
     width: 100%;
     height: 100%;
+    box-sizing: border-box;
   }
 
   .image {
@@ -320,17 +323,16 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    background-color: var(--tag-background-color);
     font-size: 0.9em;
     flex: 0 0 auto;
+    overflow: hidden;
   }
 
   img {
     display: block;
     max-width: 100%;
     max-height: 100%;
-    margin-top: 0.2em;
-    border-radius: 0.1em;
+    border-radius: .4em;
     margin-left: auto;
     margin-right: auto;
   }
