@@ -60,6 +60,7 @@
   .images {
     width: 100%;
     height: auto;
+    aspect-ratio: 4 / 3;
     overflow: hidden;
     border-radius: .5em;
     flex: 1;

@@ -285,12 +285,14 @@
 <style>
   .container {
     width: 100%;
+    height: 100%;
     overflow: hidden;
     position: relative;
-    min-height: 2.5em;
   }
 
   .gallery {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-wrap: nowrap;
     overflow-x: hidden;
@@ -309,14 +311,15 @@
     border: none;
     padding: 0;
     cursor: pointer;
+    width: 100%;
+    height: 100%;
   }
 
   .image {
     width: 100%;
+    height: 100%;
     margin: 0;
     padding: 0;
-    position: relative;
-    height: 100%;
     background-color: var(--tag-background-color);
     font-size: 0.9em;
     flex: 0 0 auto;
@@ -328,6 +331,8 @@
     max-height: 100%;
     margin-top: 0.2em;
     border-radius: 0.1em;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   img.deleted {
