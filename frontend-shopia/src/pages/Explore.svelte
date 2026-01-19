@@ -7,11 +7,9 @@
   import ButtonClose from '$components/buttons/Close.svelte';
   import Button from '$components/controls/Button.svelte';
   import SelectField from '$components/fields/SelectField.svelte';
-  import * as commerceService from '$services/commerceService.js';
-  import * as storeService from '$services/storeService.js';
 
   const params = new URLSearchParams(window.location.search);
-  let paramCommerceUuid = params.get('commerce');
+  // let paramCommerceUuid = params.get('commerce');
 
   let items = $state([]);
   let showSettings = $state(false);
@@ -28,29 +26,6 @@
     
     get(options)
       .then(data => items = data.rows);
-  });
-
-  $effect(() => {
-    commerceService.getAllForSelect()
-      .then(commercesData => {
-        commerces.set([{}, ...commercesData]);
-
-        if (paramCommerceUuid && commercesData?.find(c => c.value === paramCommerceUuid)) {
-          selectedCommerceUuid = paramCommerceUuid;
-        }
-      });
-  });
-
-  $effect(() => {
-    if (selectedCommerceUuid) {
-      const newSelectedCommerce = $commerces.find(c => c.value === selectedCommerceUuid);
-      selectedCommerce.set(newSelectedCommerce);
-    } else {
-      selectedCommerce.set(null);
-    }
-
-    storeService.getAllForSelect({commerceUuid: selectedCommerceUuid})
-      .then(data => stores.set([{}, ...data]));
   });
 </script>
 
