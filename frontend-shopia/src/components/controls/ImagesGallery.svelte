@@ -295,6 +295,10 @@
     position: relative;
   }
 
+  .container:not(.readonly) {
+    min-height: 2.5em;
+  }
+
   .gallery {
     width: 100%;
     height: 100%;
@@ -393,7 +397,6 @@
     color: var(--add-color);
     top: .1em;
     left: .1em;
-    position: relative;
     margin-bottom: .4em;
   }
 

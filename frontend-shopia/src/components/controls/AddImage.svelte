@@ -6,6 +6,7 @@
     onchange = null,
     multiple = false,
     addButton = {},
+    class : theClass = '',
     ...restProps
   } = $props();
 
@@ -31,6 +32,7 @@
 
 <div
   {...restProps}
+  class={`add-image-control ${theClass}`}
 >
   <input
     bind:this={fileInput}
