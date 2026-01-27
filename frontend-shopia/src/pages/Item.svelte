@@ -19,8 +19,6 @@
       return;
     }
 
-    return;
-
     itemService.getSingleForUuid(uuid)
       .then(itemData => {
         data.set(itemData);
@@ -42,10 +40,12 @@
   {:else}
     <div class="name">{$data.name}</div>
     {#if $data.images && $data.images.length > 0}
-      <ImagesGallery
-        bind:value={$data.images}
-        readonly={true}
-      />
+      <div class="images">
+        <ImagesGallery
+          bind:value={$data.images}
+          readonly={true}
+        />
+      </div>
     {/if}
     <div class="category">{$data.category.name}</div>
     <div class="description">{$data.description}</div>
@@ -84,6 +84,12 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+  }
+
+  .images {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    display: flex;
   }
 
   :global(.images) {
