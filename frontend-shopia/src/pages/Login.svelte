@@ -2,7 +2,6 @@
   import Form from '$components/Form.svelte';
   import TextField from '$components/fields/TextField.svelte';
   import PasswordField from '$components/fields/PasswordField.svelte';
-  import LinkField from '$components/fields/LinkField.svelte';
   import Button from '$components/controls/Button.svelte';
   import { login } from '$services/loginService.js';
   import { pushNotification } from '$libs/notification.js';

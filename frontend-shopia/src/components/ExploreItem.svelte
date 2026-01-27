@@ -9,7 +9,6 @@
 <button
   class="item"
   onclick={evt => {
-    console.log('navigating to item', item.uuid);
     evt.stopPropagation();
     evt.preventDefault();
     navigate(`/item/${item.uuid}`);
@@ -23,6 +22,7 @@
       bind:value={item.images}
       slideInterval={3000}
       slideIntervalJitter={1000}
+      showOnClick={false}
     />
   </div>
   <div

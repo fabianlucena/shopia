@@ -24,7 +24,6 @@
   }
 
   .image {
-    border: .1em solid var(--border-color);
     border-radius: 0.2em;
     height: 3em;
   }

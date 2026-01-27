@@ -20,6 +20,7 @@
     imageProps = {},
     slideInterval = -1,
     slideIntervalJitter = 0,
+    showOnClick = null,
     ...restProps
   } = $props();
 
@@ -192,10 +193,12 @@
         <button
           class="image-button"
           onclick={evt => {
-            evt.stopPropagation();
-            evt.preventDefault();
-            showImageIndex.set(index);
-            showDialog.showModal();
+            if (showOnClick !== false) {
+              evt.stopPropagation();
+              evt.preventDefault();
+              showImageIndex.set(index);
+              showDialog.showModal();
+            }
           }}
         >
           <img
