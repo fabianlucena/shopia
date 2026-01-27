@@ -81,7 +81,7 @@ namespace backend_shopia.Services
             var limits = await userPlanService.GetLimitsForCurrentUserAsync();
 
             if (data.Content.Length > limits[PlanLimitName.MaxItemImageSize])
-                throw new ImageIsTooLargeException();
+                throw new ImageIsTooLargeException(data.Content.Length, limits[PlanLimitName.MaxItemImageSize]);
 
             var itemImagesCount = await GetCountAsync(new QueryOptions {
                 Switches = { { "IncludeDisabled", true } },

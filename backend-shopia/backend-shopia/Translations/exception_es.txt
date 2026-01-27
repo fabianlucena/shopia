@@ -4,9 +4,6 @@ El comercio no existe.
 Category does not exist.
 El rubro no existe.
 
-The image is too large.
-La imagen es demasiado grande.
-
 Item does not exist.
 No existe el artículo.
 
@@ -63,6 +60,9 @@ Algúno locale no existe
 
 Store does not exist
 No existe el local
+
+The image is too large ({0} >= {1})
+La imagen es demasiado grande ({0} >= {1})
 
 The maximum limit of enabled commerce images has been reached.
 Se ha alcanzado el límite máximo de imágenes de comercio habilitadas.
