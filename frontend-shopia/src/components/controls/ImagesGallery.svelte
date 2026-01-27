@@ -21,6 +21,7 @@
     slideInterval = -1,
     slideIntervalJitter = 0,
     showOnClick = null,
+    class : theClass = '',
     ...restProps
   } = $props();
 
@@ -118,7 +119,8 @@
 </script>
 
 <div
-  class="container"
+  {...restProps}
+  class={('container ' + (readonly ? 'readonly ' : '') + theClass).trim()}
 >
   {#if !readonly}
     <AddImage
@@ -151,7 +153,6 @@
     bind:this={gallery}
     {id}
     class="gallery"
-    {...restProps}
   >
     {#each value as image, index (image.url)}
       <div {...$_imageProps} >
@@ -329,6 +330,7 @@
     font-size: 0.9em;
     flex: 0 0 auto;
     overflow: hidden;
+    position: relative;
   }
 
   img {
@@ -389,6 +391,8 @@
     color: var(--add-color);
     top: .1em;
     left: .1em;
+    position: relative;
+    margin-bottom: .4em;
   }
 
   :global(button.icon.delete-button) {

@@ -60,7 +60,7 @@
     'isEnabled',
     'name',
     '*description',
-    { name: 'images',       type: 'imageGallery', label: 'Imágenes',         aspectRatio: 9 / 16, defaultSelSize: 1, deleteFieldName: 'deletedImages', maxWidth: 400, maxHeight: 800, imageProps: {style: { width: '25%' }}},
+    { name: 'images',       type: 'imageGallery', label: 'Imágenes',         aspectRatio: 4 / 3, defaultSelSize: 1, deleteFieldName: 'deletedImages', maxWidth: 400, maxHeight: 800, imageProps: {style: { width: '25%' }}},
     { name: 'categoryUuid', type: 'select',       label: 'Rubro',            required: true, service: categoryService },
     { name: 'storesUuid',   type: 'multiSelect',  label: 'Locales',          required: true, options: $storesOptions },
     { name: 'price',        type: 'currency',     label: 'Precio',           required: true },
