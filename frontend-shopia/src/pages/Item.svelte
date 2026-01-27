@@ -3,6 +3,7 @@
   import * as itemService from '$services/itemService.js';
   import { pushNotification } from '$libs/notification';
   import ImagesGallery from '$components/controls/ImagesGallery.svelte';
+  import WaitOverlay from '$components/WaitOverlay.svelte';
   import { money } from '$libs/formatter.js';
   import { yesNo } from '$libs/formatter.js';
 
@@ -11,16 +12,21 @@
   } = $props();
 
   let data = writable(null);
+  let message = writable('Cargando artículo');
   $effect(() => {
     if (!uuid) {
+      message.set('Artículo desconocido');
       return;
     }
+
+    return;
 
     itemService.getSingleForUuid(uuid)
       .then(itemData => {
         data.set(itemData);
       })
       .catch(err => {
+        message.set('Error al cargar el artículo');
         pushNotification('Error al cargar el artículo', 'error');
       });
   });
@@ -30,7 +36,9 @@
   class="item"
 >
   {#if !$data}
-    <div class="disabled-banner">Artículo no encontrado</div>
+    <WaitOverlay show={!!$message}>
+      {$message}
+    </WaitOverlay>
   {:else}
     <div class="name">{$data.name}</div>
     {#if $data.images && $data.images.length > 0}
@@ -64,6 +72,7 @@
 
 <style>
   .item {
+    position: relative;
     background-color: var(--item-background-color);
     padding: .1em;
     margin: .1em;

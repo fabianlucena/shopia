@@ -52,11 +52,40 @@
   }
 </script>
 
+{#snippet afterFooter()}
+  {#each $providers as provider}
+    {#if provider.name === 'google'}
+      <AccederConGoogle
+        class="oauth-provider-google"
+        onclick={evt => {
+          evt.preventDefault();
+          evt.stopPropagation();
+          const url = provider.url + '&state=' + encodeURIComponent(getState());
+          window.location.href = url;
+        }}
+      />
+    {:else}
+      <Button
+        class={"oauth-provider-" + provider.name}
+        on:click={evt => {
+          evt.preventDefault();
+          evt.stopPropagation();
+          const url = provider.url + '&state=' + encodeURIComponent(getState());
+          window.location.href = url;
+        }}
+      >
+        {provider.label}
+      </Button>
+    {/if}
+  {/each}
+{/snippet}
+
 <Form
   header="Login"
   onSubmit={handleSubmit}
   submitLabel="Ingresar"
   submitPosition="last"
+  afterFooter={afterFooter}
 >
   <TextField
     label="Nombre de usuario"
@@ -70,32 +99,6 @@
     required={true}
   />
 </Form>
-
-{#each $providers as provider}
-  {#if provider.name === 'google'}
-    <AccederConGoogle
-      class="oauth-provider-google"
-      onclick={evt => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        const url = provider.url + '&state=' + encodeURIComponent(getState());
-        window.location.href = url;
-      }}
-    />
-  {:else}
-    <Button
-      class={"oauth-provider-" + provider.name}
-      on:click={evt => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        const url = provider.url + '&state=' + encodeURIComponent(getState());
-        window.location.href = url;
-      }}
-    >
-      {provider.label}
-    </Button>
-  {/if}
-{/each}
 
 <style>
   :global(button.oauth-provider-google) {

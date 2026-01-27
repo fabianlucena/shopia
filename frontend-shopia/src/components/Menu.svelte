@@ -59,7 +59,7 @@
 <style>
   nav {
     position: absolute;
-    z-index: 2;
+    z-index: 5;
     top: 3rem;
     left: 0;
     display: flex;
