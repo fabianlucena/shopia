@@ -8,6 +8,7 @@
     onCancel = null,
     hotPlace = .2,
     aspectRatio = 0,
+    preferredAspectRatio = 0,
     defaultSelSize = .7,
     class : theClass = '',
     maxWidth = 0,
@@ -127,8 +128,8 @@
     draw = { x, y, w, h, scale: s };
     
     const currSelSize = defaultSelSize > 0 ? defaultSelSize : 0.7;
-    sel.w = Math.min(300, w * currSelSize);
-    sel.h = Math.min(200, h * currSelSize);
+    sel.w = Math.min(w, w * currSelSize);
+    sel.h = Math.min(h, h * currSelSize);
     clampSelectionToImage()
     sel.x = x + (w - sel.w) / 2;
     sel.y = y + (h - sel.h) / 2;
@@ -216,6 +217,7 @@
   let start = { x: 0, y: 0 };
   let selStart = { x: 0, y: 0, w: 0, h: 0 };
   let offset = { x: 0, y: 0 };
+  let curAspectRatio = $derived(aspectRatio || preferredAspectRatio);
 
   function getDragMode(px, py) {
     if (!imageLoaded
@@ -328,38 +330,56 @@
       sel.w = Math.abs(p.x - start.x);
       sel.h = Math.abs(p.y - start.y);
     } else {
-      if (dragMode.left) {
-        sel.x = p.x - offset.x;
-        if (sel.x < draw.x) {
-          sel.x = draw.x;
-        }
-
+      if (dragMode.left && dragMode.top && curAspectRatio > 0) {
+        sel.x = p.x;
         sel.w = selStart.w - (sel.x - selStart.x);
-        if (sel.w < 1) {
-          sel.w = 1;
-        }
-      } else if (dragMode.right) {
+        sel.h = sel.w / curAspectRatio;
+        sel.y = selStart.y + (selStart.h - sel.h);
+      } else if (dragMode.left && dragMode.bottom && curAspectRatio > 0) {
+        sel.x = p.x;
+        sel.w = selStart.w - (sel.x - selStart.x);
+        sel.h = sel.w / curAspectRatio;
+      } else if (dragMode.right && dragMode.top && curAspectRatio > 0) {
         sel.w = selStart.w - (start.x - p.x);
-        const maxW = draw.w + draw.x - sel.x;
-        if (sel.w > maxW)
-          sel.w = maxW;
-      }
+        sel.h = sel.w / curAspectRatio;
+        sel.y = selStart.y + (selStart.h - sel.h);
+      } else if (dragMode.right && dragMode.bottom && curAspectRatio > 0) {
+        sel.w = selStart.w - (start.x - p.x);
+        sel.h = sel.w / curAspectRatio;
+      } else {
+        if (dragMode.left) {
+          sel.x = p.x - offset.x;
+          if (sel.x < draw.x) {
+            sel.x = draw.x;
+          }
 
-      if (dragMode.top) {
-        sel.y = p.y - offset.y;
-        if (sel.y < draw.y) {
-          sel.y = draw.y;
+          sel.w = selStart.w - (sel.x - selStart.x);
+          if (sel.w < 1) {
+            sel.w = 1;
+          }
+        } else if (dragMode.right) {
+          sel.w = selStart.w - (start.x - p.x);
+          const maxW = draw.w + draw.x - sel.x;
+          if (sel.w > maxW)
+            sel.w = maxW;
         }
 
-        sel.h = selStart.h - (sel.y - selStart.y);
-        if (sel.h < 1) {
-          sel.h = 1;
+        if (dragMode.top) {
+          sel.y = p.y - offset.y;
+          if (sel.y < draw.y) {
+            sel.y = draw.y;
+          }
+
+          sel.h = selStart.h - (sel.y - selStart.y);
+          if (sel.h < 1) {
+            sel.h = 1;
+          }
+        } else if (dragMode.bottom) {
+          sel.h = selStart.h - (start.y - p.y);
+          const maxH = draw.h + draw.y - sel.y;
+          if (sel.h > maxH)
+            sel.h = maxH;
         }
-      } else if (dragMode.bottom) {
-        sel.h = selStart.h - (start.y - p.y);
-        const maxH = draw.h + draw.y - sel.y;
-        if (sel.h > maxH)
-          sel.h = maxH;
       }
     }
 

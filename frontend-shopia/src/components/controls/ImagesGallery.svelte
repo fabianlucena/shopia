@@ -13,6 +13,7 @@
     id = '',
     value = $bindable([]),
     aspectRatio = 0,
+    preferredAspectRatio = 0,
     maxWidth = 0,
     maxHeight = 0,
     defaultSelSize = 0,
@@ -263,6 +264,7 @@
       class="edit-image-control"
       image={$newImage}
       {aspectRatio}
+      {preferredAspectRatio}
       {maxWidth}
       {maxHeight}
       {defaultSelSize}
