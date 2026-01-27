@@ -28,7 +28,7 @@ namespace backend_shopia.Services
                 throw new NoNameException();
 
             if (data.Stores == null || !data.Stores.Any())
-                throw new NoStoreException();
+                throw new NoStoreProvidedException();
 
             var stores = data.Stores.ToList();
             IStoreService storeService = serviceProvider.GetRequiredService<IStoreService>();
@@ -294,7 +294,7 @@ namespace backend_shopia.Services
             if (data.TryGetGuids("StoresUuid", out var storesUuids))
             {
                 if (storesUuids == null || !storesUuids.Any())
-                    throw new NoStoreException();
+                    throw new NoStoreProvidedException();
 
                 if (commerceId < 0)
                 {
@@ -421,14 +421,27 @@ namespace backend_shopia.Services
 
         public async Task<bool> CheckForUuidAndCurrentUserAsync(Guid uuid, QueryOptions? options = null)
         {
-            var storeService = serviceProvider.GetRequiredService<IStoreService>();
-            var storesId = await storeService.GetListIdForCurrentUserAsync(options);
-
-            options ??= new ();
+            options = new (options);
             options.Switches["IncludeDisabled"] = true;
             options.AddFilter("Uuid", uuid);
-            options.AddFilter("StoreId", storesId);
-            _ = await GetSingleOrDefaultAsync(options)
+            var itemId = await GetSingleIdOrNullAsync(options)
+                ?? throw new ItemDoesNotExistException();
+
+            var storeService = serviceProvider.GetRequiredService<IStoreService>();
+            var storesId = await storeService.GetListIdForCurrentUserAsync(QueryOptions.IncludeDisabled);
+            if (storesId.Count() == 0)
+                throw new ItemDoesNotExistException();
+
+            var itemStoreService = serviceProvider.GetRequiredService<IItemStoreService>();
+            var itemStoreOptions = new QueryOptions
+            {
+                Filters =
+                {
+                    { "ItemId", itemId },
+                    { "StoreId", storesId },
+                }
+            };
+            _ = await itemStoreService.GetFirstOrDefaultAsync(itemStoreOptions)
                 ?? throw new ItemDoesNotExistException();
 
             return true;

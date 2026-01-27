@@ -42,7 +42,7 @@ namespace backend_shopia.Controllers
                 || data.StoresUuid.Length <= 0
                 || data.StoresUuid.Any(s => s == default)
             )
-                throw new NoStoreException();
+                throw new NoStoreProvidedException();
 
             if (data.Price < 0)
                 return BadRequest("Price cannot be negative.");

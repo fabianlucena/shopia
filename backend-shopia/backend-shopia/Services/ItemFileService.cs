@@ -46,10 +46,10 @@ namespace backend_shopia.Services
             if (item.Commerce == null)
             {
                 if (item.Stores == null || !item.Stores.Any())
-                    throw new NoStoreException();
+                    throw new NoStoreProvidedException();
 
                 var store = item.Stores.First()
-                    ?? throw new NoStoreException();
+                    ?? throw new NoStoreProvidedException();
 
                 if (store.Commerce == null)
                 {
@@ -67,7 +67,7 @@ namespace backend_shopia.Services
                     );
 
                     if (store == null)
-                        throw new NoStoreException();
+                        throw new NoStoreProvidedException();
 
                     if (store.Commerce == null)
                         throw new NoCommerceException();

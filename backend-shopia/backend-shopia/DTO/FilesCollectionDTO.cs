@@ -17,7 +17,7 @@
                 };
                 using (var stream = formFile.OpenReadStream())
                 {
-                    stream.Read(fileDTO.Content, 0, (int)formFile.Length);
+                    stream.ReadExactly(fileDTO.Content, 0, (int)formFile.Length);
                 }
 
                 Add(fileDTO);

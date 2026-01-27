@@ -29,7 +29,7 @@ namespace backend_shopia.Services
             {
                 data.StoreId = data.Store?.Id ?? 0;
                 if (data.StoreId <= 0)
-                    throw new NoStoreException();
+                    throw new NoStoreProvidedException();
             }
 
             return data;

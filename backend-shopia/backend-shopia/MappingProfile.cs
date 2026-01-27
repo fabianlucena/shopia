@@ -65,7 +65,7 @@ namespace backend_shopia
                 return null;
 
             if (source.StoresUuid.Any(s => s == default))
-                throw new NoStoreException();
+                throw new NoStoreProvidedException();
 
             var stores = storeService.GetListForUuidsAsync(source.StoresUuid)?.Result
                ?? throw new StoreDoesNotExistException();

@@ -2,7 +2,7 @@
 
 namespace backend_shopia.Exceptions
 {
-    public class NoStoreException()
+    public class NoStoreProvidedException()
         : HttpException(400, "No store provided.")
     {
     }
