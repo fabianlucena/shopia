@@ -1,0 +1,1 @@
+ssh usuario@servidor "pg_dump -U postgres -d nombre_bdd -F p" > test-backup.sql

@@ -29,8 +29,10 @@ namespace backend_shopia
             var app = builder.Build();
 
             app.ConfigureTranslations();
+            app.ConfigureRepo()
+                .GetAwaiter()
+                .GetResult();
             app.Configure();
-            app.ConfigureRepo();
             app.ConfigureData();
 
             app.UsePathBase("/api");

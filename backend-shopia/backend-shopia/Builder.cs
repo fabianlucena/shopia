@@ -189,8 +189,48 @@ namespace backend_shopia
             Setup.ConfigureShopia(serviceProvider);
         }
 
-        public static void ConfigureRepo(this WebApplication app)
+        public static async Task ConfigureRepo(this WebApplication app)
         {
+            var sqlFiles = app.Configuration
+                .GetSection("ExecSQLFiles")
+                .Get<string[]>();
+
+            if (sqlFiles is not null)
+            {
+                using var scope = app.Services.CreateScope();
+                var serviceProvider = scope.ServiceProvider;
+
+                var logger = serviceProvider.GetRequiredService<ILogger<WebApplication>>();
+
+                var connectionString = app.Configuration.GetConnectionString("dbConnection");
+
+                await using var conn = new NpgsqlConnection(connectionString);
+                await conn.OpenAsync();
+
+                await using var tx = await conn.BeginTransactionAsync();
+
+                try
+                {
+                    foreach (var sqlFile in sqlFiles)
+                    {
+                        logger.LogInformation($"Executing: {sqlFile}");
+
+                        var sql = await File.ReadAllTextAsync(sqlFile);
+                        await using var cmd = new NpgsqlCommand(sql, conn, tx);
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+
+                    await tx.CommitAsync();
+                    logger.LogInformation("DB scripts executed");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Error executing DB scripts: {ex.Message}");
+                    await tx.RollbackAsync();
+                    throw;
+                }
+            }
+
             if (app.Configuration.GetValue<bool>("CreateDapperTables"))
             {
                 using var scope = app.Services.CreateScope();
