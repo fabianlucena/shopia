@@ -2,8 +2,12 @@
 
 namespace backend_shopia.QueryOptions;
 
-public class ItemFileQueryOptions : NominableEntityQueryOptions
+public class ItemFileQueryOptions : ACreatableWithNameEntityQueryOptions
 {
+    public long? ItemId { get; set; }
+    public IEnumerable<long>? ItemsId { get; set; }
+
+
     public ItemFileQueryOptions() { }
 
     public ItemFileQueryOptions(ItemFileQueryOptions? options)
@@ -11,6 +15,9 @@ public class ItemFileQueryOptions : NominableEntityQueryOptions
     {
         if (options is null)
             return;
+
+        ItemId = options.ItemId;
+        ItemsId = options.ItemsId;
     }
 
     public override ItemFileQueryOptions Clone()

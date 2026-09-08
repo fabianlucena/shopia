@@ -6,19 +6,19 @@ using RFIServices.IServices;
 namespace backend_shopia.IServices;
 
 public interface IItemFileService
-    : INominableEntityService<ItemFile>
+    : ICreatableWithNameEntityService<ItemFile>
 {
-    Task<IEnumerable<ItemFile>> AddForItemUuidAsync(Guid itemUuid, FilesCollectionDTO files);
+    Task<IEnumerable<ItemFile>> AddByItemUuidAsync(Guid itemUuid, FilesCollectionDTO files);
 
-    Task<IEnumerable<ItemFile>> AddForItemIdAsync(Int64 itemId, FilesCollectionDTO files);
+    Task<IEnumerable<ItemFile>> AddByItemIdAsync(Int64 itemId, FilesCollectionDTO files);
 
-    Task<IEnumerable<ItemFile>> GetListForItemIdAsync(Int64 itemId);
+    Task<IEnumerable<ItemFile>> GetListByItemIdAsync(Int64 itemId);
 
-    Task<int> GetCountForOwnerIdAsync(Int64 ownerId, ItemFileQueryOptions? options = null);
+    Task<int> GetCountByOwnerIdAsync(Int64 ownerId, ItemFileQueryOptions? options = null);
 
-    Task<int> GetCountForCurrentUserAsync(ItemFileQueryOptions? options = null);
+    Task<int> GetCountByCurrentUserAsync(ItemFileQueryOptions? options = null);
 
-    Task<Int64> GetAggregatedSizeForOwnerIdAsync(Int64 ownerId, ItemFileQueryOptions? options = null);
+    Task<Int64> GetAggregatedSizeByOwnerIdAsync(Int64 ownerId, ItemFileQueryOptions? options = null);
 
-    Task<Int64> GetAggregatedSizeForCurrentUserAsync(ItemFileQueryOptions? options = null);
+    Task<Int64> GetAggregatedSizeByCurrentUserAsync(ItemFileQueryOptions? options = null);
 }

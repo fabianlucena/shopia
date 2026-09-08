@@ -1,20 +1,23 @@
 ﻿using backend_shopia.DTO;
 using backend_shopia.Entities;
 using backend_shopia.Exceptions;
+using backend_shopia.IRepositories;
 using backend_shopia.IServices;
+using backend_shopia.QueryOptions;
+using RFServices.Services;
 
 namespace backend_shopia.Services;
 
 public class ItemFileService(
-    IRepo<ItemFile> repo,
+    IItemFileRepository itemFileRepository,
     IServiceProvider serviceProvider
 )
-    : ServiceCreatedAtIdUuidName<IRepo<ItemFile>, ItemFile>(repo),
+    : CreatableWithNameEntityService<ItemFile>(itemFileRepository, serviceProvider),
         IItemFileService
 {
-    public override async Task<ItemFile> ValidateForCreationAsync(ItemFile data)
+    public override async Task<ItemFile> ValidateForCreateAsync(ItemFile data)
     {
-        data = await base.ValidateForCreationAsync(data);
+        data = await base.ValidateForCreateAsync(data);
 
         if (string.IsNullOrWhiteSpace(data.Name))
             throw new NoNameException();
@@ -24,10 +27,10 @@ public class ItemFileService(
             if (data.ItemId <= 0)
                 throw new NoItemException();
 
-            var itemService = serviceProvider.GetRequiredService<IItemService>();
-            data.Item = await itemService.GetSingleOrDefaultForIdAsync(
+            var itemService = ServiceProvider.GetRequiredService<IItemService>();
+            data.Item = await itemService.GetFirstOrDefaultByIdAsync(
                 data.ItemId,
-                new QueryOptions
+                new ItemFileQueryOptions
                 {
                     Join = { "Commerce" },
                 }
@@ -50,13 +53,13 @@ public class ItemFileService(
                 if (store.Id <= 0)
                     throw new NoCommerceException();
 
-                var storeService = serviceProvider.GetRequiredService<IStoreService>();
-                store = await storeService.GetSingleOrDefaultForIdAsync(
+                var storeService = ServiceProvider.GetRequiredService<IStoreService>();
+                store = await storeService.GetFirstOrDefaultByUuidAsync(
                     store.Id,
-                    new QueryOptions
+                    new ItemFileQueryOptions
                     {
                         Join = { { "Commerce" } },
-                        Switches = { { "IncludeDisabled", true } },
+                        IncludeInactive = true,
                     }
                 );
 
@@ -71,33 +74,34 @@ public class ItemFileService(
                 throw new CommerceDoesNotExistException();
         }
 
-        var userPlanService = serviceProvider.GetRequiredService<IUserPlanService>();
-        var limits = await userPlanService.GetLimitsForCurrentUserAsync();
+        var userPlanService = ServiceProvider.GetRequiredService<IUserPlanService>();
+        var limits = await userPlanService.GetLimitsByCurrentUserAsync();
 
         if (data.Content.Length > limits[PlanLimitName.MaxItemImageSize])
             throw new ImageIsTooLargeException(data.Content.Length, limits[PlanLimitName.MaxItemImageSize]);
 
-        var itemImagesCount = await GetCountAsync(new QueryOptions {
-            Switches = { { "IncludeDisabled", true } },
-            Filters = { { "ItemId", data.ItemId } }
+        var itemImagesCount = await GetCountAsync(new ItemFileQueryOptions
+        {
+            IncludeInactive = true,
+            ItemId = data.ItemId,
         });
         if (itemImagesCount >= limits[PlanLimitName.MaxTotalImagesPerSingleItem])
             throw new TotalImagesPerItemLimitReachedException();
 
-        var totalCount = await GetCountForCurrentUserAsync(new QueryOptions { Switches = { { "IncludeDisabled", true} } });
+        var totalCount = await GetCountByCurrentUserAsync(new ItemFileQueryOptions { IncludeInactive = true });
         if (totalCount >= limits[PlanLimitName.MaxTotalItemsImages])
             throw new TotalItemsImagesLimitReachedException();
 
-        var enabledCount = await GetCountForCurrentUserAsync();
+        var enabledCount = await GetCountByCurrentUserAsync();
         if (enabledCount > limits[PlanLimitName.MaxEnabledItemsImages])
             throw new MaxEnabledItemsImagesLimitReachedException();
 
-        var aggregatedSize = await GetAggregatedSizeForCurrentUserAsync(new QueryOptions { Switches = { { "IncludeDisabled", true } } });
+        var aggregatedSize = await GetAggregatedSizeByCurrentUserAsync(new ItemFileQueryOptions { IncludeInactive = true });
         aggregatedSize += data.Content.Length;
         if (aggregatedSize >= limits[PlanLimitName.MaxItemsImagesAggregatedSize])
             throw new TotalItemsImagesAggregatedSizeLimitReachedException();
 
-        var enabledAggregatedSize = await GetAggregatedSizeForCurrentUserAsync();
+        var enabledAggregatedSize = await GetAggregatedSizeByCurrentUserAsync();
         enabledAggregatedSize += data.Content.Length;
         if (enabledAggregatedSize >= limits[PlanLimitName.MaxEnabledItemsImagesAggregatedSize])
             throw new MaxEnabledItemsImagesAggregatedSizeLimitReachedException();
@@ -105,56 +109,44 @@ public class ItemFileService(
         return data;
     }
 
-    public async Task<QueryOptions> GetFilterForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
+    public async Task<ItemFileQueryOptions> GetFilterByOwnerIdAsync(long ownerId, ItemFileQueryOptions? options = null)
     {
-        var itemService = serviceProvider.GetRequiredService<IItemService>();
-        var itemsId = await itemService.GetListIdForOwnerIdAsync(ownerId, options);
+        var itemService = ServiceProvider.GetRequiredService<IItemService>();
+        var itemsId = await itemService.GetListIdByOwnerIdAsync(ownerId, options);
 
-        options = new QueryOptions();
-        options.AddFilter("ItemId", itemsId);
+        options = new ItemFileQueryOptions
+        {
+            IncludeInactive = true,
+            ItemsId = itemsId,
+        };
 
         return options;
     }
 
-    public async Task<int> GetCountForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
-        => await GetCountAsync(await GetFilterForOwnerIdAsync(ownerId, options));
+    public async Task<int> GetCountByOwnerIdAsync(long ownerId, ItemFileQueryOptions? options = null)
+        => await GetCountAsync(await GetFilterByOwnerIdAsync(ownerId, options));
 
-    public Int64 GetCurrentUserId()
+    public async Task<int> GetCountByCurrentUserAsync(ItemFileQueryOptions? options = null)
+        => await GetCountByOwnerIdAsync(GetCurrentUserId(), options);
+
+    public async Task<long> GetAggregatedSizeByOwnerIdAsync(long ownerId, ItemFileQueryOptions? options = null)
     {
-        var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
-        var httpContext = httpContextAccessor.HttpContext
-            ?? throw new NoAuthorizationHeaderException();
-
-        var userId = (httpContext.Items["UserId"] as Int64?)
-            ?? throw new NoSessionUserDataException();
-
-        if (userId <= 0)
-            throw new NoSessionUserDataException();
-
-        return userId!;
-    }
-
-    public async Task<int> GetCountForCurrentUserAsync(QueryOptions? options = null)
-        => await GetCountForOwnerIdAsync(GetCurrentUserId(), options);
-
-    public async Task<Int64> GetAggregatedSizeForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
-    {
-        options = await GetFilterForOwnerIdAsync(ownerId, options);
+        options = await GetFilterByOwnerIdAsync(ownerId, options);
         options.Select ??= [Op.Sum(Op.DataLength("Content"))];
 
-        return await GetInt64Async(options) ?? 0;
+        return await GetLongAsync(options) ?? 0;
     }
 
-    public async Task<Int64> GetAggregatedSizeForCurrentUserAsync(QueryOptions? options = null)
-        => await GetAggregatedSizeForOwnerIdAsync(GetCurrentUserId(), options);
+    public async Task<long> GetAggregatedSizeByCurrentUserAsync(ItemFileQueryOptions? options = null)
+        => await GetAggregatedSizeByOwnerIdAsync(GetCurrentUserId(), options);
 
-    public async Task<IEnumerable<ItemFile>> AddForItemUuidAsync(Guid itemUuid, FilesCollectionDTO files)
+    public async Task<IEnumerable<ItemFile>> AddByItemUuidAsync(Guid itemUuid, FilesCollectionDTO files)
     {
-        var itemService = serviceProvider.GetRequiredService<IItemService>();
-        return await AddForItemIdAsync(await itemService.GetSingleIdForUuidAsync(itemUuid), files);
+        var itemService = ServiceProvider.GetRequiredService<IItemService>();
+        return await AddByItemIdAsync(await itemService.GetSingleIdByUuidAsync(itemUuid), files);
     }
 
-    public async Task<IEnumerable<ItemFile>> AddForItemIdAsync(Int64 itemId, FilesCollectionDTO files)
+    public async Task<IEnumerable<ItemFile>> AddByItemIdAsync(long itemId, FilesCollectionDTO files)
     {
         var result = new List<ItemFile>();
         foreach (var file in files)
@@ -176,9 +168,6 @@ public class ItemFileService(
         return result;
     }
 
-    public async Task<IEnumerable<ItemFile>> GetListForItemIdAsync(Int64 itemId)
-        => await GetListAsync(new QueryOptions
-        {
-            Filters = { { "ItemId", itemId } }
-        });
+    public async Task<IEnumerable<ItemFile>> GetListByItemIdAsync(long itemId)
+        => await GetListAsync(new ItemFileQueryOptions { ItemId = itemId });
 }

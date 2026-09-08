@@ -6,7 +6,7 @@ namespace backend_shopia.Entities;
 
 [Table("CommercesFiles", Schema = "shopia")]
 public class CommerceFile
-    : NominableEntity
+    : CreatableWithNameEntity
 {
     [Required]
     [ForeignKey("Commerce")]

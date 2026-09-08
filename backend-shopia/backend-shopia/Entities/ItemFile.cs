@@ -6,7 +6,7 @@ namespace backend_shopia.Entities;
 
 [Table("ItemsFiles", Schema = "shopia")]
 public class ItemFile
-    : NominableEntity
+    : ACreatableWithNameEntity
 {
     [Required]
     [ForeignKey("Item")]

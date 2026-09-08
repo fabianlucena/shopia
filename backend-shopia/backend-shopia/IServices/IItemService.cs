@@ -7,10 +7,6 @@ namespace backend_shopia.IServices;
 public interface IItemService
     : INominableEntityService<Item>
 {
-    long? GetCurrentUserIdOrDefault();
-
-    long GetCurrentUserId();
-
     Task<bool> CheckByUuidAndCurrentUserAsync(Guid uuid, ItemQueryOptions? options = null);
 
     Task<ItemQueryOptions> GetFilterByOwnerIdAsync(long ownerId, ItemQueryOptions? options = null);

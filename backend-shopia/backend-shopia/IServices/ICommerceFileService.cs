@@ -6,19 +6,13 @@ using RFIServices.IServices;
 namespace backend_shopia.IServices;
 
 public interface ICommerceFileService
-    : INominableEntityService<CommerceFile>
+    : ICreatableWithNameEntityService<CommerceFile>
 {
     Task<IEnumerable<CommerceFile>> AddByCommerceUuidAsync(Guid commerceUuid, FilesCollectionDTO files);
-
     Task<IEnumerable<CommerceFile>> AddByCommerceIdAsync(long commerceId, FilesCollectionDTO files);
-
     Task<IEnumerable<CommerceFile>> GetListByCommerceIdAsync(long commerceId);
-
     Task<int> GetCountByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null);
-
     Task<int> GetCountByCurrentUserAsync(CommerceQueryOptions? options = null);
-
-    Task<Int64> GetAggregatedSizeByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null);
-
-    Task<Int64> GetAggregatedSizeByCurrentUserAsync(CommerceQueryOptions? options = null);
+    Task<long> GetAggregatedSizeByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null);
+    Task<long> GetAggregatedSizeByCurrentUserAsync(CommerceQueryOptions? options = null);
 }
