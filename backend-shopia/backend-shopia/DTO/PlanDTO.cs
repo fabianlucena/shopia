@@ -1,11 +1,10 @@
-﻿namespace backend_shopia.DTO
+﻿using backend_shopia.Entities;
+
+namespace backend_shopia.DTO;
+
+public class PlanDTO(Plan plan)
 {
-    public class PlanDTO
-    {
-        public Guid? Uuid { get; set; }
-
-        public string? Name { get; set; }
-
-        public string? Description { get; set; }
-    }
+    public Guid? Uuid { get; set; } = plan.Uuid;
+    public string? Name { get; set; } = plan.Name;
+    public string? Description { get; set; } = plan.Description;
 }

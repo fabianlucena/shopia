@@ -1,15 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace backend_shopia.DTO
+namespace backend_shopia.DTO;
+
+public class FileDTO
 {
-    public class FileDTO
-    {
-        public required string Name { get; set; }
-
-        [Required]
-        public string ContentType { get; set; } = "";
-
-        [Required]
-        public byte[] Content { get; set; } = [];
-    }
+    public required string Name { get; set; }
+    [Required]
+    public string ContentType { get; set; } = "";
+    [Required]
+    public byte[] Content { get; set; } = [];
 }

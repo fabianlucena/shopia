@@ -2,7 +2,7 @@
 
 namespace backend_shopia.QueryOptions;
 
-public class CommerceQueryOptions : ANominableEntityQueryOptions
+public class CommerceQueryOptions : ANominableOwnedEntityQueryOptions
 {
     public bool IncludeStores { get; set; }
 

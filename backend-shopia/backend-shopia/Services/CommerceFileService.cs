@@ -12,7 +12,7 @@ public class CommerceFileService(
     ICommerceFileRepository commerceFileRepository,
     IServiceProvider serviceProvider
 )
-    : NominableEntityService<CommerceFile>(commerceFileRepository, serviceProvider),
+    : CreatableWithNameEntityService<CommerceFile>(commerceFileRepository, serviceProvider),
     ICommerceFileService
 {
     public override async Task<CommerceFile> ValidateForCreateAsync(CommerceFile data)
@@ -28,7 +28,7 @@ public class CommerceFileService(
                 throw new NoCommerceException();
 
             var commerceService = ServiceProvider.GetRequiredService<ICommerceService>();
-            data.Commerce = await commerceService.GetSingleOrDefaultByIdAsync(data.CommerceId)
+            data.Commerce = await commerceService.GetFirstOrDefaultByIdAsync(data.CommerceId)
                 ?? throw new NoCommerceException();
         }
 
@@ -84,7 +84,7 @@ public class CommerceFileService(
         => await GetCountAsync(await GetFilterByOwnerIdAsync(ownerId, options));
 
     public async Task<int> GetCountByCurrentUserAsync(CommerceFileQueryOptions? options = null)
-        => await GetCountByOwnerIdAsync(GetCurrentUserId(), options);
+        => await GetCountByOwnerIdAsync(await GetCurrentUserId(), options);
 
     public async Task<long> GetAggregatedSizeByOwnerIdAsync(long ownerId, CommerceFileQueryOptions? options = null)
     {
@@ -95,7 +95,7 @@ public class CommerceFileService(
     }
 
     public async Task<long> GetAggregatedSizeByCurrentUserAsync(CommerceFileQueryOptions? options = null)
-        => await GetAggregatedSizeByOwnerIdAsync(GetCurrentUserId(), options);
+        => await GetAggregatedSizeByOwnerIdAsync(await GetCurrentUserId(), options);
 
     public async Task<IEnumerable<CommerceFile>> AddByCommerceUuidAsync(Guid commerceUuid, FilesCollectionDTO files)
     {

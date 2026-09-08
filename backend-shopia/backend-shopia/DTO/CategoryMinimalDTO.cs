@@ -1,11 +1,10 @@
-﻿namespace backend_shopia.DTO
+﻿using backend_shopia.Entities;
+
+namespace backend_shopia.DTO;
+
+public class CategoryMinimalDTO(Category category)
 {
-    public class CategoryMinimalDTO
-    {
-        public Guid Uuid { get; set; }
-
-        public required string Name { get; set; }
-
-        public required string Description { get; set; }
-    }
+    public Guid Uuid { get; set; } = category.Uuid;
+    public required string Name { get; set; } = category.Name;
+    public required string Description { get; set; } = category.Description;
 }

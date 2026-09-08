@@ -1,23 +1,14 @@
-﻿namespace backend_shopia.DTO
+﻿using backend_shopia.Entities;
+
+namespace backend_shopia.DTO;
+
+public class CommerceResponse(Commerce commerce)
+    : CommerceMinimalDTO(commerce)
 {
-    public class CommerceResponse
-    {
-        public Guid Uuid { get; set; }
-
-        public bool IsEnabled { get; set; }
-
-        public required string Name { get; set; }
-
-        public required string Description { get; set; }
-
-        public required PlanDTO Plan { get; set; }
-
-        public required StoreMinimalDTO[] Stores { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
-        public DateTime UpdatedAt { get; set; }
-
-        public DateTime? DeletedAt { get; set; }
-    }
+    public bool IsActive { get; set; } = commerce.IsActive;
+    public PlanDTO? Plan { get; set; } = commerce.Plan is not null ? new PlanDTO(commerce.Plan) : null;
+    public IEnumerable<StoreMinimalDTO>? Stores { get; set; } = commerce.Stores?.Select(store => new StoreMinimalDTO(store));
+    public DateTime CreatedAt { get; set; } = commerce.CreatedAt;
+    public DateTime UpdatedAt { get; set; } = commerce.UpdatedAt;
+    public DateTime? DeletedAt { get; set; } = commerce.DeletedAt;
 }

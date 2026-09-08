@@ -11,8 +11,8 @@ public interface ICommerceFileService
     Task<IEnumerable<CommerceFile>> AddByCommerceUuidAsync(Guid commerceUuid, FilesCollectionDTO files);
     Task<IEnumerable<CommerceFile>> AddByCommerceIdAsync(long commerceId, FilesCollectionDTO files);
     Task<IEnumerable<CommerceFile>> GetListByCommerceIdAsync(long commerceId);
-    Task<int> GetCountByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null);
-    Task<int> GetCountByCurrentUserAsync(CommerceQueryOptions? options = null);
-    Task<long> GetAggregatedSizeByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null);
-    Task<long> GetAggregatedSizeByCurrentUserAsync(CommerceQueryOptions? options = null);
+    Task<int> GetCountByOwnerIdAsync(long ownerId, CommerceFileQueryOptions? options = null);
+    Task<int> GetCountByCurrentUserAsync(CommerceFileQueryOptions? options = null);
+    Task<long> GetAggregatedSizeByOwnerIdAsync(long ownerId, CommerceFileQueryOptions? options = null);
+    Task<long> GetAggregatedSizeByCurrentUserAsync(CommerceFileQueryOptions? options = null);
 }

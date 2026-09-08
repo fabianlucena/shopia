@@ -78,18 +78,9 @@ public class MappingProfile
 {
     public MappingProfile()
     {
-        CreateMap<CommerceAddRequest, Commerce>();
-        CreateMap<Commerce, CommerceResponse>();
-        CreateMap<Commerce, CommerceMinimalDTO>();
-
         CreateMap<StoreAddRequest, Store>()
             .ForMember(dest => dest.CommerceId, opt => opt.MapFrom<StoreAddRequest_CommerceIdResolverAsync>())
             .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Location == null? null: src.Location.ToGeometryPoint()));
-        CreateMap<Store, StoreResponse>();
-        CreateMap<Store, StoreMinimalDTO>();
-
-        CreateMap<Category, CategoryResponse>();
-        CreateMap<Category, CategoryMinimalDTO>();
 
         CreateMap<ItemAddRequest, Item>()
             .ForMember(dest => dest.CommerceId, opt => opt.MapFrom<ItemAddRequest_CommerceIdResolverAsync>())
@@ -100,7 +91,5 @@ public class MappingProfile
             .ForMember(dest => dest.CommerceUuid, opt => opt.MapFrom(src => src.Commerce != null ? (Guid?)src.Commerce.Uuid : null))
             .ForMember(dest => dest.CategoryUuid, opt => opt.MapFrom(src => src.Category != null ? (Guid?)src.Category.Uuid : null))
             .ForMember(dest => dest.StoresUuid, opt => opt.MapFrom(src => src.Stores != null ? (Guid[]?)src.Stores.Select(s => s.Uuid) : null));
-
-        CreateMap<Plan, PlanDTO>();
     }
 }
