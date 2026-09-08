@@ -1,51 +1,73 @@
-﻿using RFService.Entities;
+﻿using RFEntities.Attributes;
+using RFEntities.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using RFService.Attributes;
 
-namespace backend_shopia.Entities
+namespace backend_shopia.Entities;
+
+[Table("Items", Schema = "shopia")]
+public class Item
+    : ANominableEntity
 {
-    [Table("Items", Schema = "shopia")]
-    public class Item
-        : EntitySoftDeleteTimestampsIdUuidEnabledName
+    [Required]
+    public bool InheritedIsActive { get; set; }
+
+    [Required]
+    public string Description { get; set; } = string.Empty;
+
+    [Required]
+    [ForeignKey("Category")]
+    public long CategoryId { get; set; } = default;
+    public Category? Category { get; set; } = default;
+
+    [Virtual]
+    public IEnumerable<ItemStore>? ItemsStores { get; set; } = default;
+
+    [Required]
+    [ForeignKey("Commerce")]
+    public long CommerceId { get; set; } = default;
+    public Commerce? Commerce { get; set; } = default;
+
+    [Virtual]
+    public IEnumerable<Store>? Stores { get; set; } = default;
+
+    [Required]
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal Price { get; set; }
+
+    public int? Stock { get; set; }
+
+    [Required]
+    public bool IsPresent { get; set; } = false;
+
+    public int? MinAge { get; set; }
+
+    public int? MaxAge { get; set; }
+
+    [Required]
+    [Size(384)]
+    public float[] Embedding { get; set; } = [];
+
+    public Item() { }
+
+    public Item(Item data)
+        : base(data)
     {
-        [Required]
-        public required bool InheritedIsEnabled { get; set; }
+        if (data == null)
+            return;
 
-        [Required]
-        public required string Description { get; set; }
-
-        [Required]
-        [ForeignKey("Category")]
-        public Int64 CategoryId { get; set; } = default;
-        public Category? Category { get; set; } = default;
-
-        [Virtual]
-        public IEnumerable<ItemStore>? ItemsStores { get; set; } = default;
-
-        [Required]
-        [ForeignKey("Commerce")]
-        public Int64 CommerceId { get; set; } = default;
-        public Commerce? Commerce { get; set; } = default;
-
-        [Virtual]
-        public IEnumerable<Store>? Stores { get; set; } = default;
-
-        [Required]
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal Price { get; set; }
-
-        public int? Stock { get; set; }
-
-        [Required]
-        public bool IsPresent { get; set; } = false;
-
-        public int? MinAge { get; set; }
-
-        public int? MaxAge { get; set; }
-
-        [Required]
-        [Size(384)]
-        public float[] Embedding { get; set; } = [];
+        InheritedIsActive = data.InheritedIsActive;
+        Description = data.Description;
+        CategoryId = data.CategoryId;
+        CommerceId = data.CommerceId;
+        Price = data.Price;
+        Stock = data.Stock;
+        IsPresent = data.IsPresent;
+        MinAge = data.MinAge;
+        MaxAge = data.MaxAge;
+        Embedding = (float[])data.Embedding.Clone();
     }
+
+    public override Item Clone()
+        => new(this);
 }

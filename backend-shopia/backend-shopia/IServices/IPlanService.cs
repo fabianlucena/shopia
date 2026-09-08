@@ -1,24 +1,18 @@
 ﻿using backend_shopia.DTO;
 using backend_shopia.Entities;
-using RFService.IServices;
-using RFService.Repo;
+using backend_shopia.QueryOptions;
+using RFIServices.IServices;
 
-namespace backend_shopia.IServices
+namespace backend_shopia.IServices;
+
+public interface IPlanService
+    : IANominableEntityService<Plan>
 {
-    public interface IPlanService
-        : IService<Plan>,
-            IServiceId<Plan>,
-            IServiceUuid<Plan>,
-            IServiceSoftDeleteUuid<Plan>,
-            IServiceName<Plan>,
-            IServiceIdUuidName<Plan>
-    {
-        Task<Plan> GetBaseAsync();
+    Task<Plan> GetBaseAsync();
 
-        Task<Plan> GetSingleOrBaseAsync(QueryOptions options);
+    Task<Plan> GetSingleOrBaseAsync(PlanQueryOptions options);
 
-        Task<PlanLimits> GetLimitsForPlanAsync(Plan plan, QueryOptions? options = null);
+    Task<PlanLimits> GetLimitsForPlanAsync(Plan plan, PlanQueryOptions? options = null);
 
-        Task<MyPlanResponse> GetMyPlanAsync();
-    }
+    Task<MyPlanResponse> GetMyPlanAsync();
 }

@@ -1,40 +1,33 @@
 ﻿using backend_shopia.Entities;
-using RFService.IServices;
-using RFService.Repo;
+using backend_shopia.QueryOptions;
+using RFIServices.IServices;
 
-namespace backend_shopia.IServices
+namespace backend_shopia.IServices;
+
+public interface IItemService
+    : INominableEntityService<Item>
 {
-    public interface IItemService
-        : IService<Item>,
-            IServiceId<Item>,
-            IServiceUuid<Item>,
-            IServiceIdUuid<Item>,
-            IServiceSoftDeleteUuid<Item>,
-            IServiceName<Item>,
-            IServiceIdUuidName<Item>
-    {
-        Int64? GetCurrentUserIdOrDefault();
+    long? GetCurrentUserIdOrDefault();
 
-        Int64 GetCurrentUserId();
+    long GetCurrentUserId();
 
-        Task<bool> CheckForUuidAndCurrentUserAsync(Guid uuid, QueryOptions? options = null);
+    Task<bool> CheckByUuidAndCurrentUserAsync(Guid uuid, ItemQueryOptions? options = null);
 
-        Task<QueryOptions> GetFilterForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);
+    Task<ItemQueryOptions> GetFilterByOwnerIdAsync(long ownerId, ItemQueryOptions? options = null);
 
-        Task<int> GetCountForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);
+    Task<int> GetCountByOwnerIdAsync(long ownerId, ItemQueryOptions? options = null);
 
-        Task<int> GetCountForCurrentUserAsync(QueryOptions? options = null);
+    Task<int> GetCountByCurrentUserAsync(ItemQueryOptions? options = null);
 
-        Task<IEnumerable<Int64>> GetListIdForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);
+    Task<IEnumerable<long>> GetListIdByOwnerIdAsync(long ownerId, ItemQueryOptions? options = null);
 
-        Task<IEnumerable<Int64>> GetListIdForCurrentUserAsync(QueryOptions? options = null);
+    Task<IEnumerable<long>> GetListIdByCurrentUserAsync(ItemQueryOptions? options = null);
 
-        Task<IEnumerable<Guid>> GetListUuidForCurrentUserAsync(QueryOptions? options = null);
+    Task<IEnumerable<Guid>> GetListUuidByCurrentUserAsync(ItemQueryOptions? options = null);
 
-        Task<int> UpdateInheritedForUuid(Guid uuid, QueryOptions? options = null);
+    Task<int> UpdateInheritedByUuid(Guid uuid, ItemQueryOptions? options = null);
 
-        Task<int> UpdateInheritedForStoreUuid(Guid storeUuid, QueryOptions? options = null);
+    Task<int> UpdateInheritedByStoreUuid(Guid storeUuid, ItemQueryOptions? options = null);
 
-        Task<int> UpdateInheritedForCommerceUuid(Guid commerceUuid, QueryOptions? options = null);
-    }
+    Task<int> UpdateInheritedByCommerceUuid(Guid commerceUuid, ItemQueryOptions? options = null);
 }

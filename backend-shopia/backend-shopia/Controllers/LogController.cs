@@ -1,48 +1,36 @@
 using Microsoft.AspNetCore.Mvc;
-using RFService.Authorization;
-using RFService.Libs;
-using RFService.Repo;
-using RFService.Data;
-using AutoMapper;
-using RFOperators;
 using RFLoggerProvider.DTO;
-using RFLoggerProvider.Entities;
 using RFLoggerProvider.IServices;
+using RFLoggerProvider.QueryOptions;
+using RFPermissions.Attributes;
 
-namespace backend_shopia.Controllers
+namespace backend_shopia.Controllers;
+
+[ApiController]
+[Route("v1/log")]
+public class LogController(
+    ILogger<LogController> logger,
+    ILogService logService
+) : ControllerBase
 {
-    [ApiController]
-    [Route("v1/log")]
-    public class LogController(
-        ILogger<LogController> logger,
-        ILogService logService,
-        IMapper mapper
-    ) : ControllerBase
+    [HttpGet]
+    [Permission("log.get")]
+    public async Task<IActionResult> GetAsync()
     {
-        [HttpGet]
-        [Permission("log.get")]
-        public async Task<IActionResult> GetAsync()
+        logger.LogInformation("Getting log");
+
+        var options = new LogQueryOptions
         {
-            logger.LogInformation("Getting log");
+            IncludeLevel = true,
+            IncludeAction = true,
+            IncludeSession = true,
+            IncludeProject = true,
+            IncludeUser = true,
+        }.UpdateFromRequest(HttpContext.Request);
 
-            var query = HttpContext.Request.Query.GetPascalized();
-            var options = QueryOptions.CreateFromQuery(query);
+        var result = (await logService.GetListAsync(options))
+            .Select(l => new LogResponse(l));
 
-            options.Include("Level");
-            options.Include("Action"); 
-            options.Include("Session", "s");
-            options.Include("Project", "p");
-            options.Include(
-                "User",
-                "u",
-                type: JoinType.Left,
-                on: Op.Eq(Op.Column("s.UserId"), Op.Column("u.Id"))
-            );
-
-            var result = (await logService.GetListAsync(options))
-                .Select(mapper.Map<Log, LogResponse>);
-
-            return Ok(new DataRowsResult(result));
-        }
+        return Ok(result);
     }
 }

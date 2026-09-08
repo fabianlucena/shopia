@@ -1,141 +1,129 @@
-﻿using AutoMapper;
-using backend_shopia.DTO;
-using backend_shopia.Entities;
+﻿using backend_shopia.DTO;
 using backend_shopia.Exceptions;
 using backend_shopia.IServices;
+using backend_shopia.QueryOptions;
 using Microsoft.AspNetCore.Mvc;
-using RFService.Authorization;
-using RFService.Data;
-using RFService.Libs;
-using RFService.Repo;
+using RFBase.Libs;
+using RFPermissions.Attributes;
 
-namespace backend_shopia.Controllers
+namespace backend_shopia.Controllers;
+
+[ApiController]
+[Route("v1/store")]
+public class StoreController(
+    ILogger<StoreController> logger,
+    IStoreService storeService,
+    ICommerceService commerceService,
+    IItemService itemService,
+    IServiceProvider serviceProvider
+)
+    : ControllerBase
 {
-    [ApiController]
-    [Route("v1/store")]
-    public class StoreController(
-        ILogger<StoreController> logger,
-        IStoreService storeService,
-        IMapper mapper,
-        ICommerceService commerceService,
-        IItemService itemService
-    )
-        : ControllerBase
+    [HttpPost]
+    [Permission("store.add")]
+    public async Task<IActionResult> PostAsync([FromBody] StoreAddRequest data)
     {
-        [HttpPost]
-        [Permission("store.add")]
-        public async Task<IActionResult> PostAsync([FromBody] StoreAddRequest data)
-        {
-            logger.LogInformation("Creating store");
+        logger.LogInformation("Creating store");
 
-            if (data.CommerceUuid == default)
-                throw new NoCommerceException();
+        if (data.CommerceUuid == default)
+            throw new NoCommerceException();
 
-            var store = mapper.Map<StoreAddRequest, Store>(data);
+        var store = await data.ToStoreAsync(serviceProvider);
 
-            var commercesIdList = await commerceService.GetListIdForCurrentUserAsync();
-            if (!commercesIdList.Contains(store.CommerceId))
-                throw new CommerceDoesNotExistException();
+        var commercesIdList = await commerceService.GetListIdForCurrentUserAsync();
+        if (!commercesIdList.Contains(store.CommerceId))
+            throw new CommerceDoesNotExistException();
 
-            var result = await storeService.CreateAsync(store);
+        var result = await storeService.CreateAsync(store);
 
-            if (result == null)
-                return BadRequest();
+        if (result == null)
+            return BadRequest();
 
-            logger.LogInformation("Store created");
+        logger.LogInformation("Store created");
 
-            return Ok();
-        }
+        return Ok();
+    }
 
-        [HttpGet("{uuid?}")]
-        public async Task<IActionResult> GetAsync([FromRoute] Guid? uuid)
-        {
-            logger.LogInformation("Getting stores");
+    [HttpGet("{uuid?}")]
+    public async Task<IActionResult> GetAsync([FromRoute] Guid? uuid)
+    {
+        logger.LogInformation("Getting stores");
 
-            var options = QueryOptions.CreateFromQuery(HttpContext);
-            options.Include("Commerce");
+        var options = new StoreQueryOptions()
+            .UpdateFromRequest(HttpContext.Request);
 
-            if (uuid != null)
-                options.AddFilter("Uuid", uuid);
+        if (uuid != null)
+            options.Uuid = uuid;
 
-            if (HttpContext.Request.Query.TryGetBool("mine", out var mine) && mine)
-            {
-                var commercesId = await commerceService.GetListIdForCurrentUserAsync(QueryOptions.IncludeDisabled);
-                options.AddFilter("CommerceId", commercesId);
-            }
+        var storeList = await storeService.GetListAsync(options);
 
-            var storeList = await storeService.GetListAsync(options);
+        var response = storeList.Select(s => new StoreResponse(s));
 
-            var response = storeList.Select(mapper.Map<Store, StoreResponse>);
+        logger.LogInformation("Stores retrieved");
 
-            logger.LogInformation("Stores retrieved");
+        return Ok(response);
+    }
 
-            return Ok(new DataRowsResult(response));
-        }
+    [HttpPatch("{uuid}")]
+    [Permission("store.edit")]
+    public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary data)
+    {
+        logger.LogInformation("Updating store");
 
-        [HttpPatch("{uuid}")]
-        [Permission("store.edit")]
-        public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary data)
-        {
-            logger.LogInformation("Updating commerce");
+        await storeService.CheckForUuidAndCurrentUserAsync(uuid);
 
-            await storeService.CheckForUuidAndCurrentUserAsync(uuid);
+        var result = await storeService.UpdateByUuidAsync(uuid, data.GetPascalized());
 
-            data = data.GetPascalized();
+        if (result <= 0)
+            return BadRequest();
 
-            var result = await storeService.UpdateForUuidAsync(data, uuid);
+        _ = await itemService.UpdateInheritedForStoreUuid(uuid);
 
-            if (result <= 0)
-                return BadRequest();
+        logger.LogInformation("Busines updated");
 
-            _ = await itemService.UpdateInheritedForStoreUuid(uuid);
+        return Ok();
+    }
 
-            logger.LogInformation("Busines updated");
+    [HttpDelete("{uuid}")]
+    [Permission("store.delete")]
+    public async Task<IActionResult> DeleteAsync([FromRoute] Guid uuid)
+    {
+        logger.LogInformation("Deleting store");
 
-            return Ok();
-        }
+        await storeService.CheckForUuidAndCurrentUserAsync(uuid);
 
-        [HttpDelete("{uuid}")]
-        [Permission("store.delete")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] Guid uuid)
-        {
-            logger.LogInformation("Deleting store");
+        var result = await storeService.DeleteByUuidAsync(uuid);
 
-            await storeService.CheckForUuidAndCurrentUserAsync(uuid);
+        if (result <= 0)
+            return BadRequest();
 
-            var result = await storeService.DeleteForUuidAsync(uuid);
+        _ = await itemService.UpdateInheritedForStoreUuid(uuid);
 
-            if (result <= 0)
-                return BadRequest();
+        logger.LogInformation("Store deleted");
 
-            _ = await itemService.UpdateInheritedForStoreUuid(uuid);
+        return Ok();
+    }
 
-            logger.LogInformation("Store deleted");
+    [HttpPost("restore/{uuid}")]
+    [Permission("store.restore")]
+    public async Task<IActionResult> RestoreAsync([FromRoute] Guid uuid)
+    {
+        logger.LogInformation("Restoring store");
 
-            return Ok();
-        }
+        await storeService.CheckForUuidAndCurrentUserAsync(
+            uuid,
+            new StoreQueryOptions { IncludeDeleted = true }
+        );
 
-        [HttpPost("restore/{uuid}")]
-        [Permission("store.restore")]
-        public async Task<IActionResult> RestoreAsync([FromRoute] Guid uuid)
-        {
-            logger.LogInformation("Restoring store");
+        var result = await storeService.RestoreByUuidAsync(uuid);
 
-            await storeService.CheckForUuidAndCurrentUserAsync(
-                uuid,
-                new QueryOptions { Switches = { { "IncludeDeleted", true } } }
-            );
+        if (result <= 0)
+            return BadRequest();
 
-            var result = await storeService.RestoreForUuidAsync(uuid);
+        _ = await itemService.UpdateInheritedForStoreUuid(uuid);
 
-            if (result <= 0)
-                return BadRequest();
+        logger.LogInformation("Store restored");
 
-            _ = await itemService.UpdateInheritedForStoreUuid(uuid);
-
-            logger.LogInformation("Store restored");
-
-            return Ok();
-        }
+        return Ok();
     }
 }

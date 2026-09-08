@@ -1,17 +1,15 @@
 ﻿using backend_shopia.DTO;
 using backend_shopia.Entities;
-using RFService.IServices;
+using RFIServices.IServices;
 
-namespace backend_shopia.IServices
+namespace backend_shopia.IServices;
+
+public interface IUserPlanService
+    : ICommonJoinService<UserPlan>
 {
-    public interface IUserPlanService
-        : IService<UserPlan>,
-            IServiceTimestamps<UserPlan>
-    {
-        Task<Plan> GetSinglePlanForCurrentUserAsync();
+    Task<Plan> GetSinglePlanByCurrentUserAsync();
 
-        Task<UsedPlanDTO> GetUsedPlanForCurrentUserAsync();
+    Task<UsedPlanDTO> GetUsedPlanByCurrentUserAsync();
 
-        Task<PlanLimits> GetLimitsForCurrentUserAsync();
-    }
+    Task<PlanLimits> GetLimitsByCurrentUserAsync();
 }

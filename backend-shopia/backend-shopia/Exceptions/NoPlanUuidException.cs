@@ -1,9 +1,8 @@
-﻿using RFHttpExceptions.Exceptions;
+﻿using RFBase.Exceptions;
 
-namespace backend_shopia.Exceptions
+namespace backend_shopia.Exceptions;
+
+public class NoPlanUuidException()
+    : HttpException(400, "No plan UUID provided.")
 {
-    public class NoPlanUuidException()
-        : HttpException(400, "No plan UUID provided.")
-    {
-    }
 }

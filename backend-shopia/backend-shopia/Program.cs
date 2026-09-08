@@ -1,5 +1,6 @@
 using backend_shopia.Middlewares;
-using RFAuth;
+using RFAuth.Filters;
+using RFAuth.Middlewares;
 using RFHttpExceptionsL10n.Middlewares;
 
 namespace backend_shopia
@@ -19,21 +20,17 @@ namespace backend_shopia
             // Add services to the container.
             builder.ConfigureServices();
 
-            //builder.Services.AddRouting(options => options.LowercaseUrls = true);
+            builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers(options =>
+            {
+                options.Filters.Add<AuthorizationFilter>();
+            });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
-
-            app.ConfigureTranslations();
-            app.ConfigureRepo()
-                .GetAwaiter()
-                .GetResult();
-            app.Configure();
-            app.ConfigureData();
 
             app.UsePathBase("/api");
             app.UseRouting();

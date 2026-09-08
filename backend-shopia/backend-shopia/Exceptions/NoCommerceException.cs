@@ -1,9 +1,8 @@
-﻿using RFHttpExceptions.Exceptions;
+﻿using RFBase.Exceptions;
 
-namespace backend_shopia.Exceptions
+namespace backend_shopia.Exceptions;
+
+public class NoCommerceException()
+    : HttpException(400, "No commerce provided.")
 {
-    public class NoCommerceException()
-        : HttpException(400, "No commerce provided.")
-    {
-    }
 }

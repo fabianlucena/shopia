@@ -1,16 +1,9 @@
 ﻿using backend_shopia.Entities;
-using RFService.IServices;
+using RFIServices.IServices;
 
-namespace backend_shopia.IServices
+namespace backend_shopia.IServices;
+
+public interface ICategoryService
+    : IANominableEntityService<Category>
 {
-    public interface ICategoryService
-        : IService<Category>,
-            IServiceId<Category>,
-            IServiceUuid<Category>,
-            IServiceIdUuid<Category>,
-            IServiceSoftDeleteUuid<Category>,
-            IServiceName<Category>,
-            IServiceIdUuidName<Category>
-    {
-    }
 }

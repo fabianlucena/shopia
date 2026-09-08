@@ -1,9 +1,8 @@
-﻿using RFHttpExceptions.Exceptions;
+﻿using RFBase.Exceptions;
 
-namespace backend_shopia.Exceptions
+namespace backend_shopia.Exceptions;
+
+public class NoOwnerException()
+    : HttpException(400, "No owner provided.")
 {
-    public class NoOwnerException()
-        : HttpException(400, "No owner provided.")
-    {
-    }
 }

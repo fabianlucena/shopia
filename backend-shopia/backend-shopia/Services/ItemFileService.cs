@@ -1,191 +1,184 @@
-﻿using AutoMapper;
-using backend_shopia.DTO;
+﻿using backend_shopia.DTO;
 using backend_shopia.Entities;
 using backend_shopia.Exceptions;
 using backend_shopia.IServices;
-using RFAuth.Exceptions;
-using RFOperators;
-using RFService.IRepo;
-using RFService.Repo;
-using RFService.Services;
 
-namespace backend_shopia.Services
+namespace backend_shopia.Services;
+
+public class ItemFileService(
+    IRepo<ItemFile> repo,
+    IServiceProvider serviceProvider
+)
+    : ServiceCreatedAtIdUuidName<IRepo<ItemFile>, ItemFile>(repo),
+        IItemFileService
 {
-    public class ItemFileService(
-        IRepo<ItemFile> repo,
-        IServiceProvider serviceProvider
-    )
-        : ServiceCreatedAtIdUuidName<IRepo<ItemFile>, ItemFile>(repo),
-            IItemFileService
+    public override async Task<ItemFile> ValidateForCreationAsync(ItemFile data)
     {
-        public override async Task<ItemFile> ValidateForCreationAsync(ItemFile data)
+        data = await base.ValidateForCreationAsync(data);
+
+        if (string.IsNullOrWhiteSpace(data.Name))
+            throw new NoNameException();
+
+        if (data.Item == null)
         {
-            data = await base.ValidateForCreationAsync(data);
+            if (data.ItemId <= 0)
+                throw new NoItemException();
 
-            if (string.IsNullOrWhiteSpace(data.Name))
-                throw new NoNameException();
-
+            var itemService = serviceProvider.GetRequiredService<IItemService>();
+            data.Item = await itemService.GetSingleOrDefaultForIdAsync(
+                data.ItemId,
+                new QueryOptions
+                {
+                    Join = { "Commerce" },
+                }
+            );
             if (data.Item == null)
-            {
-                if (data.ItemId <= 0)
-                    throw new NoItemException();
+                throw new NoItemException();
+        }
 
-                var itemService = serviceProvider.GetRequiredService<IItemService>();
-                data.Item = await itemService.GetSingleOrDefaultForIdAsync(
-                    data.ItemId,
+        var item = data.Item;
+        if (item.Commerce == null)
+        {
+            if (item.Stores == null || !item.Stores.Any())
+                throw new NoStoreProvidedException();
+
+            var store = item.Stores.First()
+                ?? throw new NoStoreProvidedException();
+
+            if (store.Commerce == null)
+            {
+                if (store.Id <= 0)
+                    throw new NoCommerceException();
+
+                var storeService = serviceProvider.GetRequiredService<IStoreService>();
+                store = await storeService.GetSingleOrDefaultForIdAsync(
+                    store.Id,
                     new QueryOptions
                     {
-                        Join = { "Commerce" },
+                        Join = { { "Commerce" } },
+                        Switches = { { "IncludeDisabled", true } },
                     }
                 );
-                if (data.Item == null)
-                    throw new NoItemException();
-            }
 
-            var item = data.Item;
-            if (item.Commerce == null)
-            {
-                if (item.Stores == null || !item.Stores.Any())
+                if (store == null)
                     throw new NoStoreProvidedException();
 
-                var store = item.Stores.First()
-                    ?? throw new NoStoreProvidedException();
-
                 if (store.Commerce == null)
-                {
-                    if (store.Id <= 0)
-                        throw new NoCommerceException();
-
-                    var storeService = serviceProvider.GetRequiredService<IStoreService>();
-                    store = await storeService.GetSingleOrDefaultForIdAsync(
-                        store.Id,
-                        new QueryOptions
-                        {
-                            Join = { { "Commerce" } },
-                            Switches = { { "IncludeDisabled", true } },
-                        }
-                    );
-
-                    if (store == null)
-                        throw new NoStoreProvidedException();
-
-                    if (store.Commerce == null)
-                        throw new NoCommerceException();
-                }
-
-                if (store.Commerce == null)
-                    throw new CommerceDoesNotExistException();
+                    throw new NoCommerceException();
             }
 
-            var userPlanService = serviceProvider.GetRequiredService<IUserPlanService>();
-            var limits = await userPlanService.GetLimitsForCurrentUserAsync();
-
-            if (data.Content.Length > limits[PlanLimitName.MaxItemImageSize])
-                throw new ImageIsTooLargeException(data.Content.Length, limits[PlanLimitName.MaxItemImageSize]);
-
-            var itemImagesCount = await GetCountAsync(new QueryOptions {
-                Switches = { { "IncludeDisabled", true } },
-                Filters = { { "ItemId", data.ItemId } }
-            });
-            if (itemImagesCount >= limits[PlanLimitName.MaxTotalImagesPerSingleItem])
-                throw new TotalImagesPerItemLimitReachedException();
-
-            var totalCount = await GetCountForCurrentUserAsync(new QueryOptions { Switches = { { "IncludeDisabled", true} } });
-            if (totalCount >= limits[PlanLimitName.MaxTotalItemsImages])
-                throw new TotalItemsImagesLimitReachedException();
-
-            var enabledCount = await GetCountForCurrentUserAsync();
-            if (enabledCount > limits[PlanLimitName.MaxEnabledItemsImages])
-                throw new MaxEnabledItemsImagesLimitReachedException();
-
-            var aggregatedSize = await GetAggregatedSizeForCurrentUserAsync(new QueryOptions { Switches = { { "IncludeDisabled", true } } });
-            aggregatedSize += data.Content.Length;
-            if (aggregatedSize >= limits[PlanLimitName.MaxItemsImagesAggregatedSize])
-                throw new TotalItemsImagesAggregatedSizeLimitReachedException();
-
-            var enabledAggregatedSize = await GetAggregatedSizeForCurrentUserAsync();
-            enabledAggregatedSize += data.Content.Length;
-            if (enabledAggregatedSize >= limits[PlanLimitName.MaxEnabledItemsImagesAggregatedSize])
-                throw new MaxEnabledItemsImagesAggregatedSizeLimitReachedException();
-
-            return data;
+            if (store.Commerce == null)
+                throw new CommerceDoesNotExistException();
         }
 
-        public async Task<QueryOptions> GetFilterForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
-        {
-            var itemService = serviceProvider.GetRequiredService<IItemService>();
-            var itemsId = await itemService.GetListIdForOwnerIdAsync(ownerId, options);
+        var userPlanService = serviceProvider.GetRequiredService<IUserPlanService>();
+        var limits = await userPlanService.GetLimitsForCurrentUserAsync();
 
-            options = new QueryOptions();
-            options.AddFilter("ItemId", itemsId);
+        if (data.Content.Length > limits[PlanLimitName.MaxItemImageSize])
+            throw new ImageIsTooLargeException(data.Content.Length, limits[PlanLimitName.MaxItemImageSize]);
 
-            return options;
-        }
+        var itemImagesCount = await GetCountAsync(new QueryOptions {
+            Switches = { { "IncludeDisabled", true } },
+            Filters = { { "ItemId", data.ItemId } }
+        });
+        if (itemImagesCount >= limits[PlanLimitName.MaxTotalImagesPerSingleItem])
+            throw new TotalImagesPerItemLimitReachedException();
 
-        public async Task<int> GetCountForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
-            => await GetCountAsync(await GetFilterForOwnerIdAsync(ownerId, options));
+        var totalCount = await GetCountForCurrentUserAsync(new QueryOptions { Switches = { { "IncludeDisabled", true} } });
+        if (totalCount >= limits[PlanLimitName.MaxTotalItemsImages])
+            throw new TotalItemsImagesLimitReachedException();
 
-        public Int64 GetCurrentUserId()
-        {
-            var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
-            var httpContext = httpContextAccessor.HttpContext
-                ?? throw new NoAuthorizationHeaderException();
+        var enabledCount = await GetCountForCurrentUserAsync();
+        if (enabledCount > limits[PlanLimitName.MaxEnabledItemsImages])
+            throw new MaxEnabledItemsImagesLimitReachedException();
 
-            var userId = (httpContext.Items["UserId"] as Int64?)
-                ?? throw new NoSessionUserDataException();
+        var aggregatedSize = await GetAggregatedSizeForCurrentUserAsync(new QueryOptions { Switches = { { "IncludeDisabled", true } } });
+        aggregatedSize += data.Content.Length;
+        if (aggregatedSize >= limits[PlanLimitName.MaxItemsImagesAggregatedSize])
+            throw new TotalItemsImagesAggregatedSizeLimitReachedException();
 
-            if (userId <= 0)
-                throw new NoSessionUserDataException();
+        var enabledAggregatedSize = await GetAggregatedSizeForCurrentUserAsync();
+        enabledAggregatedSize += data.Content.Length;
+        if (enabledAggregatedSize >= limits[PlanLimitName.MaxEnabledItemsImagesAggregatedSize])
+            throw new MaxEnabledItemsImagesAggregatedSizeLimitReachedException();
 
-            return userId!;
-        }
-
-        public async Task<int> GetCountForCurrentUserAsync(QueryOptions? options = null)
-            => await GetCountForOwnerIdAsync(GetCurrentUserId(), options);
-
-        public async Task<Int64> GetAggregatedSizeForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
-        {
-            options = await GetFilterForOwnerIdAsync(ownerId, options);
-            options.Select ??= [Op.Sum(Op.DataLength("Content"))];
-
-            return await GetInt64Async(options) ?? 0;
-        }
-
-        public async Task<Int64> GetAggregatedSizeForCurrentUserAsync(QueryOptions? options = null)
-            => await GetAggregatedSizeForOwnerIdAsync(GetCurrentUserId(), options);
-
-        public async Task<IEnumerable<ItemFile>> AddForItemUuidAsync(Guid itemUuid, FilesCollectionDTO files)
-        {
-            var itemService = serviceProvider.GetRequiredService<IItemService>();
-            return await AddForItemIdAsync(await itemService.GetSingleIdForUuidAsync(itemUuid), files);
-        }
-
-        public async Task<IEnumerable<ItemFile>> AddForItemIdAsync(Int64 itemId, FilesCollectionDTO files)
-        {
-            var result = new List<ItemFile>();
-            foreach (var file in files)
-            {
-                if (file.Content.Length == 0)
-                    continue;
-
-                var itemImage = new ItemFile
-                {
-                    ItemId = itemId,
-                    Name = file.Name,
-                    ContentType = file.ContentType,
-                    Content = file.Content,
-                };
-
-                result.Add(await CreateAsync(itemImage));
-            }
-
-            return result;
-        }
-
-        public async Task<IEnumerable<ItemFile>> GetListForItemIdAsync(Int64 itemId)
-            => await GetListAsync(new QueryOptions
-            {
-                Filters = { { "ItemId", itemId } }
-            });
+        return data;
     }
+
+    public async Task<QueryOptions> GetFilterForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
+    {
+        var itemService = serviceProvider.GetRequiredService<IItemService>();
+        var itemsId = await itemService.GetListIdForOwnerIdAsync(ownerId, options);
+
+        options = new QueryOptions();
+        options.AddFilter("ItemId", itemsId);
+
+        return options;
+    }
+
+    public async Task<int> GetCountForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
+        => await GetCountAsync(await GetFilterForOwnerIdAsync(ownerId, options));
+
+    public Int64 GetCurrentUserId()
+    {
+        var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+        var httpContext = httpContextAccessor.HttpContext
+            ?? throw new NoAuthorizationHeaderException();
+
+        var userId = (httpContext.Items["UserId"] as Int64?)
+            ?? throw new NoSessionUserDataException();
+
+        if (userId <= 0)
+            throw new NoSessionUserDataException();
+
+        return userId!;
+    }
+
+    public async Task<int> GetCountForCurrentUserAsync(QueryOptions? options = null)
+        => await GetCountForOwnerIdAsync(GetCurrentUserId(), options);
+
+    public async Task<Int64> GetAggregatedSizeForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
+    {
+        options = await GetFilterForOwnerIdAsync(ownerId, options);
+        options.Select ??= [Op.Sum(Op.DataLength("Content"))];
+
+        return await GetInt64Async(options) ?? 0;
+    }
+
+    public async Task<Int64> GetAggregatedSizeForCurrentUserAsync(QueryOptions? options = null)
+        => await GetAggregatedSizeForOwnerIdAsync(GetCurrentUserId(), options);
+
+    public async Task<IEnumerable<ItemFile>> AddForItemUuidAsync(Guid itemUuid, FilesCollectionDTO files)
+    {
+        var itemService = serviceProvider.GetRequiredService<IItemService>();
+        return await AddForItemIdAsync(await itemService.GetSingleIdForUuidAsync(itemUuid), files);
+    }
+
+    public async Task<IEnumerable<ItemFile>> AddForItemIdAsync(Int64 itemId, FilesCollectionDTO files)
+    {
+        var result = new List<ItemFile>();
+        foreach (var file in files)
+        {
+            if (file.Content.Length == 0)
+                continue;
+
+            var itemImage = new ItemFile
+            {
+                ItemId = itemId,
+                Name = file.Name,
+                ContentType = file.ContentType,
+                Content = file.Content,
+            };
+
+            result.Add(await CreateAsync(itemImage));
+        }
+
+        return result;
+    }
+
+    public async Task<IEnumerable<ItemFile>> GetListForItemIdAsync(Int64 itemId)
+        => await GetListAsync(new QueryOptions
+        {
+            Filters = { { "ItemId", itemId } }
+        });
 }

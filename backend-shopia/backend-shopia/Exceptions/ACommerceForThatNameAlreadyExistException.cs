@@ -1,9 +1,8 @@
-﻿using RFHttpExceptions.Exceptions;
+﻿using RFBase.Exceptions;
 
-namespace backend_shopia.Exceptions
+namespace backend_shopia.Exceptions;
+
+public class ACommerceForThatNameAlreadyExistException()
+    : HttpException(400, "You already own a commerce with that name.")
 {
-    public class ACommerceForThatNameAlreadyExistException()
-        : HttpException(400, "You already own a commerce with that name.")
-    {
-    }
 }

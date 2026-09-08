@@ -1,9 +1,8 @@
-﻿using RFHttpExceptions.Exceptions;
+﻿using RFBase.Exceptions;
 
-namespace backend_shopia.Exceptions
+namespace backend_shopia.Exceptions;
+
+public class PlanFeatureAlreadyExistsException()
+    : HttpException(400, "Plan feature already exists.")
 {
-    public class PlanFeatureAlreadyExistsException()
-        : HttpException(400, "Plan feature already exists.")
-    {
-    }
 }

@@ -1,40 +1,35 @@
-﻿using AutoMapper;
-using backend_shopia.DTO;
-using backend_shopia.Entities;
+﻿using backend_shopia.DTO;
 using backend_shopia.IServices;
+using backend_shopia.QueryOptions;
 using Microsoft.AspNetCore.Mvc;
-using RFService.Authorization;
-using RFService.Data;
-using RFService.Repo;
+using RFPermissions.Attributes;
 
-namespace backend_shopia.Controllers
+namespace backend_shopia.Controllers;
+
+[ApiController]
+[Route("v1/category")]
+public class CategoryController(
+    ILogger<CategoryController> logger,
+    ICategoryService categoryService
+)
+    : ControllerBase
 {
-    [ApiController]
-    [Route("v1/category")]
-    public class CategoryController(
-        ILogger<CategoryController> logger,
-        ICategoryService categoryService,
-        IMapper mapper
-    )
-        : ControllerBase
+    [HttpGet("{uuid?}")]
+    [Permission("category.get")]
+    public async Task<IActionResult> GetAsync([FromRoute] Guid? uuid)
     {
-        [HttpGet("{uuid?}")]
-        [Permission("category.get")]
-        public async Task<IActionResult> GetAsync([FromRoute] Guid? uuid)
-        {
-            logger.LogInformation("Getting categories");
+        logger.LogInformation("Getting categories");
 
-            var options = QueryOptions.CreateFromQuery(HttpContext);
-            if (uuid != null)
-                options.AddFilter("Uuid", uuid);
+        var options = new CategoryQueryOptions().UpdateFromRequest(HttpContext.Request);
+        if (uuid != null)
+            options.Uuid = uuid;
 
-            var categoriesList = await categoryService.GetListAsync(options);
+        var categoriesList = await categoryService.GetListAsync(options);
 
-            var response = categoriesList.Select(mapper.Map<Category, CategoryResponse>);
+        var response = categoriesList.Select(c => new CategoryResponse(c));
 
-            logger.LogInformation("Categories retrieved");
+        logger.LogInformation("Categories retrieved");
 
-            return Ok(new DataRowsResult(response));
-        }
+        return Ok(response);
     }
 }

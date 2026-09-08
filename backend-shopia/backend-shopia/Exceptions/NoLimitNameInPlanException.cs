@@ -1,9 +1,8 @@
-﻿using RFHttpExceptions.Exceptions;
+﻿using RFBase.Exceptions;
 
-namespace backend_shopia.Exceptions
+namespace backend_shopia.Exceptions;
+
+public class NoLimitNameInPlanException(string name)
+    : HttpException(500, "No limit name {0} in plan.", name)
 {
-    public class NoLimitNameInPlanException(string name)
-        : HttpException(500, "No limit name {0} in plan.", name)
-    {
-    }
 }

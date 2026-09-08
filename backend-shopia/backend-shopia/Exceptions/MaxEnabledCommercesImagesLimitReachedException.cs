@@ -1,9 +1,8 @@
-﻿using RFHttpExceptions.Exceptions;
+﻿using RFBase.Exceptions;
 
-namespace backend_shopia.Exceptions
+namespace backend_shopia.Exceptions;
+
+public class MaxEnabledCommercesImagesLimitReachedException()
+    : HttpException(400, "The maximum limit of enabled commerce images has been reached.")
 {
-    public class MaxEnabledCommercesImagesLimitReachedException()
-        : HttpException(400, "The maximum limit of enabled commerce images has been reached.")
-    {
-    }
 }

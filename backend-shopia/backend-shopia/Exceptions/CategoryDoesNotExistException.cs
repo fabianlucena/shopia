@@ -1,9 +1,8 @@
-﻿using RFHttpExceptions.Exceptions;
+﻿using RFBase.Exceptions;
 
-namespace backend_shopia.Exceptions
+namespace backend_shopia.Exceptions;
+
+public class CategoryDoesNotExistException()
+    : HttpException(400, "Category does not exist.")
 {
-    public class CategoryDoesNotExistException()
-        : HttpException(400, "Category does not exist.")
-    {
-    }
 }

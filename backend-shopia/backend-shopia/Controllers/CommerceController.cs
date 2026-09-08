@@ -1,138 +1,123 @@
-﻿using AutoMapper;
-using backend_shopia.DTO;
+﻿using backend_shopia.DTO;
 using backend_shopia.Entities;
 using backend_shopia.IServices;
+using backend_shopia.QueryOptions;
 using Microsoft.AspNetCore.Mvc;
-using RFAuth.Exceptions;
-using RFService.Authorization;
-using RFService.Data;
-using RFService.Libs;
-using RFService.Repo;
+using RFAuthControllers.Exceptions;
+using RFBase.Libs;
+using RFPermissions.Attributes;
 
-namespace backend_shopia.Controllers
+namespace backend_shopia.Controllers;
+
+[ApiController]
+[Route("v1/commerce")]
+public class CommerceController(
+    ILogger<CommerceController> logger,
+    ICommerceService commerceService,
+    IItemService itemService
+)
+    : ControllerBase
 {
-    [ApiController]
-    [Route("v1/commerce")]
-    public class CommerceController(
-        ILogger<CommerceController> logger,
-        ICommerceService commerceService,
-        IMapper mapper,
-        IItemService itemService
-    )
-        : ControllerBase
+    [HttpPost]
+    [Permission("commerce.add")]
+    public async Task<IActionResult> PostAsync([FromBody] CommerceAddRequest data)
     {
-        [HttpPost]
-        [Permission("commerce.add")]
-        public async Task<IActionResult> PostAsync([FromBody] CommerceAddRequest data)
-        {
-            logger.LogInformation("Creating commerce");
+        logger.LogInformation("Creating commerce");
 
-            var commerce = mapper.Map<CommerceAddRequest, Commerce>(data);
-            commerce.OwnerId = (HttpContext?.Items["UserId"] as Int64?)
-                ?? throw new NoAuthorizationHeaderException();
+        var commerce = data.ToCommerce();
+        commerce.OwnerId = (HttpContext?.Items["UserId"] as Int64?)
+            ?? throw new NoAuthorizationHeaderException();
 
-            var result = await commerceService.CreateAsync(commerce);
+        var result = await commerceService.CreateAsync(commerce);
 
-            if (result == null)
-                return BadRequest();
+        if (result == null)
+            return BadRequest();
 
-            logger.LogInformation("Commerce created");
+        logger.LogInformation("Commerce created");
 
-            return Ok();
-        }
+        return Ok();
+    }
 
-        [HttpGet("{uuid?}")]
-        public async Task<IActionResult> GetAsync([FromRoute] Guid? uuid)
-        {
-            logger.LogInformation("Getting commerces");
+    [HttpGet("{uuid?}")]
+    public async Task<IActionResult> GetAsync([FromRoute] Guid? uuid)
+    {
+        logger.LogInformation("Getting commerces");
 
-            var options = QueryOptions.CreateFromQuery(HttpContext);
-            if (uuid != null)
-                options.AddFilter("Uuid", uuid);
-            
-            if (HttpContext.Request.Query.TryGetBool("mine", out var mine) && mine)
-            {
-                var ownerId = (HttpContext.Items["UserId"] as Int64?)
-                    ?? throw new NoAuthorizationHeaderException();
+        var options = new CommerceQueryOptions().UpdateFromRequest(HttpContext.Request);
+        if (uuid != null)
+            options.Uuid = uuid;
 
-                options.AddFilter("OwnerId", ownerId);
-            }
+        var commerceList = await commerceService.GetListAsync(options);
 
-            if (HttpContext.Request.Query.TryGetBool("includeStores", out var includeStores) && includeStores)
-                options.Switches.Add("IncludeStores", true);
+        var response = commerceList.Select(mapper.Map<Commerce, CommerceResponse>);
 
-            var commerceList = await commerceService.GetListAsync(options);
+        logger.LogInformation("Commerces retrieved");
 
-            var response = commerceList.Select(mapper.Map<Commerce, CommerceResponse>);
+        return Ok(response);
+    }
 
-            logger.LogInformation("Commerces retrieved");
+    [HttpPatch("{uuid}")]
+    [Permission("commerce.edit")]
+    public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary data)
+    {
+        logger.LogInformation("Updating commerce");
 
-            return Ok(new DataRowsResult(response));
-        }
+        await commerceService.CheckForUuidAndCurrentUserAsync(uuid);
 
-        [HttpPatch("{uuid}")]
-        [Permission("commerce.edit")]
-        public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary data)
-        {
-            logger.LogInformation("Updating commerce");
+        data = data.GetPascalized();
 
-            await commerceService.CheckForUuidAndCurrentUserAsync(uuid);
+        var result = await commerceService.UpdateForUuidAsync(data, uuid);
 
-            data = data.GetPascalized();
+        if (result <= 0)
+            return BadRequest();
 
-            var result = await commerceService.UpdateForUuidAsync(data, uuid);
+        _ = await itemService.UpdateInheritedForCommerceUuid(uuid);
 
-            if (result <= 0)
-                return BadRequest();
+        logger.LogInformation("Commerce updated");
 
-            _ = await itemService.UpdateInheritedForCommerceUuid(uuid);
+        return Ok();
+    }
 
-            logger.LogInformation("Commerce updated");
+    [HttpDelete("{uuid}")]
+    [Permission("commerce.delete")]
+    public async Task<IActionResult> DeleteAsync([FromRoute] Guid uuid)
+    {
+        logger.LogInformation("Deleting commerce");
 
-            return Ok();
-        }
+        await commerceService.CheckForUuidAndCurrentUserAsync(uuid);
 
-        [HttpDelete("{uuid}")]
-        [Permission("commerce.delete")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] Guid uuid)
-        {
-            logger.LogInformation("Deleting commerce");
+        var result = await commerceService.DeleteForUuidAsync(uuid);
 
-            await commerceService.CheckForUuidAndCurrentUserAsync(uuid);
+        if (result <= 0)
+            return BadRequest();
+        
+        _ = await itemService.UpdateInheritedForCommerceUuid(uuid);
 
-            var result = await commerceService.DeleteForUuidAsync(uuid);
+        logger.LogInformation("Commerce deleted");
 
-            if (result <= 0)
-                return BadRequest();
-            
-            _ = await itemService.UpdateInheritedForCommerceUuid(uuid);
+        return Ok();
+    }
 
-            logger.LogInformation("Commerce deleted");
+    [HttpPost("restore/{uuid}")]
+    [Permission("commerce.restore")]
+    public async Task<IActionResult> RestoreAsync([FromRoute] Guid uuid)
+    {
+        logger.LogInformation("Restoring commerce");
 
-            return Ok();
-        }
+        await commerceService.CheckForUuidAndCurrentUserAsync(
+            uuid,
+            new QueryOptions { Switches = { { "IncludeDeleted", true } } }
+        );
 
-        [HttpPost("restore/{uuid}")]
-        [Permission("commerce.restore")]
-        public async Task<IActionResult> RestoreAsync([FromRoute] Guid uuid)
-        {
-            logger.LogInformation("Restoring commerce");
+        var result = await commerceService.RestoreForUuidAsync(uuid);
 
-            await commerceService.CheckForUuidAndCurrentUserAsync(
-                uuid,
-                new QueryOptions { Switches = { { "IncludeDeleted", true } } }
-            );
+        if (result <= 0)
+            return BadRequest();
 
-            var result = await commerceService.RestoreForUuidAsync(uuid);
+        _ = await itemService.UpdateInheritedForCommerceUuid(uuid);
 
-            if (result <= 0)
-                return BadRequest();
+        logger.LogInformation("Commerce restored");
 
-            _ = await itemService.UpdateInheritedForCommerceUuid(uuid);
-
-            logger.LogInformation("Commerce restored");
-
-            return Ok();
-        }
+        return Ok();
     }
 }

@@ -1,28 +1,16 @@
 ﻿using backend_shopia.Entities;
-using RFService.IServices;
-using RFService.Repo;
+using backend_shopia.QueryOptions;
+using RFIServices.IServices;
 
-namespace backend_shopia.IServices
+namespace backend_shopia.IServices;
+
+public interface IStoreService
+    : IANominableEntityService<Store>
 {
-    public interface IStoreService
-        : IService<Store>,
-            IServiceId<Store>,
-            IServiceUuid<Store>,
-            IServiceIdUuid<Store>,
-            IServiceSoftDeleteUuid<Store>,
-            IServiceName<Store>,
-            IServiceIdUuidName<Store>
-    {
-        Task<bool> CheckForUuidAndCurrentUserAsync(Guid uuid, QueryOptions? options = null);
-
-        Task<QueryOptions> GetFilterForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);
-
-        Task<int> GetCountForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);
-
-        Task<int> GetCountForCurrentUserAsync(QueryOptions? options = null);
-
-        Task<IEnumerable<Int64>> GetListIdForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);
-
-        Task<IEnumerable<Int64>> GetListIdForCurrentUserAsync(QueryOptions? options = null);
-    }
+    Task<bool> CheckForUuidAndCurrentUserAsync(Guid uuid, StoreQueryOptions? options = null);
+    Task<StoreQueryOptions> GetFilterForOwnerIdAsync(Int64 ownerId, StoreQueryOptions? options = null);
+    Task<int> GetCountForOwnerIdAsync(Int64 ownerId, StoreQueryOptions? options = null);
+    Task<int> GetCountForCurrentUserAsync(StoreQueryOptions? options = null);
+    Task<IEnumerable<Int64>> GetListIdForOwnerIdAsync(Int64 ownerId, StoreQueryOptions? options = null);
+    Task<IEnumerable<Int64>> GetListIdForCurrentUserAsync(StoreQueryOptions? options = null);
 }

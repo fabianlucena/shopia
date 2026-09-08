@@ -1,31 +1,24 @@
 ﻿using backend_shopia.DTO;
 using backend_shopia.Entities;
-using RFService.IServices;
-using RFService.Repo;
+using backend_shopia.QueryOptions;
+using RFIServices.IServices;
 
-namespace backend_shopia.IServices
+namespace backend_shopia.IServices;
+
+public interface ICommerceFileService
+    : INominableEntityService<CommerceFile>
 {
-    public interface ICommerceFileService
-        : IService<CommerceFile>,
-            IServiceId<CommerceFile>,
-            IServiceUuid<CommerceFile>,
-            IServiceIdUuid<CommerceFile>,
-            IServiceCreatedAt<CommerceFile>,
-            IServiceName<CommerceFile>,
-            IServiceIdUuidName<CommerceFile>
-    {
-        Task<IEnumerable<CommerceFile>> AddForCommerceUuidAsync(Guid commerceUuid, FilesCollectionDTO files);
+    Task<IEnumerable<CommerceFile>> AddByCommerceUuidAsync(Guid commerceUuid, FilesCollectionDTO files);
 
-        Task<IEnumerable<CommerceFile>> AddForCommerceIdAsync(Int64 commerceId, FilesCollectionDTO files);
+    Task<IEnumerable<CommerceFile>> AddByCommerceIdAsync(long commerceId, FilesCollectionDTO files);
 
-        Task<IEnumerable<CommerceFile>> GetListForCommerceIdAsync(Int64 commerceId);
+    Task<IEnumerable<CommerceFile>> GetListByCommerceIdAsync(long commerceId);
 
-        Task<int> GetCountForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);
+    Task<int> GetCountByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null);
 
-        Task<int> GetCountForCurrentUserAsync(QueryOptions? options = null);
+    Task<int> GetCountByCurrentUserAsync(CommerceQueryOptions? options = null);
 
-        Task<Int64> GetAggregatedSizeForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);
+    Task<Int64> GetAggregatedSizeByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null);
 
-        Task<Int64> GetAggregatedSizeForCurrentUserAsync(QueryOptions? options = null);
-    }
+    Task<Int64> GetAggregatedSizeByCurrentUserAsync(CommerceQueryOptions? options = null);
 }

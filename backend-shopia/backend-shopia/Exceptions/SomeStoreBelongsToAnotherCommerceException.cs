@@ -1,9 +1,8 @@
-﻿using RFHttpExceptions.Exceptions;
+﻿using RFBase.Exceptions;
 
-namespace backend_shopia.Exceptions
+namespace backend_shopia.Exceptions;
+
+public class SomeStoreBelongsToAnotherCommerceException()
+    : HttpException(400, "Some store belongs to another commerce")
 {
-    public class SomeStoreBelongsToAnotherCommerceException()
-        : HttpException(400, "Some store belongs to another commerce")
-    {
-    }
 }

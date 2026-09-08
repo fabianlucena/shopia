@@ -1,14 +1,10 @@
-﻿using AutoMapper;
-using backend_shopia.DTO;
+﻿using backend_shopia.DTO;
 using backend_shopia.Entities;
 using backend_shopia.Exceptions;
 using backend_shopia.IServices;
 using Microsoft.AspNetCore.Mvc;
-using RFService.Authorization;
-using RFService.Data;
-using RFService.Libs;
-using RFService.Repo;
-using Sprache;
+using RFBase.Libs;
+using RFPermissions.Attributes;
 using System.Globalization;
 using System.Text.Json;
 
@@ -21,8 +17,7 @@ namespace backend_shopia.Controllers
         IItemService itemService,
         IItemFileService itemFileService,
         IItemStoreService itemStoreService,
-        ICommerceService commerceService,
-        IMapper mapper
+        ICommerceService commerceService
     )
         : ControllerBase
     {
@@ -49,7 +44,7 @@ namespace backend_shopia.Controllers
 
             await commerceService.CheckForUuidAndCurrentUserAsync(data.CommerceUuid);
 
-            var item = mapper.Map<ItemAddRequest, Item>(data);
+            var item = data.ToItem();
 
             var result = await itemService.CreateAsync(item);
             if (result == null)
@@ -69,7 +64,7 @@ namespace backend_shopia.Controllers
         {
             logger.LogInformation("Getting items");
 
-            var options = QueryOptions.CreateFromQuery(HttpContext);
+            var options = ItemQueryOptions.CreateFromQuery(HttpContext);
             if (uuid != null)
                 options.AddFilter("Uuid", uuid);
 

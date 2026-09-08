@@ -1,9 +1,8 @@
-﻿using RFHttpExceptions.Exceptions;
+﻿using RFBase.Exceptions;
 
-namespace backend_shopia.Exceptions
+namespace backend_shopia.Exceptions;
+
+public class NoItemException()
+    : HttpException(400, "No item provided.")
 {
-    public class NoItemException()
-        : HttpException(400, "No item provided.")
-    {
-    }
 }

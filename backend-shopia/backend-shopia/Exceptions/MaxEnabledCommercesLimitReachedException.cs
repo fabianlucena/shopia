@@ -1,9 +1,8 @@
-﻿using RFHttpExceptions.Exceptions;
+﻿using RFBase.Exceptions;
 
-namespace backend_shopia.Exceptions
+namespace backend_shopia.Exceptions;
+
+public class MaxEnabledCommercesLimitReachedException()
+    : HttpException(400, "The maximum limit of enabled commerces has been reached.")
 {
-    public class MaxEnabledCommercesLimitReachedException()
-        : HttpException(400, "The maximum limit of enabled commerces has been reached.")
-    {
-    }
 }

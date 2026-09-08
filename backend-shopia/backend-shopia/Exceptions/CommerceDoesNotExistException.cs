@@ -1,9 +1,8 @@
-﻿using RFHttpExceptions.Exceptions;
+﻿using RFBase.Exceptions;
 
-namespace backend_shopia.Exceptions
+namespace backend_shopia.Exceptions;
+
+public class CommerceDoesNotExistException()
+    : HttpException(400, "Commerce does not exist.")
 {
-    public class CommerceDoesNotExistException()
-        : HttpException(400, "Commerce does not exist.")
-    {
-    }
 }

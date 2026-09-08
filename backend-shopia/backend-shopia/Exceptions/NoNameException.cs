@@ -1,9 +1,8 @@
-﻿using RFHttpExceptions.Exceptions;
+﻿using RFBase.Exceptions;
 
-namespace backend_shopia.Exceptions
+namespace backend_shopia.Exceptions;
+
+public class NoNameException()
+    : HttpException(400, "No name provided.")
 {
-    public class NoNameException()
-        : HttpException(400, "No name provided.")
-    {
-    }
 }

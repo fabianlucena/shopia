@@ -1,16 +1,16 @@
-﻿using RFService.Services;
-using RFService.IRepo;
-using backend_shopia.Entities;
+﻿using backend_shopia.Entities;
+using backend_shopia.IRepositories;
 using backend_shopia.IServices;
+using RFServices.Services;
 
-namespace backend_shopia.Services
+namespace backend_shopia.Services;
+
+public class CategoryService(
+    ICategoryRepository categoryRepository,
+    IServiceProvider serviceProvider
+)
+    : ANominableEntityService<Category>(categoryRepository, serviceProvider),
+    ICategoryService
 {
-    public class CategoryService(
-        IRepo<Category> repo
-    )
-        : ServiceSoftDeleteTimestampsIdUuidEnabledName<IRepo<Category>, Category>(repo),
-            ICategoryService
-    {
-    }
 }
 

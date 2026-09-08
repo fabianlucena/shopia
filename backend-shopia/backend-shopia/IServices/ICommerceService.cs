@@ -1,34 +1,25 @@
 ﻿using backend_shopia.Entities;
-using Microsoft.AspNetCore.Http;
-using RFAuth.Exceptions;
-using RFService.IServices;
-using RFService.Repo;
+using backend_shopia.QueryOptions;
+using RFIServices.IServices;
 
-namespace backend_shopia.IServices
+namespace backend_shopia.IServices;
+
+public interface ICommerceService
+    : IANominableOwnedEntityService<Commerce>
 {
-    public interface ICommerceService
-        : IService<Commerce>,
-            IServiceId<Commerce>,
-            IServiceUuid<Commerce>,
-            IServiceIdUuid<Commerce>,
-            IServiceSoftDeleteUuid<Commerce>,
-            IServiceName<Commerce>,
-            IServiceIdUuidName<Commerce>
-    {
-        Task<bool> CheckForUuidAndCurrentUserAsync(Guid uuid, QueryOptions? options = null);
+    Task<bool> CheckByUuidAndCurrentUserAsync(Guid uuid, CommerceQueryOptions? options = null);
 
-        QueryOptions GetFilterForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);
+    CommerceQueryOptions GetFilterByOwnerIdAsync(Int64 ownerId, CommerceQueryOptions? options = null);
 
-        Task<int> GetCountForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);
+    Task<int> GetCountByOwnerIdAsync(Int64 ownerId, CommerceQueryOptions? options = null);
 
-        Task<int> GetCountForCurrentUserAsync(QueryOptions? options = null);
+    Task<int> GetCountByCurrentUserAsync(CommerceQueryOptions? options = null);
 
-        Task<IEnumerable<Int64>> GetListIdForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);
+    Task<IEnumerable<Int64>> GetListIdByOwnerIdAsync(Int64 ownerId, CommerceQueryOptions? options = null);
 
-        Task<IEnumerable<Guid>> GetListUuidForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null);
+    Task<IEnumerable<Guid>> GetListUuidByOwnerIdAsync(Int64 ownerId, CommerceQueryOptions? options = null);
 
-        Task<IEnumerable<Int64>> GetListIdForCurrentUserAsync(QueryOptions? options = null);
+    Task<IEnumerable<Int64>> GetListIdByCurrentUserAsync(CommerceQueryOptions? options = null);
 
-        Task<IEnumerable<Guid>> GetListUuidForCurrentUserAsync(QueryOptions? options = null);
-    }
+    Task<IEnumerable<Guid>> GetListUuidByCurrentUserAsync(CommerceQueryOptions? options = null);
 }

@@ -1,11 +1,9 @@
 ﻿using backend_shopia.Entities;
-using RFService.IServices;
+using RFIServices.IServices;
 
-namespace backend_shopia.IServices
+namespace backend_shopia.IServices;
+
+public interface IItemPriceLogService
+    : ICreatableEntityService<ItemPriceLog>
 {
-    public interface IItemPriceLogService
-        : IService<ItemPriceLog>,
-            IServiceCreatedAt<ItemPriceLog>
-    {
-    }
 }

@@ -28,27 +28,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\rf-nugets\RFAuthDapper\RFAuthDapper.csproj" />
     <ProjectReference Include="..\rf-nugets\RFAuth\RFAuth.csproj" />
     <ProjectReference Include="..\rf-nugets\RFAuth_es\RFAuth_es.csproj" />
-    <ProjectReference Include="..\rf-nugets\RFDapperDriverPostgreSQL\RFDapperDriverPostgreSQL.csproj" />
-    <ProjectReference Include="..\rf-nugets\RFDapperDriverSQLServer\RFDapperDriverSQLServer.csproj" />
-    <ProjectReference Include="..\rf-nugets\RFDapper_es\RFDapper_es.csproj" />
-    <ProjectReference Include="..\rf-nugets\RFDBLocalizerDapper\RFDBLocalizerDapper.csproj" />
     <ProjectReference Include="..\rf-nugets\RFDBLocalizer\RFDBLocalizer.csproj" />
-    <ProjectReference Include="..\rf-nugets\RFHttpActionDapper\RFHttpActionDapper.csproj" />
     <ProjectReference Include="..\rf-nugets\RFHttpAction\RFHttpAction.csproj" />
     <ProjectReference Include="..\rf-nugets\RFHttpExceptionsL10n\RFHttpExceptionsL10n.csproj" />
     <ProjectReference Include="..\rf-nugets\RFHttpExceptions\RFHttpExceptions.csproj" />
-    <ProjectReference Include="..\rf-nugets\RFLoggerProviderDapper\RFLoggerProviderDapper.csproj" />
+    <ProjectReference Include="..\rf-nugets\RFL10n\RFL10n.csproj" />
     <ProjectReference Include="..\rf-nugets\RFLoggerProvider\RFLoggerProvider.csproj" />
     <ProjectReference Include="..\rf-nugets\RFLogger\RFLogger.csproj" />
     <ProjectReference Include="..\rf-nugets\RFOauth2Client\RFOauth2Client.csproj" />
-    <ProjectReference Include="..\rf-nugets\RFRBACDapper\RFRBACDapper.csproj" />
     <ProjectReference Include="..\rf-nugets\RFRBAC\RFRBAC.csproj" />
-    <ProjectReference Include="..\rf-nugets\RFRegister\RFRegister.csproj" />
-    <ProjectReference Include="..\rf-nugets\RFService_es\RFService_es.csproj" />
-    <ProjectReference Include="..\rf-nugets\RFUserEmailVerifiedDapper\RFUserEmailVerifiedDapper.csproj" />
     <ProjectReference Include="..\rf-nugets\RFUserEmailVerified\RFUserEmailVerified.csproj" />
   </ItemGroup>
 

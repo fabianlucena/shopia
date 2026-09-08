@@ -1,15 +1,9 @@
 ﻿using backend_shopia.Entities;
-using RFService.IServices;
+using RFIServices.IServices;
 
-namespace backend_shopia.IServices
+namespace backend_shopia.IServices;
+
+public interface IPlanLimitService
+    : IANominableEntityService<PlanLimit>
 {
-    public interface IPlanLimitService
-        : IService<PlanLimit>,
-            IServiceId<PlanLimit>,
-            IServiceUuid<PlanLimit>,
-            IServiceSoftDeleteUuid<PlanLimit>,
-            IServiceName<PlanLimit>,
-            IServiceIdUuidName<PlanLimit>
-    {
-    }
 }
