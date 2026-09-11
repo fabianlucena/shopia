@@ -1,28 +1,27 @@
-﻿namespace backend_shopia.DTO
+﻿namespace backend_shopia.DTO;
+
+public enum PlanLimitName
 {
-    public enum PlanLimitName
-    {
-        MaxTotalCommerces,
-        MaxEnabledCommerces,
+    MaxTotalCommerces,
+    MaxEnabledCommerces,
 
-        MaxCommerceImageSize,
-        MaxTotalImagesPerSingleCommerce,
-        MaxTotalCommercesImages,
-        MaxEnabledCommercesImages,
-        MaxCommercesImagesAggregatedSize,
-        MaxEnabledCommercesImagesAggregatedSize,
+    MaxCommerceImageSize,
+    MaxTotalImagesPerSingleCommerce,
+    MaxTotalCommercesImages,
+    MaxEnabledCommercesImages,
+    MaxCommercesImagesAggregatedSize,
+    MaxEnabledCommercesImagesAggregatedSize,
 
-        MaxTotalStores,
-        MaxEnabledStores,
+    MaxTotalStores,
+    MaxEnabledStores,
 
-        MaxTotalItems,
-        MaxEnabledItems,
+    MaxTotalItems,
+    MaxEnabledItems,
 
-        MaxItemImageSize,
-        MaxTotalImagesPerSingleItem,
-        MaxTotalItemsImages,
-        MaxEnabledItemsImages,
-        MaxItemsImagesAggregatedSize,
-        MaxEnabledItemsImagesAggregatedSize,
-    }
+    MaxItemImageSize,
+    MaxTotalImagesPerSingleItem,
+    MaxTotalItemsImages,
+    MaxEnabledItemsImages,
+    MaxItemsImagesAggregatedSize,
+    MaxEnabledItemsImagesAggregatedSize,
 }
