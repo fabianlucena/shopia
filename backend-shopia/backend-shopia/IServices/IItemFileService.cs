@@ -10,15 +10,15 @@ public interface IItemFileService
 {
     Task<IEnumerable<ItemFile>> AddByItemUuidAsync(Guid itemUuid, FilesCollectionDTO files);
 
-    Task<IEnumerable<ItemFile>> AddByItemIdAsync(Int64 itemId, FilesCollectionDTO files);
+    Task<IEnumerable<ItemFile>> AddByItemIdAsync(long itemId, FilesCollectionDTO files);
 
-    Task<IEnumerable<ItemFile>> GetListByItemIdAsync(Int64 itemId);
+    Task<IEnumerable<ItemFile>> GetListByItemIdAsync(long itemId);
 
-    Task<int> GetCountByOwnerIdAsync(Int64 ownerId, ItemFileQueryOptions? options = null);
+    Task<int> GetCountByOwnerIdAsync(long ownerId, ItemFileQueryOptions? options = null);
 
     Task<int> GetCountByCurrentUserAsync(ItemFileQueryOptions? options = null);
 
-    Task<Int64> GetAggregatedSizeByOwnerIdAsync(Int64 ownerId, ItemFileQueryOptions? options = null);
+    Task<long> GetAggregatedSizeByOwnerIdAsync(long ownerId, ItemFileQueryOptions? options = null);
 
-    Task<Int64> GetAggregatedSizeByCurrentUserAsync(ItemFileQueryOptions? options = null);
+    Task<long> GetAggregatedSizeByCurrentUserAsync(ItemFileQueryOptions? options = null);
 }

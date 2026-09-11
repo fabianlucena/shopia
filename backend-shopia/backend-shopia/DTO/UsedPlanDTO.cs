@@ -18,15 +18,15 @@ public class UsedPlanDTO
 
     public int? EnabledItemsImagesCount { get; set; }
 
-    public Int64? ItemsImagesAggregatedSize { get; set; }
+    public long? ItemsImagesAggregatedSize { get; set; }
 
-    public Int64? EnabledItemsImagesAggregatedSize { get; set; }
+    public long? EnabledItemsImagesAggregatedSize { get; set; }
 
     public int? TotalCommercesImagesCount { get; set; }
 
     public int? EnabledCommercesImagesCount { get; set; }
 
-    public Int64? CommercesImagesAggregatedSize { get; set; }
+    public long? CommercesImagesAggregatedSize { get; set; }
 
-    public Int64? EnabledCommercesImagesAggregatedSize { get; set; }
+    public long? EnabledCommercesImagesAggregatedSize { get; set; }
 }

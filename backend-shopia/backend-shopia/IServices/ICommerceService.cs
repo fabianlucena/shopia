@@ -9,17 +9,17 @@ public interface ICommerceService
 {
     Task<bool> CheckByUuidAndCurrentUserAsync(Guid uuid, CommerceQueryOptions? options = null);
 
-    CommerceQueryOptions GetFilterByOwnerIdAsync(Int64 ownerId, CommerceQueryOptions? options = null);
+    CommerceQueryOptions GetFilterByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null);
 
-    Task<int> GetCountByOwnerIdAsync(Int64 ownerId, CommerceQueryOptions? options = null);
+    Task<int> GetCountByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null);
 
     Task<int> GetCountByCurrentUserAsync(CommerceQueryOptions? options = null);
 
-    Task<IEnumerable<Int64>> GetListIdByOwnerIdAsync(Int64 ownerId, CommerceQueryOptions? options = null);
+    Task<IEnumerable<long>> GetListIdByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null);
 
-    Task<IEnumerable<Guid>> GetListUuidByOwnerIdAsync(Int64 ownerId, CommerceQueryOptions? options = null);
+    Task<IEnumerable<Guid>> GetListUuidByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null);
 
-    Task<IEnumerable<Int64>> GetListIdByCurrentUserAsync(CommerceQueryOptions? options = null);
+    Task<IEnumerable<long>> GetListIdByCurrentUserAsync(CommerceQueryOptions? options = null);
 
     Task<IEnumerable<Guid>> GetListUuidByCurrentUserAsync(CommerceQueryOptions? options = null);
 }
