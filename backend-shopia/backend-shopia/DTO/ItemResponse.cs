@@ -17,7 +17,7 @@ public class ItemResponse(Item item)
     public IEnumerable<Guid>? StoresUuid { get; set; } = item.Stores?.Select(s => s.Uuid);
     public string Price { get; set; } = item.Price.ToString(CultureInfo.InvariantCulture);
     public int? Stock { get; set; } = item.Stock;
-    public required bool IsPresent { get; set; } = item.IsPresent;
+    public bool IsPresent { get; set; } = item.IsPresent;
     public int? MinAge { get; set; } = item.MinAge;
     public int? MaxAge { get; set; } = item.MaxAge;
     public bool IsMine { get; set; }

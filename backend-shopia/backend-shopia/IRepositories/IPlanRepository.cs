@@ -3,6 +3,6 @@ using RFIRepositories.IRepositories;
 
 namespace backend_shopia.IRepositories;
 
-public interface IItemFileRepository : ICreatableWithNameEntityRepository<ItemFile>
+public interface IPlanRepository : IANominableEntityRepository<Plan>
 {
 }

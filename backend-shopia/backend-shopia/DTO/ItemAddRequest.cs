@@ -30,7 +30,7 @@ public class ItemAddRequest
             Description = Description,
             CommerceId = await commerceService.GetSingleIdByUuidAsync(CommerceUuid),
             CategoryId = await categoryService.GetSingleIdByUuidAsync(CategoryUuid),
-            Stores = await storeService.GetListByUuids(StoresUuid),
+            Stores = await storeService.GetListByUuidsAsync(StoresUuid),
             Price = Price,
             Stock = Stock,
             IsPresent = IsPresent,

@@ -152,7 +152,7 @@ public class ItemService(
         if (data.Stores == null || !data.Stores.Any())
         {
             var itemStoreService = ServiceProvider.GetRequiredService<IItemStoreService>();
-            data.Stores = await itemStoreService.GetListStoresByItemIdAsync(
+            data.Stores = await itemStoreService.GetStoresByItemIdAsync(
                     data.Id,
                     new ItemStoreQueryOptions { IncludeInactive = true }
                 )
@@ -252,9 +252,9 @@ public class ItemService(
         return created;
     }
 
-    public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data)
+    public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, BaseQueryOptions options)
     {
-        data = await base.ValidateForUpdateAsync(data);
+        data = await base.ValidateForUpdateAsync(data, options);
 
         if (data.TryGetInt64("CommerceId", out var commerceId))
         {
@@ -407,7 +407,7 @@ public class ItemService(
 
         var storeService = ServiceProvider.GetRequiredService<IStoreService>();
         var storesId = await storeService.GetListIdByCurrentUserAsync(new StoreQueryOptions { IncludeInactive = true });
-        if (storesId.Count() == 0)
+        if (!storesId.Any())
             throw new ItemDoesNotExistException();
 
         var itemStoreService = ServiceProvider.GetRequiredService<IItemStoreService>();
@@ -449,65 +449,12 @@ public class ItemService(
     public async Task<IEnumerable<Guid>> GetListUuidByCurrentUserAsync(ItemQueryOptions? options = null)
         => await GetListUuidAsync(await GetFilterByOwnerIdAsync(await GetCurrentUserIdAsync(), options));
 
-    /*public (ItemQueryOptions, DataDictionary) GetOptionsByUpdateInherited(ItemQueryOptions? options = null)
-    {
-        options = options?.Clone() ?? new();
-        options.IncludeItemStore(
-            "",
-            "itemStore",
-            entity: typeof(ItemStore),
-            on: Op.Eq("itemStore.ItemId", Op.Column("Id"))
-        );
-        options.Include(
-            "",
-            "store",
-            entity: typeof(Store),
-            on: Op.Eq("store.Id", Op.Column("itemStore.StoreId"))
-        );
-        options.Include(
-            "",
-            "commerce",
-            entity: typeof(Commerce),
-            on: Op.Eq("commerce.Id", Op.Column("store.CommerceId"))
-        );
+    public async Task<int> UpdateInheritedByUuidAsync(Guid uuid, ItemQueryOptions? options = null)
+        => await itemRepository.UpdateInheritedByUuidAsync(uuid, options);
 
-        var data = new DataDictionary
-        {
-            { "InheritedIsEnabled",
-                Op.And(
-                    Op.Eq("store.IsEnabled", true),
-                    Op.IsNull("store.DeletedAt"),
-                    Op.Eq("commerce.IsEnabled", true),
-                    Op.IsNull("commerce.DeletedAt")
-                )
-            },
-        };
+    public async Task<int> UpdateInheritedByStoreUuidAsync(Guid storeUuid, ItemQueryOptions? options = null)
+        => await itemRepository.UpdateInheritedByStoreUuidAsync(storeUuid, options);
 
-        return (options, data);
-    }* /
-
-    public async Task<int> UpdateInheritedByUuid(Guid uuid, ItemQueryOptions? options = null)
-    {
-        (options, DataDictionary data) = GetOptionsByUpdateInherited(options);
-        options.Uuid = uuid;
-
-        return await base.UpdateAsync(data, options);
-    }
-
-    public async Task<int> UpdateInheritedByStoreUuid(Guid storeUuid, ItemQueryOptions? options = null)
-    {
-        (options, DataDictionary data) = GetOptionsByUpdateInherited(options);
-        options.StoreUuid = storeUuid;
-        data["Location"] = Op.Column("store.Location");
-
-        return await UpdateAsync(data, options);
-    }
-
-    public async Task<int> UpdateInheritedByCommerceUuid(Guid commerceUuid, ItemQueryOptions? options = null)
-    {
-        (options, DataDictionary data) = GetOptionsByUpdateInherited(options);
-        options.CommerceUuid = commerceUuid;
-
-        return await UpdateAsync(data, options);
-    }*/
+    public async Task<int> UpdateInheritedByCommerceUuidAsync(Guid commerceUuid, ItemQueryOptions? options = null)
+        => await itemRepository.UpdateInheritedByCommerceUuidAsync(commerceUuid, options);
 }

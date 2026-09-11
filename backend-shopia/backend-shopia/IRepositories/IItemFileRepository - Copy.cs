@@ -4,9 +4,9 @@ using RFIRepositories.IRepositories;
 
 namespace backend_shopia.IRepositories;
 
-public interface ICommerceFileRepository : ICreatableWithNameEntityRepository<CommerceFile>
+public interface IItemFileRepository : ICreatableWithNameEntityRepository<ItemFile>
 {
-    Task<long> GetAggregatedSizeAsync(CommerceFileQueryOptions? options = null);
+    Task<long> GetAggregatedSizeAsync(ItemFileQueryOptions? options = null);
     /*{
         options = await GetFilterByOwnerIdAsync(ownerId, options);
         options.Select ??= [Op.Sum(Op.DataLength("Content"))];

@@ -103,22 +103,18 @@ public class CommerceService(
         return data;
     }
 
-    /*public async Task<bool> CheckByUuidAndCurrentUserAsync(Guid uuid, CommerceQueryOptions? options = null)
+    public async Task<bool> CheckByUuidAndCurrentUserAsync(Guid uuid, CommerceQueryOptions? options = null)
     {
-        var ownerId = await GetCurrentUserIdAsync();
-
         options = options?.Clone() ?? new CommerceQueryOptions();
-        // No se debe usar HttpContext.Request en esta capa sino en la de Controllers
-        options.UpdateFromRequest(HttpContext.Request);
         options.IncludeInactive = true;
-        options.OwnerId = ownerId;
+        options.OwnerId = await GetCurrentUserIdAsync();
         options.Uuid = uuid;
 
         if (await GetSingleOrDefaultAsync(options) != null)
             return true;
 
         throw new CommerceDoesNotExistException();
-    }*/
+    }
 
     public CommerceQueryOptions GetFilterByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null)
     {

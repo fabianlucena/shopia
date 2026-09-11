@@ -14,8 +14,7 @@ public class StoreService(
     IStoreRepository storeRepository,
     IServiceProvider serviceProvider
 )
-    : ANominableEntityService<Store>(storeRepository, 
-        serviceProvider),
+    : ANominableEntityService<Store>(storeRepository, serviceProvider),
     IStoreService
 {
     public override async Task<Store> ValidateForCreateAsync(Store data)
@@ -32,7 +31,7 @@ public class StoreService(
                 throw new NoCommerceException();
         }
 
-        var commerceService = serviceProvider.GetRequiredService<ICommerceService>();
+        var commerceService = ServiceProvider.GetRequiredService<ICommerceService>();
         _ = await commerceService.GetSingleOrDefaultByIdAsync(data.CommerceId)
             ?? throw new CommerceDoesNotExistException();
 
@@ -45,7 +44,7 @@ public class StoreService(
         if (existent != null)
             throw new AStoreForThatNameAlreadyExistException();
 
-        var userPlanService = serviceProvider.GetRequiredService<IUserPlanService>();
+        var userPlanService = ServiceProvider.GetRequiredService<IUserPlanService>();
         var limits = await userPlanService.GetLimitsByCurrentUserAsync();
 
         var totalStoresCount = await GetCountByCurrentUserAsync(new StoreQueryOptions { IncludeInactive = true });
@@ -80,7 +79,7 @@ public class StoreService(
 
             if (!current.IsActive)
             {
-                var userPlanService = serviceProvider.GetRequiredService<IUserPlanService>();
+                var userPlanService = ServiceProvider.GetRequiredService<IUserPlanService>();
                 var limits = await userPlanService.GetLimitsByCurrentUserAsync();
 
                 var activeStoresCount = await GetCountByCurrentUserAsync();
@@ -108,7 +107,7 @@ public class StoreService(
 
     public async Task<StoreQueryOptions> GetFilterByOwnerIdAsync(long ownerId, StoreQueryOptions? options = null)
     {
-        var commerceService = serviceProvider.GetRequiredService<ICommerceService>();
+        var commerceService = ServiceProvider.GetRequiredService<ICommerceService>();
         var commercesId = await commerceService.GetListIdByOwnerIdAsync(ownerId, new CommerceQueryOptions { IncludeInactive = options?.IncludeInactive ?? false });
 
         options = options?.Clone() ?? new();

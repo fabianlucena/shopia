@@ -28,15 +28,14 @@ public class ItemFileService(
                 throw new NoItemException();
 
             var itemService = ServiceProvider.GetRequiredService<IItemService>();
-            data.Item = await itemService.GetFirstOrDefaultByIdAsync(
+            data.Item = await itemService.GetSingleOrDefaultByIdAsync(
                 data.ItemId,
                 new ItemFileQueryOptions
                 {
-                    Join = { "Commerce" },
+                    JoinCommerce = true,
                 }
-            );
-            if (data.Item == null)
-                throw new NoItemException();
+            )
+                ?? throw new NoItemException();
         }
 
         var item = data.Item;
@@ -54,11 +53,11 @@ public class ItemFileService(
                     throw new NoCommerceException();
 
                 var storeService = ServiceProvider.GetRequiredService<IStoreService>();
-                store = await storeService.GetFirstOrDefaultByUuidAsync(
+                store = await storeService.GetSingleOrDefaultByIdAsync(
                     store.Id,
                     new ItemFileQueryOptions
                     {
-                        Join = { { "Commerce" } },
+                        JoinCommerce = true,
                         IncludeInactive = true,
                     }
                 );
@@ -112,13 +111,14 @@ public class ItemFileService(
     public async Task<ItemFileQueryOptions> GetFilterByOwnerIdAsync(long ownerId, ItemFileQueryOptions? options = null)
     {
         var itemService = ServiceProvider.GetRequiredService<IItemService>();
-        var itemsId = await itemService.GetListIdByOwnerIdAsync(ownerId, options);
+        var itemsId = await itemService.GetListIdByOwnerIdAsync(ownerId, new ItemQueryOptions {
+            IncludeInactive = options?.IncludeInactive ?? false,
+            Id = options?.ItemId,
+            Ids = options?.ItemsId,
+        });
 
-        options = new ItemFileQueryOptions
-        {
-            IncludeInactive = true,
-            ItemsId = itemsId,
-        };
+        options = options?.Clone() ?? new ItemFileQueryOptions();
+        options.ItemsId = itemsId;
 
         return options;
     }
@@ -127,18 +127,16 @@ public class ItemFileService(
         => await GetCountAsync(await GetFilterByOwnerIdAsync(ownerId, options));
 
     public async Task<int> GetCountByCurrentUserAsync(ItemFileQueryOptions? options = null)
-        => await GetCountByOwnerIdAsync(GetCurrentUserId(), options);
+        => await GetCountByOwnerIdAsync(await GetCurrentUserIdAsync(), options);
 
     public async Task<long> GetAggregatedSizeByOwnerIdAsync(long ownerId, ItemFileQueryOptions? options = null)
     {
         options = await GetFilterByOwnerIdAsync(ownerId, options);
-        options.Select ??= [Op.Sum(Op.DataLength("Content"))];
-
-        return await GetLongAsync(options) ?? 0;
+        return await itemFileRepository.GetAggregatedSizeAsync(options);
     }
 
     public async Task<long> GetAggregatedSizeByCurrentUserAsync(ItemFileQueryOptions? options = null)
-        => await GetAggregatedSizeByOwnerIdAsync(GetCurrentUserId(), options);
+        => await GetAggregatedSizeByOwnerIdAsync(await GetCurrentUserIdAsync(), options);
 
     public async Task<IEnumerable<ItemFile>> AddByItemUuidAsync(Guid itemUuid, FilesCollectionDTO files)
     {

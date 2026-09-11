@@ -4,6 +4,8 @@ namespace backend_shopia.QueryOptions;
 
 public class ItemFileQueryOptions : ACreatableWithNameEntityQueryOptions
 {
+    public bool JoinCommerce { get; set; }
+
     public long? ItemId { get; set; }
     public IEnumerable<long>? ItemsId { get; set; }
 
@@ -15,6 +17,8 @@ public class ItemFileQueryOptions : ACreatableWithNameEntityQueryOptions
     {
         if (options is null)
             return;
+
+        JoinCommerce = options.JoinCommerce;
 
         ItemId = options.ItemId;
         ItemsId = options.ItemsId;

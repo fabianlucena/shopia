@@ -8,9 +8,10 @@ public interface IStoreService
     : IANominableEntityService<Store>
 {
     Task<bool> CheckByUuidAndCurrentUserAsync(Guid uuid, StoreQueryOptions? options = null);
-    Task<StoreQueryOptions> GetFilterByOwnerIdAsync(Int64 ownerId, StoreQueryOptions? options = null);
-    Task<int> GetCountByOwnerIdAsync(Int64 ownerId, StoreQueryOptions? options = null);
+    Task<StoreQueryOptions> GetFilterByOwnerIdAsync(long ownerId, StoreQueryOptions? options = null);
+    Task<int> GetCountByOwnerIdAsync(long ownerId, StoreQueryOptions? options = null);
     Task<int> GetCountByCurrentUserAsync(StoreQueryOptions? options = null);
-    Task<IEnumerable<Int64>> GetListIdByOwnerIdAsync(Int64 ownerId, StoreQueryOptions? options = null);
-    Task<IEnumerable<Int64>> GetListIdByCurrentUserAsync(StoreQueryOptions? options = null);
+    Task<IEnumerable<long>> GetListIdByOwnerIdAsync(long ownerId, StoreQueryOptions? options = null);
+    Task<IEnumerable<long>> GetListIdByCurrentUserAsync(StoreQueryOptions? options = null);
+    Task<IEnumerable<Store>> GetListByUuidsAsync(IEnumerable<Guid> uuids, StoreQueryOptions? options = null);
 }

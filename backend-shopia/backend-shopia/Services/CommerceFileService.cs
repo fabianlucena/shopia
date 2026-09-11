@@ -28,7 +28,7 @@ public class CommerceFileService(
                 throw new NoCommerceException();
 
             var commerceService = ServiceProvider.GetRequiredService<ICommerceService>();
-            data.Commerce = await commerceService.GetFirstOrDefaultByIdAsync(data.CommerceId)
+            data.Commerce = await commerceService.GetSingleOrDefaultByIdAsync(data.CommerceId)
                 ?? throw new NoCommerceException();
         }
 
@@ -72,6 +72,9 @@ public class CommerceFileService(
         var commerceService = ServiceProvider.GetRequiredService<ICommerceService>();
         var commercesId = await commerceService.GetListIdByOwnerIdAsync(ownerId, new CommerceQueryOptions
         {
+            IncludeInactive = options?.IncludeInactive ?? false,
+            Id = options?.CommerceId,
+            Ids = options?.CommercesId,
         });
 
         options ??= new CommerceFileQueryOptions();
@@ -84,18 +87,16 @@ public class CommerceFileService(
         => await GetCountAsync(await GetFilterByOwnerIdAsync(ownerId, options));
 
     public async Task<int> GetCountByCurrentUserAsync(CommerceFileQueryOptions? options = null)
-        => await GetCountByOwnerIdAsync(await GetCurrentUserId(), options);
+        => await GetCountByOwnerIdAsync(await GetCurrentUserIdAsync(), options);
 
     public async Task<long> GetAggregatedSizeByOwnerIdAsync(long ownerId, CommerceFileQueryOptions? options = null)
     {
         options = await GetFilterByOwnerIdAsync(ownerId, options);
-        options.Select ??= [Op.Sum(Op.DataLength("Content"))];
-
-        return await GetLongAsync(options) ?? 0;
+        return await commerceFileRepository.GetAggregatedSizeAsync(options);
     }
 
     public async Task<long> GetAggregatedSizeByCurrentUserAsync(CommerceFileQueryOptions? options = null)
-        => await GetAggregatedSizeByOwnerIdAsync(await GetCurrentUserId(), options);
+        => await GetAggregatedSizeByOwnerIdAsync(await GetCurrentUserIdAsync(), options);
 
     public async Task<IEnumerable<CommerceFile>> AddByCommerceUuidAsync(Guid commerceUuid, FilesCollectionDTO files)
     {

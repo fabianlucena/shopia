@@ -2,7 +2,9 @@
 using backend_shopia.Entities;
 using backend_shopia.Exceptions;
 using backend_shopia.IServices;
+using backend_shopia.QueryOptions;
 using Microsoft.AspNetCore.Mvc;
+using RFBase.ILibs;
 using RFBase.Libs;
 using RFPermissions.Attributes;
 using System.Globalization;
@@ -17,7 +19,8 @@ namespace backend_shopia.Controllers
         IItemService itemService,
         IItemFileService itemFileService,
         IItemStoreService itemStoreService,
-        ICommerceService commerceService
+        ICommerceService commerceService,
+        IServiceProvider serviceProvider
     )
         : ControllerBase
     {
@@ -42,9 +45,9 @@ namespace backend_shopia.Controllers
             if (data.Price < 0)
                 return BadRequest("Price cannot be negative.");
 
-            await commerceService.CheckForUuidAndCurrentUserAsync(data.CommerceUuid);
+            await commerceService.CheckByUuidAndCurrentUserAsync(data.CommerceUuid);
 
-            var item = data.ToItem();
+            var item = await data.ToItemAsync(serviceProvider);
 
             var result = await itemService.CreateAsync(item);
             if (result == null)
@@ -64,36 +67,24 @@ namespace backend_shopia.Controllers
         {
             logger.LogInformation("Getting items");
 
-            var options = ItemQueryOptions.CreateFromQuery(HttpContext);
-            if (uuid != null)
-                options.AddFilter("Uuid", uuid);
+            var options = new ItemQueryOptions()
+                .UpdateFromRequest(HttpContext.Request);
+            options.Uuid = uuid;
 
-            options
-                .AddFilter("InheritedIsEnabled", true)
-                .Include("Category")
-                .Include("Commerce", "commerce");
-
-            if (HttpContext.Request.Query.TryGetBool("mine", out var mine) && mine)
-            {
-                var commercesId = await commerceService.GetListIdForCurrentUserAsync(QueryOptions.IncludeDisabled);
-                options.AddFilter("CommerceId", commercesId);
-            }
-
-            if (HttpContext.Request.Query.TryGetGuid("commerceUuid", out var commerceUuid) && commerceUuid != Guid.Empty)
-            {
-                options.AddFilter("commerce.Uuid", commerceUuid);
-            }
+            options.InheritIsActive = true;
+            options.IncludeCategory = true;
+            options.IncludeCommerce = true;
 
             var itemsList = await itemService.GetListAsync(options);
 
-            var response = itemsList.Select(mapper.Map<Item, ItemResponse>);
+            var response = itemsList.Select(i => new ItemResponse(i));
 
             if (response.Any())
             {
                 HashSet<Guid> commercesUuidList;
-                if (itemService.GetCurrentUserIdOrDefault() is not null)
+                if (await itemService.GetCurrentUserIdOrDefaultAsync() is not null)
                 {
-                    commercesUuidList = [.. (await commerceService.GetListUuidForCurrentUserAsync())];
+                    commercesUuidList = [.. (await commerceService.GetListUuidByCurrentUserAsync())];
                 } else
                 {
                     commercesUuidList = [];
@@ -103,17 +94,17 @@ namespace backend_shopia.Controllers
 
                 response = await Task.WhenAll(response.Select(async item =>
                 {
-                    item.IsMine = commercesUuidList.Contains(item.Commerce.Uuid);
+                    item.IsMine = commercesUuidList.Contains(item.Commerce!.Uuid);
                     if (itemIdMap.TryGetValue(item.Uuid, out var itemId))
                     {
-                        var files = await itemFileService.GetListForItemIdAsync(itemId);
+                        var files = await itemFileService.GetListByItemIdAsync(itemId);
                         item.Images = [.. files.Select(f => new ItemImageDTO {
                             Uuid = f.Uuid,
                             Url = $"/v1/item/image/{f.Uuid}",
                         }).ToList()];
 
-                        var storesList = await itemStoreService.GetListStoresForItemIdAsync(itemId);
-                        item.Stores = [..storesList.Select(mapper.Map<Store, StoreMinimalDTO>)];
+                        var storesList = await itemStoreService.GetStoresByItemIdAsync(itemId);
+                        item.Stores = [..storesList.Select(s => new StoreMinimalDTO(s))];
                         item.StoresUuid = [..item.Stores.Select(s => s.Uuid)];
                     }
 
@@ -123,7 +114,7 @@ namespace backend_shopia.Controllers
 
             logger.LogInformation("Items retrieved");
 
-            return Ok(new DataRowsResult(response));
+            return Ok(response);
         }
 
         [HttpPatch("{uuid}")]
@@ -132,13 +123,13 @@ namespace backend_shopia.Controllers
         {
             logger.LogInformation("Updating item");
 
-            await itemService.CheckForUuidAndCurrentUserAsync(uuid);
+            await itemService.CheckByUuidAndCurrentUserAsync(uuid);
 
-            DataDictionary data;
+            IDataDictionary data;
             List<Guid>? deletedImages = null;
             if (Request.HasFormContentType)
             {
-                data = [];
+                data = new DataDictionary();
                 var formData = Request.Form;
                 foreach (var key in formData.Keys)
                     data[key] = formData[key];
@@ -167,31 +158,28 @@ namespace backend_shopia.Controllers
             if (data.TryGetValue("Price", out object? value) && value is string priceText)
                 data["Price"] = decimal.Parse(priceText, CultureInfo.InvariantCulture);
 
-            var result = await itemService.UpdateForUuidAsync(data, uuid);
+            var result = await itemService.UpdateByUuidAsync(uuid, data);
             if (result <= 0)
                 return BadRequest();
 
-            var id = await itemService.GetSingleIdForUuidAsync(
+            var id = await itemService.GetSingleIdByUuidAsync(
                 uuid,
-                new QueryOptions
-                {
-                    Switches = { { "IncludeDisabled", true } }
-                }
+                new ItemQueryOptions { IncludeInactive = true }
             );
 
             var updateImagesResult = await UpdateImages(id, deletedImages);
             if (updateImagesResult is BadRequestObjectResult)
                 return updateImagesResult;
 
-            if (data.ContainsKey("IsEnabled"))
-                _ = await itemService.UpdateInheritedForUuid(uuid);
+            if (data.ContainsKey("IsActive"))
+                _ = await itemService.UpdateInheritedByUuidAsync(uuid);
 
             logger.LogInformation("Item updated");
 
             return Ok();
         }
 
-        private async Task<IActionResult> UpdateImages(Int64 itemId, List<Guid>? deletedImages)
+        private async Task<IActionResult> UpdateImages(long itemId, List<Guid>? deletedImages)
         {
             if (Request.HasFormContentType)
             {
@@ -207,7 +195,7 @@ namespace backend_shopia.Controllers
                             return BadRequest("Only image files are allowed.");
                     }
 
-                    var result = await itemFileService.AddForItemIdAsync(itemId, files);
+                    var result = await itemFileService.AddByItemIdAsync(itemId, files);
                     if (!result.Any())
                         return BadRequest("Error uploading image.");
                 }
@@ -217,7 +205,7 @@ namespace backend_shopia.Controllers
             {
                 foreach (var uuid in deletedImages)
                 {
-                    var result = await itemFileService.DeleteForUuidAsync(uuid);
+                    var result = await itemFileService.DeleteByUuidAsync(uuid);
                     if (result <= 0)
                         return BadRequest();
                 }
@@ -231,7 +219,7 @@ namespace backend_shopia.Controllers
         {
             logger.LogInformation("Getting item image for UUID: {Uuid}", uuid);
 
-            var file = await itemFileService.GetSingleOrDefaultForUuidAsync(uuid)
+            var file = await itemFileService.GetSingleOrDefaultByUuidAsync(uuid)
                 ?? throw new ItemImageNotFoundException();
 
             logger.LogInformation("Item image retrieved for UUID: {Uuid}", uuid);

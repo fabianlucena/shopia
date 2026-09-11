@@ -30,7 +30,7 @@ public class StoreController(
 
         var store = await data.ToStoreAsync(serviceProvider);
 
-        var commercesIdList = await commerceService.GetListIdForCurrentUserAsync();
+        var commercesIdList = await commerceService.GetListIdByCurrentUserAsync();
         if (!commercesIdList.Contains(store.CommerceId))
             throw new CommerceDoesNotExistException();
 
@@ -70,14 +70,14 @@ public class StoreController(
     {
         logger.LogInformation("Updating store");
 
-        await storeService.CheckForUuidAndCurrentUserAsync(uuid);
+        await storeService.CheckByUuidAndCurrentUserAsync(uuid);
 
         var result = await storeService.UpdateByUuidAsync(uuid, data.GetPascalized());
 
         if (result <= 0)
             return BadRequest();
 
-        _ = await itemService.UpdateInheritedForStoreUuid(uuid);
+        _ = await itemService.UpdateInheritedByStoreUuidAsync(uuid);
 
         logger.LogInformation("Busines updated");
 
@@ -90,14 +90,14 @@ public class StoreController(
     {
         logger.LogInformation("Deleting store");
 
-        await storeService.CheckForUuidAndCurrentUserAsync(uuid);
+        await storeService.CheckByUuidAndCurrentUserAsync(uuid);
 
         var result = await storeService.DeleteByUuidAsync(uuid);
 
         if (result <= 0)
             return BadRequest();
 
-        _ = await itemService.UpdateInheritedForStoreUuid(uuid);
+        _ = await itemService.UpdateInheritedByStoreUuidAsync(uuid);
 
         logger.LogInformation("Store deleted");
 
@@ -110,7 +110,7 @@ public class StoreController(
     {
         logger.LogInformation("Restoring store");
 
-        await storeService.CheckForUuidAndCurrentUserAsync(
+        await storeService.CheckByUuidAndCurrentUserAsync(
             uuid,
             new StoreQueryOptions { IncludeDeleted = true }
         );
@@ -120,7 +120,7 @@ public class StoreController(
         if (result <= 0)
             return BadRequest();
 
-        _ = await itemService.UpdateInheritedForStoreUuid(uuid);
+        _ = await itemService.UpdateInheritedByStoreUuidAsync(uuid);
 
         logger.LogInformation("Store restored");
 

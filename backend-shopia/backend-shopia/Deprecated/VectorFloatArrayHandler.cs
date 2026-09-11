@@ -1,10 +1,9 @@
-﻿using Dapper;
-using System.Data;
+﻿using System.Data;
 using Pgvector;
 
 namespace backend_shopia.Types;
 
-public class VectorFloatArrayHandler
+/*public class VectorFloatArrayHandler
     : SqlMapper.TypeHandler<float[]>
 {
     public override void SetValue(IDbDataParameter parameter, float[]? value)
@@ -17,4 +16,4 @@ public class VectorFloatArrayHandler
             float[] fa => fa,
             _ => throw new DataException($"Tipo inesperado: {value?.GetType().FullName}")
         };
-}
+}*/

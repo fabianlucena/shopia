@@ -5,7 +5,7 @@ using RFIServices.IServices;
 namespace backend_shopia.IServices;
 
 public interface IUserPlanService
-    : ICommonJoinService<UserPlan>
+    : ICommonJoinService<UserPlan>, IGetCurrentAndSystemUserService
 {
     Task<Plan> GetSinglePlanByCurrentUserAsync();
 

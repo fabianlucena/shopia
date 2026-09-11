@@ -1,97 +1,76 @@
 ﻿using backend_shopia.DTO;
 using backend_shopia.Entities;
+using backend_shopia.IRepositories;
 using backend_shopia.IServices;
-using RFAuth.Exceptions;
-using RFOperators;
-using RFService.IRepo;
-using RFService.Repo;
-using RFService.Services;
+using backend_shopia.QueryOptions;
+using RFServices.Services;
 
-namespace backend_shopia.Services
+namespace backend_shopia.Services;
+
+public class UserPlanService(
+    IUserPlanRepository userPlanRepository,
+    IServiceProvider serviceProvider
+)
+    : CommonJoinService<UserPlan>(userPlanRepository, serviceProvider),
+    IUserPlanService
 {
-    public class UserPlanService(
-        IRepo<UserPlan> repo,
-        IServiceProvider serviceProvider
-    )
-        : ServiceTimestampsIdUuidEnabled<IRepo<UserPlan>, UserPlan>(repo),
-            IUserPlanService
+
+    public async Task<Plan> GetSinglePlanByCurrentUserAsync()
     {
-        public async Task<Plan> GetSinglePlanForCurrentUserAsync()
-        {
-            var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
-            var httpContext = httpContextAccessor.HttpContext
-                ?? throw new NoAuthorizationHeaderException();
+        var ownerId = await GetCurrentUserIdAsync();
 
-            var ownerId = (httpContext.Items["UserId"] as Int64?)
-                ?? throw new NoSessionUserDataException();
-
-            if (ownerId <= 0)
-                throw new NoSessionUserDataException();
-
-            var userPlan = await GetFirstOrDefaultAsync(
-                new QueryOptions
-                {
-                    Join = { { "Plan", "plan" } },
-                    Filters = {
-                        { "UserId", ownerId },
-                        { Op.GE("ExpirationDate", DateTime.UtcNow) },
-                    },
-                    OrderBy = { "ExpirationDate DESC" },
-                    Top = 1,
-                }
-            );
-
-            var planService = serviceProvider.GetRequiredService<IPlanService>();
-
-            var plan = userPlan?.Plan ?? await planService.GetBaseAsync();
-            return plan;
-        }
-
-        public async Task<UsedPlanDTO> GetUsedPlanForCurrentUserAsync()
-        {
-            var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
-            var httpContext = httpContextAccessor.HttpContext
-                ?? throw new NoAuthorizationHeaderException();
-
-            var ownerId = (httpContext.Items["UserId"] as Int64?)
-                ?? throw new NoSessionUserDataException();
-
-            if (ownerId <= 0)
-                throw new NoSessionUserDataException();
-
-            var commerceService = serviceProvider.GetRequiredService<ICommerceService>();
-            var storeService = serviceProvider.GetRequiredService<IStoreService>();
-            var itemService = serviceProvider.GetRequiredService<IItemService>();
-            var itemFileService = serviceProvider.GetRequiredService<IItemFileService>();
-            var commerceFileService = serviceProvider.GetRequiredService<ICommerceFileService>();
-            var includeDisabledOptions = new QueryOptions { Switches = { { "IncludeDisabled", true } } };
-
-            var usedPlan = new UsedPlanDTO
+        var userPlan = await GetFirstOrDefaultAsync(
+            new UserPlanQueryOptions
             {
-                TotalCommercesCount = await commerceService.GetCountForOwnerIdAsync(ownerId, includeDisabledOptions),
-                EnabledCommercesCount = await commerceService.GetCountForOwnerIdAsync(ownerId),
-                TotalStoresCount = await storeService.GetCountForOwnerIdAsync(ownerId, includeDisabledOptions),
-                EnabledStoresCount = await storeService.GetCountForOwnerIdAsync(ownerId),
-                TotalItemsCount = await itemService.GetCountForOwnerIdAsync(ownerId, includeDisabledOptions),
-                EnabledItemsCount = await itemService.GetCountForOwnerIdAsync(ownerId),
-                TotalItemsImagesCount = await itemFileService.GetCountForOwnerIdAsync(ownerId, includeDisabledOptions),
-                EnabledItemsImagesCount = await itemFileService.GetCountForOwnerIdAsync(ownerId),
-                ItemsImagesAggregatedSize = await itemFileService.GetAggregatedSizeForOwnerIdAsync(ownerId, includeDisabledOptions),
-                EnabledItemsImagesAggregatedSize = await itemFileService.GetAggregatedSizeForOwnerIdAsync(ownerId),
-                TotalCommercesImagesCount = await commerceFileService.GetCountForOwnerIdAsync(ownerId, includeDisabledOptions),
-                EnabledCommercesImagesCount = await commerceFileService.GetCountForOwnerIdAsync(ownerId),
-                CommercesImagesAggregatedSize = await commerceFileService.GetAggregatedSizeForOwnerIdAsync(ownerId, includeDisabledOptions),
-                EnabledCommercesImagesAggregatedSize = await commerceFileService.GetAggregatedSizeForOwnerIdAsync(ownerId),
-            };
+                JoinPlan = true,
+                UserId = ownerId,
+                ValidUntil = DateTime.UtcNow,
+                OrderByExpirationDateDesc = true,
+                Take = 1,
+            }
+        );
 
-            return usedPlan;
-        }
+        var planService = ServiceProvider.GetRequiredService<IPlanService>();
 
-        public async Task<PlanLimits> GetLimitsForCurrentUserAsync()
+        var plan = userPlan?.Plan ?? await planService.GetBaseAsync();
+        return plan;
+    }
+
+    public async Task<UsedPlanDTO> GetUsedPlanByCurrentUserAsync()
+    {
+        var ownerId = await GetCurrentUserIdAsync();
+
+        var commerceService = ServiceProvider.GetRequiredService<ICommerceService>();
+        var storeService = ServiceProvider.GetRequiredService<IStoreService>();
+        var itemService = ServiceProvider.GetRequiredService<IItemService>();
+        var itemFileService = ServiceProvider.GetRequiredService<IItemFileService>();
+        var commerceFileService = ServiceProvider.GetRequiredService<ICommerceFileService>();
+
+        var usedPlan = new UsedPlanDTO
         {
-            var planService = serviceProvider.GetRequiredService<IPlanService>();
-            var plan = await GetSinglePlanForCurrentUserAsync();
-            return await planService.GetLimitsForPlanAsync(plan);
-        }
+            TotalCommercesCount = await commerceService.GetCountByOwnerIdAsync(ownerId, new CommerceQueryOptions { IncludeInactive = true }),
+            EnabledCommercesCount = await commerceService.GetCountByOwnerIdAsync(ownerId),
+            TotalStoresCount = await storeService.GetCountByOwnerIdAsync(ownerId, new StoreQueryOptions { IncludeInactive = true }),
+            EnabledStoresCount = await storeService.GetCountByOwnerIdAsync(ownerId),
+            TotalItemsCount = await itemService.GetCountByOwnerIdAsync(ownerId, new ItemQueryOptions { IncludeInactive = true }),
+            EnabledItemsCount = await itemService.GetCountByOwnerIdAsync(ownerId),
+            TotalItemsImagesCount = await itemFileService.GetCountByOwnerIdAsync(ownerId, new ItemFileQueryOptions { IncludeInactive = true }),
+            EnabledItemsImagesCount = await itemFileService.GetCountByOwnerIdAsync(ownerId),
+            ItemsImagesAggregatedSize = await itemFileService.GetAggregatedSizeByOwnerIdAsync(ownerId, new ItemFileQueryOptions { IncludeInactive = true }),
+            EnabledItemsImagesAggregatedSize = await itemFileService.GetAggregatedSizeByOwnerIdAsync(ownerId),
+            TotalCommercesImagesCount = await commerceFileService.GetCountByOwnerIdAsync(ownerId, new CommerceFileQueryOptions { IncludeInactive = true }),
+            EnabledCommercesImagesCount = await commerceFileService.GetCountByOwnerIdAsync(ownerId),
+            CommercesImagesAggregatedSize = await commerceFileService.GetAggregatedSizeByOwnerIdAsync(ownerId, new CommerceFileQueryOptions { IncludeInactive = true }),
+            EnabledCommercesImagesAggregatedSize = await commerceFileService.GetAggregatedSizeByOwnerIdAsync(ownerId),
+        };
+
+        return usedPlan;
+    }
+
+    public async Task<PlanLimits> GetLimitsByCurrentUserAsync()
+    {
+        var planService = ServiceProvider.GetRequiredService<IPlanService>();
+        var plan = await GetSinglePlanByCurrentUserAsync();
+        return await planService.GetLimitsByPlanAsync(plan);
     }
 }

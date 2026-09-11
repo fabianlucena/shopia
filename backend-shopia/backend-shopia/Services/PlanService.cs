@@ -1,25 +1,28 @@
 ﻿using backend_shopia.DTO;
 using backend_shopia.Entities;
 using backend_shopia.Exceptions;
+using backend_shopia.IRepositories;
 using backend_shopia.IServices;
+using backend_shopia.QueryOptions;
+using RFServices.Services;
 
 namespace backend_shopia.Services;
 
 public class PlanService(
-    IRepo<Plan> repo,
+    IPlanRepository planRepository,
     IServiceProvider serviceProvider
 )
-    : ServiceSoftDeleteTimestampsIdUuidEnabledName<IRepo<Plan>, Plan>(repo),
-        IPlanService
+    : ANominableEntityService<Plan>(planRepository, serviceProvider),
+     IPlanService
 {
-    public override async Task<Plan> ValidateForCreationAsync(Plan data)
+    public override async Task<Plan> ValidateForCreateAsync(Plan data)
     {
-        data = await base.ValidateForCreationAsync(data);
+        data = await base.ValidateForCreateAsync(data);
 
         if (string.IsNullOrWhiteSpace(data.Name))
             throw new NoNameException();
 
-        var existent = await GetSingleOrDefaultForNameAsync(data.Name);
+        var existent = await GetSingleOrDefaultByNameAsync(data.Name);
         if (existent != null)
             throw new PlanAlreadyExistsException();
 
@@ -27,26 +30,28 @@ public class PlanService(
     }
 
     public async Task<Plan> GetBaseAsync()
-        => await GetSingleForNameAsync("Base");
+        => await GetSingleByNameAsync("Base");
 
-    public async Task<Plan> GetSingleOrBaseAsync(QueryOptions options)
+    public async Task<Plan> GetSingleOrBaseAsync(PlanQueryOptions options)
         => await GetSingleOrDefaultAsync(options)
             ?? await GetBaseAsync();
 
-    public async Task<PlanLimits> GetLimitsForPlanAsync(Plan plan, QueryOptions? options = null)
+    public async Task<PlanLimits> GetLimitsByPlanAsync(Plan plan, PlanQueryOptions? options = null)
     {
-        var planLimitService = serviceProvider.GetRequiredService<IPlanLimitService>();
+        var planLimitService = ServiceProvider.GetRequiredService<IPlanLimitService>();
 
         var extendedPlans = new List<Int64>();
         var limits = new List<PlanLimit>();
         var extendedPlan = plan;
         while (extendedPlan != null)
         {
-            if (extendedPlan.IsEnabled)
+            if (extendedPlan.IsActive)
             {
-                var extendLimitsOptions = new QueryOptions(options);
-                extendLimitsOptions.AddFilter("PlanId", extendedPlan.Id);
-                var extendLimits = await planLimitService.GetListAsync(extendLimitsOptions);
+                var planLimitOptions = new PlanLimitQueryOptions
+                {
+                    PlanId = extendedPlan.Id
+                };
+                var extendLimits = await planLimitService.GetListAsync(planLimitOptions);
                 foreach (var limit in extendLimits)
                 {
                     var current = limits.Find(l => l.Name == limit.Name);
@@ -62,23 +67,25 @@ public class PlanService(
 
             extendedPlans.Add(extendedPlan.Id);
 
-            var extendToOptions = new QueryOptions
+            var extendsToOptions = new PlanQueryOptions
             {
-                Switches = { { "IncludeDisabled", true } },
-                Filters = { { "Id", extendedPlan.ExtendToId.Value } },
+                IncludeInactive = true,
+                Id = extendedPlan.ExtendToId.Value,
             };
-            extendedPlan = await GetSingleOrDefaultAsync(extendToOptions);
+            extendedPlan = await GetSingleOrDefaultAsync(extendsToOptions);
             if (extendedPlan != null && extendedPlans.Contains(extendedPlan.Id))
                 break;
         }
 
-        var basePlan = await GetSingleOrDefaultForNameAsync("Base");
+        var basePlan = await GetSingleOrDefaultByNameAsync("Base");
         if (basePlan is not null)
         {
-            var extendToOptions = new QueryOptions(options);
-            extendToOptions.AddFilter("PlanId", basePlan.Id);
-            extendToOptions.AddFilter(Op.NotIn("Name", limits.Select(l => l.Name)));
-            var extendToLimits = await planLimitService.GetListAsync(extendToOptions);
+            var planLimitOptions = new PlanLimitQueryOptions
+            {
+                PlanId = basePlan.Id,
+                SkipNames = limits.Select(l => l.Name),
+            };
+            var extendToLimits = await planLimitService.GetListAsync(planLimitOptions);
             if (extendToLimits.Any())
                 limits.AddRange(extendToLimits);
         }
@@ -89,11 +96,11 @@ public class PlanService(
 
     public async Task<MyPlanResponse> GetMyPlanAsync()
     {
-        var userPlanService = serviceProvider.GetRequiredService<IUserPlanService>();
+        var userPlanService = ServiceProvider.GetRequiredService<IUserPlanService>();
         
-        var plan = await userPlanService.GetSinglePlanForCurrentUserAsync();
-        var limits = await GetLimitsForPlanAsync(plan);
-        var used = await userPlanService.GetUsedPlanForCurrentUserAsync();
+        var plan = await userPlanService.GetSinglePlanByCurrentUserAsync();
+        var limits = await GetLimitsByPlanAsync(plan);
+        var used = await userPlanService.GetUsedPlanByCurrentUserAsync();
         return new MyPlanResponse
         {
             Uuid = plan.Uuid,

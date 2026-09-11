@@ -49,7 +49,7 @@ public class CommerceController(
 
         var commerceList = await commerceService.GetListAsync(options);
 
-        var response = commerceList.Select(mapper.Map<Commerce, CommerceResponse>);
+        var response = commerceList.Select(c => new CommerceResponse(c));
 
         logger.LogInformation("Commerces retrieved");
 
@@ -62,16 +62,14 @@ public class CommerceController(
     {
         logger.LogInformation("Updating commerce");
 
-        await commerceService.CheckForUuidAndCurrentUserAsync(uuid);
+        await commerceService.CheckByUuidAndCurrentUserAsync(uuid);
 
-        data = data.GetPascalized();
-
-        var result = await commerceService.UpdateForUuidAsync(data, uuid);
+        var result = await commerceService.UpdateByUuidAsync(uuid, data.GetPascalized());
 
         if (result <= 0)
             return BadRequest();
 
-        _ = await itemService.UpdateInheritedForCommerceUuid(uuid);
+        _ = await itemService.UpdateInheritedByCommerceUuidAsync(uuid);
 
         logger.LogInformation("Commerce updated");
 
@@ -84,14 +82,14 @@ public class CommerceController(
     {
         logger.LogInformation("Deleting commerce");
 
-        await commerceService.CheckForUuidAndCurrentUserAsync(uuid);
+        await commerceService.CheckByUuidAndCurrentUserAsync(uuid);
 
-        var result = await commerceService.DeleteForUuidAsync(uuid);
+        var result = await commerceService.DeleteByUuidAsync(uuid);
 
         if (result <= 0)
             return BadRequest();
         
-        _ = await itemService.UpdateInheritedForCommerceUuid(uuid);
+        _ = await itemService.UpdateInheritedByCommerceUuidAsync(uuid);
 
         logger.LogInformation("Commerce deleted");
 
@@ -104,17 +102,17 @@ public class CommerceController(
     {
         logger.LogInformation("Restoring commerce");
 
-        await commerceService.CheckForUuidAndCurrentUserAsync(
+        await commerceService.CheckByUuidAndCurrentUserAsync(
             uuid,
-            new QueryOptions { Switches = { { "IncludeDeleted", true } } }
+            new CommerceQueryOptions { IncludeInactive = true }
         );
 
-        var result = await commerceService.RestoreForUuidAsync(uuid);
+        var result = await commerceService.RestoreByUuidAsync(uuid);
 
         if (result <= 0)
             return BadRequest();
 
-        _ = await itemService.UpdateInheritedForCommerceUuid(uuid);
+        _ = await itemService.UpdateInheritedByCommerceUuidAsync(uuid);
 
         logger.LogInformation("Commerce restored");
 
