@@ -256,7 +256,7 @@ public class ItemService(
     {
         data = await base.ValidateForUpdateAsync(data, options);
 
-        if (data.TryGetInt64("CommerceId", out var commerceId))
+        if (data.TryGetLong("CommerceId", out var commerceId))
         {
             if (commerceId <= 0)
                 throw new NoCommerceException();

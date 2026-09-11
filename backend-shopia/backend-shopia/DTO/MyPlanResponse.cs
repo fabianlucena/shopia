@@ -10,7 +10,7 @@
 
         public required decimal Price { get; set; }
 
-        public required Dictionary<string, Int64> Limits { get; set; }
+        public required Dictionary<string, long> Limits { get; set; }
 
         public required UsedPlanDTO Used { get; set; }
     }

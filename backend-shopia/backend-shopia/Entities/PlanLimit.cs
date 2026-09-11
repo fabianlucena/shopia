@@ -10,12 +10,12 @@ public class PlanLimit
 {
     [Required]
     [ForeignKey("Plan")]
-    public Int64 PlanId { get; set; } = default;
+    public long PlanId { get; set; } = default;
     public Plan? Plan { get; set; } = default;
 
     public string? Description { get; set; }
 
-    public Int64 Limit { get; set; }
+    public long Limit { get; set; }
 
     public PlanLimit() { }
 

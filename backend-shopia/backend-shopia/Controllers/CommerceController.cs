@@ -25,7 +25,7 @@ public class CommerceController(
         logger.LogInformation("Creating commerce");
 
         var commerce = data.ToCommerce();
-        commerce.OwnerId = (HttpContext?.Items["UserId"] as Int64?)
+        commerce.OwnerId = (HttpContext?.Items["UserId"] as long?)
             ?? throw new NoAuthorizationHeaderException();
 
         var result = await commerceService.CreateAsync(commerce);

@@ -40,7 +40,7 @@ public class PlanService(
     {
         var planLimitService = ServiceProvider.GetRequiredService<IPlanLimitService>();
 
-        var extendedPlans = new List<Int64>();
+        var extendedPlans = new List<long>();
         var limits = new List<PlanLimit>();
         var extendedPlan = plan;
         while (extendedPlan != null)

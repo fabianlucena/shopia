@@ -9,7 +9,7 @@ public class Plan
     : ANominableEntity
 {
     [ForeignKey("ExtendTo")]
-    public Int64? ExtendToId { get; set; } = default;
+    public long? ExtendToId { get; set; } = default;
     public Plan? ExtendTo { get; set; } = default;
 
     public string? Description { get; set; }

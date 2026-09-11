@@ -10,7 +10,7 @@ public class ItemPriceLog
 {
     [Required]
     [ForeignKey("Item")]
-    public Int64 ItemId { get; set; } = default;
+    public long ItemId { get; set; } = default;
     public Item? Item { get; set; } = default;
 
     [Required]

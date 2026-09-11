@@ -11,7 +11,7 @@ public class Store
 {
     [Required]
     [ForeignKey("Commerce")]
-    public Int64 CommerceId { get; set; } = default;
+    public long CommerceId { get; set; } = default;
     public Commerce? Commerce { get; set; } = default;
 
     public string? Description { get; set; }
