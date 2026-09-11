@@ -3,6 +3,7 @@ using backend_shopia.Entities;
 using backend_shopia.IRepositories;
 using backend_shopia.IServices;
 using backend_shopia.QueryOptions;
+using RFIServices.IServices;
 using RFServices.Services;
 
 namespace backend_shopia.Services;
@@ -12,8 +13,10 @@ public class UserPlanService(
     IServiceProvider serviceProvider
 )
     : CommonJoinService<UserPlan>(userPlanRepository, serviceProvider),
-    IUserPlanService
+    IUserPlanService, IGetCurrentAndSystemUserService
 {
+    public async Task<long> GetCurrentUserIdAsync()
+        => await GetRequiredService<IUserService>().GetCurrentUserIdAsync();
 
     public async Task<Plan> GetSinglePlanByCurrentUserAsync()
     {

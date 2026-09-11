@@ -8,7 +8,7 @@ public class UserPlanQueryOptions : CommonJoinQueryOptions
 
     public long? PlanId { get; set; }
     public IEnumerable<string>? SkipNames { get; set; }
-    public string? UserId { get; set; }
+    public long? UserId { get; set; }
     public DateTime? ValidUntil { get; set; }
 
     public bool OrderByExpirationDateDesc { get; set; }
