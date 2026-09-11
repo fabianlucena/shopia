@@ -7,10 +7,10 @@ namespace backend_shopia.IServices;
 public interface IStoreService
     : IANominableEntityService<Store>
 {
-    Task<bool> CheckForUuidAndCurrentUserAsync(Guid uuid, StoreQueryOptions? options = null);
-    Task<StoreQueryOptions> GetFilterForOwnerIdAsync(Int64 ownerId, StoreQueryOptions? options = null);
-    Task<int> GetCountForOwnerIdAsync(Int64 ownerId, StoreQueryOptions? options = null);
-    Task<int> GetCountForCurrentUserAsync(StoreQueryOptions? options = null);
-    Task<IEnumerable<Int64>> GetListIdForOwnerIdAsync(Int64 ownerId, StoreQueryOptions? options = null);
-    Task<IEnumerable<Int64>> GetListIdForCurrentUserAsync(StoreQueryOptions? options = null);
+    Task<bool> CheckByUuidAndCurrentUserAsync(Guid uuid, StoreQueryOptions? options = null);
+    Task<StoreQueryOptions> GetFilterByOwnerIdAsync(Int64 ownerId, StoreQueryOptions? options = null);
+    Task<int> GetCountByOwnerIdAsync(Int64 ownerId, StoreQueryOptions? options = null);
+    Task<int> GetCountByCurrentUserAsync(StoreQueryOptions? options = null);
+    Task<IEnumerable<Int64>> GetListIdByOwnerIdAsync(Int64 ownerId, StoreQueryOptions? options = null);
+    Task<IEnumerable<Int64>> GetListIdByCurrentUserAsync(StoreQueryOptions? options = null);
 }

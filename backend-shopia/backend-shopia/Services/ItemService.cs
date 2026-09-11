@@ -1,568 +1,513 @@
 ﻿using backend_shopia.DTO;
 using backend_shopia.Entities;
 using backend_shopia.Exceptions;
+using backend_shopia.IRepositories;
 using backend_shopia.IServices;
-using RFAuth.Exceptions;
-using RFOperators;
-using RFService.ILibs;
-using RFService.IRepo;
-using RFService.Libs;
-using RFService.Repo;
-using RFService.Services;
+using backend_shopia.QueryOptions;
+using RFBase.ILibs;
+using RFBase.Libs;
+using RFIServices.QueryOptions;
+using RFServices.Services;
 using System.Text.Json;
 
-namespace backend_shopia.Services
+namespace backend_shopia.Services;
+
+public class ItemService(
+    IItemRepository itemRepository,
+    IServiceProvider serviceProvider
+)
+    : ANominableEntityService<Item>(itemRepository, serviceProvider),
+    IItemService
 {
-    public class ItemService(
-        IRepo<Item> repo,
-        IServiceProvider serviceProvider
-    )
-        : ServiceSoftDeleteTimestampsIdUuidEnabledName<IRepo<Item>, Item>(repo),
-            IItemService
+    public override async Task<Item> ValidateForCreateAsync(Item data)
     {
-        public override async Task<Item> ValidateForCreationAsync(Item data)
+        data = await base.ValidateForCreateAsync(data);
+
+        if (string.IsNullOrWhiteSpace(data.Name))
+            throw new NoNameException();
+
+        if (data.Stores == null || !data.Stores.Any())
+            throw new NoStoreProvidedException();
+
+        var stores = data.Stores.ToList();
+        IStoreService storeService = ServiceProvider.GetRequiredService<IStoreService>();
+        for (var i = 0; i < stores.Count; i++)
         {
-            data = await base.ValidateForCreationAsync(data);
+            var store = stores[i]
+                ?? throw new StoreDoesNotExistException();
 
-            if (string.IsNullOrWhiteSpace(data.Name))
-                throw new NoNameException();
-
-            if (data.Stores == null || !data.Stores.Any())
-                throw new NoStoreProvidedException();
-
-            var stores = data.Stores.ToList();
-            IStoreService storeService = serviceProvider.GetRequiredService<IStoreService>();
-            for (var i = 0; i < stores.Count; i++)
+            if (store.Commerce == null)
             {
-                var store = stores[i]
-                    ?? throw new StoreDoesNotExistException();
-
-                if (store.Commerce == null)
+                if (store.CommerceId > 0)
                 {
-                    if (store.CommerceId > 0)
-                    {
-                        var commerceService = serviceProvider.GetRequiredService<ICommerceService>();
-                        stores[0].Commerce = await commerceService.GetSingleOrDefaultForIdAsync(
-                                store.CommerceId,
-                                new QueryOptions
-                                {
-                                    Switches = { { "IncludeDisabled", true } },
-                                }
-                            )
-                            ?? throw new CommerceDoesNotExistException();
-                    }
-                    else if (store.Id > 0)
-                    {
-                        stores[0] = await storeService.GetSingleOrDefaultForIdAsync(
-                            store.Id,
-                            new QueryOptions
-                            {
-                                Join = { { "Commerce" } },
-                                Switches = { { "IncludeDisabled", true } },
-                            }
-                        )
-                        ?? throw new StoreDoesNotExistException();
-                    }
-                    else if (store.Uuid != Guid.Empty)
-                    {
-                        stores[0] = await storeService.GetSingleOrDefaultForUuidAsync(
-                            store.Uuid,
-                            new QueryOptions
-                            {
-                                Join = { { "Commerce" } },
-                                Switches = { { "IncludeDisabled", true } },
-                            }
-                        )
-                        ?? throw new StoreDoesNotExistException();
-                    }
-                    else
-                    {
-                        throw new StoreDoesNotExistException();
-                    }
-                }
-
-                if (data.CommerceId <= 0)
-                {
-                    data.CommerceId = store.CommerceId;
-                }
-                else if (data.CommerceId != store.CommerceId)
-                {
-                    throw new TheStoreBelongsToAnotherCommerceException();
-                }
-            }
-            data.Stores = stores;
-
-            var userPlanService = serviceProvider.GetRequiredService<IUserPlanService>();
-            var limits = await userPlanService.GetLimitsForCurrentUserAsync();
-
-            var totalItemsCount = await GetCountForCurrentUserAsync(new QueryOptions { Filters = { { "IsEnabled", null } } });
-            if (totalItemsCount >= limits[PlanLimitName.MaxTotalItems])
-                throw new TotalItemsLimitReachedException();
-
-            var enabledItemsCount = await GetCountForCurrentUserAsync();
-            var enabledItemsMax = limits[PlanLimitName.MaxEnabledItems];
-            if (data.IsEnabled && enabledItemsCount >= enabledItemsMax
-                || enabledItemsCount > enabledItemsMax
-            )
-            {
-                throw new MaxEnabledItemsLimitReachedException();
-            }
-
-            data.InheritedIsEnabled = data.Stores.Any(s => s.IsEnabled && (s.Commerce?.IsEnabled ?? false));
-
-            data.Embedding = await GetEmbedding(data);
-
-            return data;
-        }
-
-        public override async Task<IEnumerable<Item>> GetListAsync(QueryOptions options)
-        {
-            var items = await base.GetListAsync(options);
-            if (items.Any())
-            {
-                if (options.Switches.TryGetValue("IncludeStores", out var includeStores)
-                    && includeStores)
-                {
-                    var itemStoreOptions = new QueryOptions();
-                    itemStoreOptions.Include("Store", "store");
-
-                    var itemStoreService = serviceProvider.GetRequiredService<IItemStoreService>();
-                    foreach (var item in items)
-                    {
-                        var itemsStores = await itemStoreService.GetListForItemIdAsync(
-                            item.Id,
-                            new QueryOptions(itemStoreOptions)
-                        );
-                        if (!itemsStores.Any())
-                            continue;
-
-                        item.ItemsStores = itemsStores;
-                        item.Stores = itemsStores.Select(i => {
-                            i.Store!.Commerce = i.Commerce;  
-                            return i.Store;
-                        });
-
-                        if (item.CommerceId <= 0)
-                            item.CommerceId = item.Stores.First().CommerceId;
-
-                        item.Commerce ??= item.Stores.First().Commerce;
-                    }
-                }
-            }
-
-            return items;
-        }
-
-        public async Task<float[]> GetEmbedding(Item data)
-        {
-            if (data.Stores == null || !data.Stores.Any())
-            {
-                var itemStoreService = serviceProvider.GetRequiredService<IItemStoreService>();
-                data.Stores = await itemStoreService.GetListStoresForItemIdAsync(
-                        data.Id,
-                        new QueryOptions
-                        {
-                            Switches = { { "IncludeDisabled", true } },
-                        }
-                    )
-                    ?? throw new StoreDoesNotExistException();
-            }
-
-            var stores = data.Stores.ToList();
-            for (var i = 0; i < stores.Count; i++)
-            {
-                var store = stores[i]
-                    ?? throw new StoreDoesNotExistException();
-
-                if (store.Commerce == null)
-                {
-                    var commerceService = serviceProvider.GetRequiredService<ICommerceService>();
-                    stores[i].Commerce = await commerceService.GetSingleOrDefaultForIdAsync(
+                    var commerceService = ServiceProvider.GetRequiredService<ICommerceService>();
+                    stores[0].Commerce = await commerceService.GetSingleOrDefaultByIdAsync(
                             store.CommerceId,
-                            new QueryOptions
-                            {
-                                Switches = { { "IncludeDisabled", true } },
-                            }
+                            new CommerceQueryOptions { IncludeInactive = true }
                         )
                         ?? throw new CommerceDoesNotExistException();
                 }
-            }
-
-            data.Stores = stores;
-
-            var embeddingData = new
-            {
-                data.Name,
-                data.Description,
-                data.Category,
-                Stores = data.Stores?.Select(s => s.Name),
-                Commerce = data.Stores?.First()?.Commerce?.Name,
-                data.Price,
-                data.IsPresent,
-                data.MinAge,
-                data.MaxAge,
-            };
-            var embeddingService = serviceProvider.GetRequiredService<IEmbeddingService>();
-            var embedding = await embeddingService.GetAsync(JsonSerializer.Serialize(embeddingData));
-
-            return embedding;
-        }
-
-        public override async Task<Item> CreateAsync(Item item, QueryOptions? options)
-        {
-            var created = await base.CreateAsync(item, options);
-            if (item.Stores != null)
-            {
-                IStoreService storeService = serviceProvider.GetRequiredService<IStoreService>();
-
-                var storesId = new List<Int64>();
-                foreach (var store in item.Stores)
+                else if (store.Id > 0)
                 {
-                    if (store is null)
-                        throw new StoreDoesNotExistException();
-
-                    if (store.Id >= 0)
-                    {
-                        storesId.Add(store.Id);
-                        continue;
-                    }
-
-                    if (store.Uuid != Guid.Empty)
-                    {
-                        storesId.Add(await storeService.GetSingleIdForUuidAsync(
-                            store.Uuid,
-                            new QueryOptions
-                            {
-                                Switches = { { "IncludeDisabled", true } },
-                            }
-                        ));
-                        continue;
-                    }
-
+                    stores[0] = await storeService.GetSingleOrDefaultByIdAsync(
+                        store.Id,
+                        new StoreQueryOptions
+                        {
+                            JoinCommerce = true,
+                            IncludeInactive = true,
+                        }
+                    )
+                    ?? throw new StoreDoesNotExistException();
+                }
+                else if (store.Uuid != Guid.Empty)
+                {
+                    stores[0] = await storeService.GetSingleOrDefaultByUuidAsync(
+                        store.Uuid,
+                        new StoreQueryOptions
+                        {
+                            JoinCommerce = true,
+                            IncludeInactive = true,
+                        }
+                    )
+                    ?? throw new StoreDoesNotExistException();
+                }
+                else
+                {
                     throw new StoreDoesNotExistException();
                 }
-
-                IItemStoreService itemStoreService = serviceProvider.GetRequiredService<IItemStoreService>();
-                foreach (var storeId in storesId)
-                {
-                    await itemStoreService.CreateAsync(new ItemStore
-                    {
-                        ItemId = item.Id,
-                        StoreId = storeId,
-                    });
-                }
             }
 
-            var getOptions = new QueryOptions(options);
-            getOptions.IncludeIfNotExists("Commerce");
-            getOptions.Switches["IncludeDisabled"] = true;
-            getOptions.Switches["IncludeStores"] = true;
-            var embeddingItem = await GetSingleForIdAsync(item.Id, getOptions);
-            var embedding = await GetEmbedding(embeddingItem);
-            await base.UpdateAsync(
-                new DataDictionary { { "Embedding", embedding } },
-                new QueryOptions { Filters = { { "Id", embeddingItem.Id } } }
-            );
+            if (data.CommerceId <= 0)
+            {
+                data.CommerceId = store.CommerceId;
+            }
+            else if (data.CommerceId != store.CommerceId)
+            {
+                throw new TheStoreBelongsToAnotherCommerceException();
+            }
+        }
+        data.Stores = stores;
 
-            return created;
+        var userPlanService = ServiceProvider.GetRequiredService<IUserPlanService>();
+        var limits = await userPlanService.GetLimitsByCurrentUserAsync();
+
+        var totalItemsCount = await GetCountByCurrentUserAsync(new ItemQueryOptions { IncludeInactive = true });
+        if (totalItemsCount >= limits[PlanLimitName.MaxTotalItems])
+            throw new TotalItemsLimitReachedException();
+
+        var activeItemsCount = await GetCountByCurrentUserAsync();
+        var activeItemsMax = limits[PlanLimitName.MaxEnabledItems];
+        if (data.IsActive && activeItemsCount >= activeItemsMax
+            || activeItemsCount > activeItemsMax
+        )
+        {
+            throw new MaxActiveItemsLimitReachedException();
         }
 
-        public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, QueryOptions options)
+        data.InheritedIsActive = data.Stores.Any(s => s.IsActive && (s.Commerce?.IsActive ?? false));
+
+        data.Embedding = await GetEmbedding(data);
+
+        return data;
+    }
+
+    public async Task<IEnumerable<Item>> GetListAsync(ItemQueryOptions options)
+    {
+        var items = await base.GetListAsync(options);
+        if (items.Any())
         {
-            data = await base.ValidateForUpdateAsync(data, options);
-
-            if (data.TryGetInt64("CommerceId", out var commerceId))
+            if (options.IncludeStores)
             {
-                if (commerceId <= 0)
-                    throw new NoCommerceException();
-            }
+                var itemStoreOptions = new ItemStoreQueryOptions { IncludeStore = true };
 
-            if (data.TryGetGuid("CommerceUuid", out var commerceUuid))
-            {
-                if (commerceUuid == Guid.Empty)
-                    throw new NoCommerceException();
-
-                if (commerceId > 0)
+                var itemStoreService = ServiceProvider.GetRequiredService<IItemStoreService>();
+                foreach (var item in items)
                 {
-                    var commerceService = serviceProvider.GetRequiredService<ICommerceService>();
-                    var commerce = await commerceService.GetSingleForUuidAsync(commerceUuid);
-                    if (commerce.Id != commerceId)
-                        throw new CommerceDoesNotExistException();
-                }
-            }
-
-            if (data.TryGetGuids("StoresUuid", out var storesUuids))
-            {
-                if (storesUuids == null || !storesUuids.Any())
-                    throw new NoStoreProvidedException();
-
-                if (commerceId < 0)
-                {
-                    var item = await GetSingleOrDefaultAsync(options)
-                        ?? throw new ItemDoesNotExistException();
-                    commerceId = item.CommerceId;
-                }
-
-                var storeService = serviceProvider.GetRequiredService<IStoreService>();
-                foreach (var storeUuid in storesUuids)
-                {
-                    var store = await storeService.GetSingleOrDefaultForUuidAsync(
-                        storeUuid,
-                        QueryOptions.IncludeDisabled
-                    ) ?? throw new SomeStoreDoesNotExistException();
-
-                    if (store.CommerceId != commerceId)
-                        throw new SomeStoreBelongsToAnotherCommerceException();
-                }
-            }
-
-            if (data.TryGetValue("IsEnabled", out var isEnabledValue)
-                && isEnabledValue is bool isEnabled && isEnabled)
-            {
-                var getOptions = new QueryOptions(options)
-                {
-                    Switches = { { "IncludeDisabled", true } }
-                };
-                _ = await GetSingleOrDefaultAsync(getOptions)
-                    ?? throw new ItemDoesNotExistException();
-
-                var userPlanService = serviceProvider.GetRequiredService<IUserPlanService>();
-                var limits = await userPlanService.GetLimitsForCurrentUserAsync();
-
-                var enabledItemsCount = await GetCountForCurrentUserAsync();
-                var enabledItemsMax = limits[PlanLimitName.MaxEnabledItems];
-                if (enabledItemsCount >= enabledItemsMax)
-                    throw new MaxEnabledItemsLimitReachedException();
-            }
-
-            return data;
-        }
-
-        public override async Task<int> UpdateAsync(IDataDictionary data, QueryOptions options)
-        {
-            var updatedRows = await base.UpdateAsync(data, options);
-            if (updatedRows > 0)
-            {
-                var getOptions = new QueryOptions(options);
-                getOptions.IncludeIfNotExists("Commerce");
-                getOptions.Switches["IncludeDisabled"] = true;
-                getOptions.Switches["IncludeStores"] = true;
-                var items = await GetListAsync(getOptions);
-
-                if (data.TryGetGuids("StoresUuid", out var storesUuid))
-                {
-                    IStoreService storeService = serviceProvider.GetRequiredService<IStoreService>();
-                    var storesId = await storeService.GetListIdForUuidsAsync(
-                        storesUuid,
-                        new QueryOptions
-                        {
-                            Switches = { { "IncludeDisabled", true } },
-                        }
+                    var itemsStores = await itemStoreService.GetListByItemIdAsync(
+                        item.Id,
+                        itemStoreOptions
                     );
+                    if (!itemsStores.Any())
+                        continue;
 
-                    foreach (var item in items)
-                    {
-                        var currentStoresIds = item.Stores?.Select(s => s.Id) ?? [];
-                        var storesToAdd = storesId.Except(currentStoresIds);
-                        var storesToRemove = currentStoresIds.Except(storesId);
+                    item.ItemsStores = itemsStores;
+                    item.Stores = itemsStores.Select(i => {
+                        i.Store!.Commerce = i.Commerce;  
+                        return i.Store;
+                    });
 
-                        IItemStoreService itemStoreService = serviceProvider.GetRequiredService<IItemStoreService>();
-                        foreach (var storeId in storesToAdd)
-                        {
-                            await itemStoreService.CreateAsync(new ItemStore
-                            {
-                                ItemId = item.Id,
-                                StoreId = storeId,
-                            });
-                        }
+                    if (item.CommerceId <= 0)
+                        item.CommerceId = item.Stores.First().CommerceId;
 
-                        if (storesToRemove.Any())
-                        {
-                            await itemStoreService.DeleteAsync(
-                                new QueryOptions
-                                {
-                                    Filters =
-                                    {
-                                        { "ItemId", item.Id },
-                                        { "StoreId", storesToRemove },
-                                    }
-                                }
-                            );
-                        }
-                    }
+                    item.Commerce ??= item.Stores.First().Commerce;
                 }
+            }
+        }
+
+        return items;
+    }
+
+    public async Task<float[]> GetEmbedding(Item data)
+    {
+        if (data.Stores == null || !data.Stores.Any())
+        {
+            var itemStoreService = ServiceProvider.GetRequiredService<IItemStoreService>();
+            data.Stores = await itemStoreService.GetListStoresByItemIdAsync(
+                    data.Id,
+                    new ItemStoreQueryOptions { IncludeInactive = true }
+                )
+                ?? throw new StoreDoesNotExistException();
+        }
+
+        var stores = data.Stores.ToList();
+        for (var i = 0; i < stores.Count; i++)
+        {
+            var store = stores[i]
+                ?? throw new StoreDoesNotExistException();
+
+            if (store.Commerce == null)
+            {
+                var commerceService = ServiceProvider.GetRequiredService<ICommerceService>();
+                stores[i].Commerce = await commerceService.GetSingleOrDefaultByIdAsync(
+                        store.CommerceId,
+                        new CommerceQueryOptions { IncludeInactive = true }
+                    )
+                    ?? throw new CommerceDoesNotExistException();
+            }
+        }
+
+        data.Stores = stores;
+
+        var embeddingData = new
+        {
+            data.Name,
+            data.Description,
+            data.Category,
+            Stores = data.Stores?.Select(s => s.Name),
+            Commerce = data.Stores?.First()?.Commerce?.Name,
+            data.Price,
+            data.IsPresent,
+            data.MinAge,
+            data.MaxAge,
+        };
+        var embeddingService = ServiceProvider.GetRequiredService<IEmbeddingService>();
+        var embedding = await embeddingService.GetAsync(JsonSerializer.Serialize(embeddingData));
+
+        return embedding;
+    }
+
+    public override async Task<Item> CreateAsync(Item item)
+    {
+        var created = await base.CreateAsync(item);
+        if (item.Stores != null)
+        {
+            IStoreService storeService = ServiceProvider.GetRequiredService<IStoreService>();
+
+            var storeOptions = new StoreQueryOptions { IncludeInactive = true };
+            var storesId = new List<long>();
+            foreach (var store in item.Stores)
+            {
+                if (store is null)
+                    throw new StoreDoesNotExistException();
+
+                if (store.Id >= 0)
+                {
+                    storesId.Add(store.Id);
+                    continue;
+                }
+
+                if (store.Uuid != Guid.Empty)
+                {
+                    storesId.Add(await storeService.GetSingleIdByUuidAsync(store.Uuid, storeOptions));
+                    continue;
+                }
+
+                throw new StoreDoesNotExistException();
+            }
+
+            IItemStoreService itemStoreService = ServiceProvider.GetRequiredService<IItemStoreService>();
+            foreach (var storeId in storesId)
+            {
+                await itemStoreService.CreateAsync(new ItemStore
+                {
+                    ItemId = item.Id,
+                    StoreId = storeId,
+                });
+            }
+        }
+
+        var getOptions = new ItemQueryOptions
+        {
+            IncludeInactive = true,
+            IncludeCommerce = true,
+            IncludeStores = true,
+        };
+        var embeddingItem = await GetSingleByIdAsync(item.Id, getOptions);
+        var embedding = await GetEmbedding(embeddingItem);
+        await base.UpdateByIdAsync(
+            embeddingItem.Id,
+            new DataDictionary { { "Embedding", embedding } }
+        );
+
+        return created;
+    }
+
+    public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data)
+    {
+        data = await base.ValidateForUpdateAsync(data);
+
+        if (data.TryGetInt64("CommerceId", out var commerceId))
+        {
+            if (commerceId <= 0)
+                throw new NoCommerceException();
+        }
+
+        if (data.TryGetGuid("CommerceUuid", out var commerceUuid))
+        {
+            if (commerceUuid == Guid.Empty)
+                throw new NoCommerceException();
+
+            if (commerceId > 0)
+            {
+                var commerceService = ServiceProvider.GetRequiredService<ICommerceService>();
+                var commerce = await commerceService.GetSingleByUuidAsync(commerceUuid);
+                if (commerce.Id != commerceId)
+                    throw new IncomptatibleCommerceUUIDdAndIDException();
+            }
+            else
+            {
+                var commerceService = ServiceProvider.GetRequiredService<ICommerceService>();
+                var commerce = await commerceService.GetSingleByUuidAsync(commerceUuid);
+                commerceId = commerce.Id;
+            }
+        }
+
+        if (data.TryGetGuids("StoresUuid", out var storesUuids))
+        {
+            if (storesUuids == null || !storesUuids.Any())
+                throw new NoStoreProvidedException();
+
+            var storeService = ServiceProvider.GetRequiredService<IStoreService>();
+            foreach (var storeUuid in storesUuids)
+            {
+                var store = await storeService.GetSingleOrDefaultByUuidAsync(
+                    storeUuid,
+                    new StoreQueryOptions { IncludeInactive = true }
+                ) ?? throw new SomeStoreDoesNotExistException();
+
+                if (commerceId == 0)
+                    commerceId = store.CommerceId;
+                else if (store.CommerceId != commerceId)
+                    throw new SomeStoreBelongsToAnotherCommerceException();
+            }
+        }
+
+        if (data.GetBool("IsActive"))
+        {
+            var getOptions = new ItemQueryOptions { IncludeInactive = true };
+            _ = await GetSingleOrDefaultAsync(getOptions)
+                ?? throw new ItemDoesNotExistException();
+
+            var userPlanService = ServiceProvider.GetRequiredService<IUserPlanService>();
+            var limits = await userPlanService.GetLimitsByCurrentUserAsync();
+
+            var enabledItemsCount = await GetCountByCurrentUserAsync();
+            var enabledItemsMax = limits[PlanLimitName.MaxEnabledItems];
+            if (enabledItemsCount >= enabledItemsMax)
+                throw new MaxActiveItemsLimitReachedException();
+        }
+
+        return data;
+    }
+
+    public override async Task<int> UpdateAsync(IDataDictionary data, BaseQueryOptions options)
+    {
+        var updatedRows = await base.UpdateAsync(data, options);
+        if (updatedRows > 0)
+        {
+            var getOptions = new ItemQueryOptions(options as ItemQueryOptions)
+            {
+                IncludeInactive = true,
+                IncludeCommerce = true,
+                IncludeStores = true,
+            };
+            var items = await GetListAsync(getOptions);
+
+            if (data.TryGetGuids("StoresUuid", out var storesUuid))
+            {
+                IStoreService storeService = ServiceProvider.GetRequiredService<IStoreService>();
+                var storesId = await storeService.GetListIdByUuidAsync(
+                    storesUuid,
+                    new StoreQueryOptions { IncludeInactive = true }
+                );
 
                 foreach (var item in items)
                 {
-                    var embedding = await GetEmbedding(item);
-                    await base.UpdateAsync(
-                        new DataDictionary { { "Embedding", embedding } },
-                        new QueryOptions { Filters = { { "Id", item.Id } } }
-                    );
-                }
+                    var currentStoresIds = item.Stores?.Select(s => s.Id) ?? [];
+                    var storesToAdd = storesId.Except(currentStoresIds);
+                    var storesToRemove = currentStoresIds.Except(storesId);
 
-                if (data.TryGetDecimal("Price", out var price))
-                {
-                    var itemPriceLogData = new ItemPriceLog
+                    IItemStoreService itemStoreService = ServiceProvider.GetRequiredService<IItemStoreService>();
+                    foreach (var storeId in storesToAdd)
                     {
-                        Price = price,
-                    };
-                    IItemPriceLogService itemPriceLogService = serviceProvider.GetRequiredService<IItemPriceLogService>();
-                    foreach (var item in items)
+                        await itemStoreService.CreateAsync(new ItemStore
+                        {
+                            ItemId = item.Id,
+                            StoreId = storeId,
+                        });
+                    }
+
+                    if (storesToRemove.Any())
                     {
-                        itemPriceLogData.ItemId = item.Id;
-                        await itemPriceLogService.CreateAsync(itemPriceLogData);
+                        await itemStoreService.DeleteAsync(
+                            new ItemStoreQueryOptions
+                            {
+                                ItemId = item.Id,
+                                StoresId = storesToRemove,
+                            }
+                        );
                     }
                 }
             }
 
-            return updatedRows;
-        }
-
-        public async Task<bool> CheckForUuidAndCurrentUserAsync(Guid uuid, QueryOptions? options = null)
-        {
-            options = new (options);
-            options.Switches["IncludeDisabled"] = true;
-            options.AddFilter("Uuid", uuid);
-            var itemId = await GetSingleIdOrNullAsync(options)
-                ?? throw new ItemDoesNotExistException();
-
-            var storeService = serviceProvider.GetRequiredService<IStoreService>();
-            var storesId = await storeService.GetListIdForCurrentUserAsync(QueryOptions.IncludeDisabled);
-            if (storesId.Count() == 0)
-                throw new ItemDoesNotExistException();
-
-            var itemStoreService = serviceProvider.GetRequiredService<IItemStoreService>();
-            var itemStoreOptions = new QueryOptions
+            foreach (var item in items)
             {
-                Filters =
+                var embedding = await GetEmbedding(item);
+                await base.UpdateByIdAsync(
+                    item.Id,
+                    new DataDictionary { { "Embedding", embedding } }
+                );
+            }
+
+            if (data.TryGetDecimal("Price", out var price))
+            {
+                var itemPriceLogData = new ItemPriceLog
                 {
-                    { "ItemId", itemId },
-                    { "StoreId", storesId },
+                    Price = price,
+                };
+                IItemPriceLogService itemPriceLogService = ServiceProvider.GetRequiredService<IItemPriceLogService>();
+                foreach (var item in items)
+                {
+                    itemPriceLogData.ItemId = item.Id;
+                    await itemPriceLogService.CreateAsync(itemPriceLogData);
                 }
-            };
-            _ = await itemStoreService.GetFirstOrDefaultAsync(itemStoreOptions)
-                ?? throw new ItemDoesNotExistException();
-
-            return true;
+            }
         }
 
-        public async Task<QueryOptions> GetFilterForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
-        {
-            var commerceService = serviceProvider.GetRequiredService<ICommerceService>();
-            var commercesId = await commerceService.GetListIdForOwnerIdAsync(ownerId, options);
-
-            options = new QueryOptions(options);
-            options.IncludeIfNotExists("Commerce", "commerce");
-            options.AddFilter("CommerceId", commercesId);
-
-            return options;
-        }
-
-        public async Task<int> GetCountForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
-            => await GetCountAsync(await GetFilterForOwnerIdAsync(ownerId, options));
-
-        public Int64? GetCurrentUserIdOrDefault()
-        {
-            var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
-            var httpContext = httpContextAccessor.HttpContext;
-            if (httpContext == null)
-                return null;
-
-            var userId = (httpContext.Items["UserId"] as Int64?);
-            if (userId == null || userId <= 0)
-                return null;
-
-            return userId!;
-        }
-
-        public Int64 GetCurrentUserId()
-        {
-            var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
-            var httpContext = httpContextAccessor.HttpContext
-                ?? throw new NoAuthorizationHeaderException();
-
-            var userId = (httpContext.Items["UserId"] as Int64?)
-                ?? throw new NoSessionUserDataException();
-
-            if (userId <= 0)
-                throw new NoSessionUserDataException();
-
-            return userId!;
-        }
-
-        public async Task<int> GetCountForCurrentUserAsync(QueryOptions? options = null)
-            => await GetCountForOwnerIdAsync(GetCurrentUserId(), options);
-
-        public async Task<IEnumerable<Int64>> GetListIdForOwnerIdAsync(Int64 ownerId, QueryOptions? options = null)
-            => await GetListIdAsync(await GetFilterForOwnerIdAsync(ownerId, options));
-
-        public async Task<IEnumerable<Int64>> GetListIdForCurrentUserAsync(QueryOptions? options = null)
-            => await GetListIdForOwnerIdAsync(GetCurrentUserId(), options);
-
-        public async Task<IEnumerable<Guid>> GetListUuidForCurrentUserAsync(QueryOptions? options = null)
-            => await GetListUuidAsync(await GetFilterForOwnerIdAsync(GetCurrentUserId(), options));
-
-        public (QueryOptions, DataDictionary) GetOptionsForUpdateInherited(QueryOptions? options = null)
-        {
-            options ??= new();
-            options.Include(
-                "",
-                "itemStore",
-                entity: typeof(ItemStore),
-                on: Op.Eq("itemStore.ItemId", Op.Column("Id"))
-            );
-            options.Include(
-                "",
-                "store",
-                entity: typeof(Store),
-                on: Op.Eq("store.Id", Op.Column("itemStore.StoreId"))
-            );
-            options.Include(
-                "",
-                "commerce",
-                entity: typeof(Commerce),
-                on: Op.Eq("commerce.Id", Op.Column("store.CommerceId"))
-            );
-
-            var data = new DataDictionary
-            {
-                { "InheritedIsEnabled",
-                    Op.And(
-                        Op.Eq("store.IsEnabled", true),
-                        Op.IsNull("store.DeletedAt"),
-                        Op.Eq("commerce.IsEnabled", true),
-                        Op.IsNull("commerce.DeletedAt")
-                    )
-                },
-            };
-
-            return (options, data);
-        }
-
-        public async Task<int> UpdateInheritedForUuid(Guid uuid, QueryOptions? options = null)
-        {
-            (options, DataDictionary data) = GetOptionsForUpdateInherited(options);
-            options.AddFilter("Uuid", uuid);
-
-            return await base.UpdateAsync(data, options);
-        }
-
-        public async Task<int> UpdateInheritedForStoreUuid(Guid storeUuid, QueryOptions? options = null)
-        {
-            (options, DataDictionary data) = GetOptionsForUpdateInherited(options);
-            options.AddFilter("store.Uuid", storeUuid);
-            data["Location"] = Op.Column("store.Location");
-
-            return await UpdateAsync(data, options);
-        }
-
-        public async Task<int> UpdateInheritedForCommerceUuid(Guid commerceUuid, QueryOptions? options = null)
-        {
-            (options, DataDictionary data) = GetOptionsForUpdateInherited(options);
-            options.AddFilter("commerce.Uuid", commerceUuid);
-
-            return await UpdateAsync(data, options);
-        }
+        return updatedRows;
     }
+
+    public async Task<bool> CheckByUuidAndCurrentUserAsync(Guid uuid, ItemQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new ItemQueryOptions();
+        options.IncludeInactive = true;
+        options.Uuid = uuid;
+        var itemId = await GetSingleIdOrDefaultAsync(options)
+            ?? throw new ItemDoesNotExistException();
+
+        var storeService = ServiceProvider.GetRequiredService<IStoreService>();
+        var storesId = await storeService.GetListIdByCurrentUserAsync(new StoreQueryOptions { IncludeInactive = true });
+        if (storesId.Count() == 0)
+            throw new ItemDoesNotExistException();
+
+        var itemStoreService = ServiceProvider.GetRequiredService<IItemStoreService>();
+        var itemStoreOptions = new ItemStoreQueryOptions
+        {
+            ItemId = itemId,
+            StoresId = storesId,
+        };
+        _ = await itemStoreService.GetFirstOrDefaultAsync(itemStoreOptions)
+            ?? throw new ItemDoesNotExistException();
+
+        return true;
+    }
+
+    public async Task<ItemQueryOptions> GetFilterByOwnerIdAsync(long ownerId, ItemQueryOptions? options = null)
+    {
+        var commerceService = ServiceProvider.GetRequiredService<ICommerceService>();
+        var commercesId = await commerceService.GetListIdByOwnerIdAsync(ownerId, new CommerceQueryOptions { IncludeInactive = options?.IncludeInactive ?? false });
+
+        options = options?.Clone() ?? new ItemQueryOptions(options);
+        options.IncludeCommerce = true;
+        options.CommercesId = commercesId;
+
+        return options;
+    }
+
+    public async Task<int> GetCountByOwnerIdAsync(long ownerId, ItemQueryOptions? options = null)
+        => await GetCountAsync(await GetFilterByOwnerIdAsync(ownerId, options));
+
+    public async Task<int> GetCountByCurrentUserAsync(ItemQueryOptions? options = null)
+        => await GetCountByOwnerIdAsync(await GetCurrentUserIdAsync(), options);
+
+    public async Task<IEnumerable<long>> GetListIdByOwnerIdAsync(long ownerId, ItemQueryOptions? options = null)
+        => await GetListIdAsync(await GetFilterByOwnerIdAsync(ownerId, options));
+
+    public async Task<IEnumerable<long>> GetListIdByCurrentUserAsync(ItemQueryOptions? options = null)
+        => await GetListIdByOwnerIdAsync(await GetCurrentUserIdAsync(), options);
+
+    public async Task<IEnumerable<Guid>> GetListUuidByCurrentUserAsync(ItemQueryOptions? options = null)
+        => await GetListUuidAsync(await GetFilterByOwnerIdAsync(await GetCurrentUserIdAsync(), options));
+
+    /*public (ItemQueryOptions, DataDictionary) GetOptionsByUpdateInherited(ItemQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new();
+        options.IncludeItemStore(
+            "",
+            "itemStore",
+            entity: typeof(ItemStore),
+            on: Op.Eq("itemStore.ItemId", Op.Column("Id"))
+        );
+        options.Include(
+            "",
+            "store",
+            entity: typeof(Store),
+            on: Op.Eq("store.Id", Op.Column("itemStore.StoreId"))
+        );
+        options.Include(
+            "",
+            "commerce",
+            entity: typeof(Commerce),
+            on: Op.Eq("commerce.Id", Op.Column("store.CommerceId"))
+        );
+
+        var data = new DataDictionary
+        {
+            { "InheritedIsEnabled",
+                Op.And(
+                    Op.Eq("store.IsEnabled", true),
+                    Op.IsNull("store.DeletedAt"),
+                    Op.Eq("commerce.IsEnabled", true),
+                    Op.IsNull("commerce.DeletedAt")
+                )
+            },
+        };
+
+        return (options, data);
+    }* /
+
+    public async Task<int> UpdateInheritedByUuid(Guid uuid, ItemQueryOptions? options = null)
+    {
+        (options, DataDictionary data) = GetOptionsByUpdateInherited(options);
+        options.Uuid = uuid;
+
+        return await base.UpdateAsync(data, options);
+    }
+
+    public async Task<int> UpdateInheritedByStoreUuid(Guid storeUuid, ItemQueryOptions? options = null)
+    {
+        (options, DataDictionary data) = GetOptionsByUpdateInherited(options);
+        options.StoreUuid = storeUuid;
+        data["Location"] = Op.Column("store.Location");
+
+        return await UpdateAsync(data, options);
+    }
+
+    public async Task<int> UpdateInheritedByCommerceUuid(Guid commerceUuid, ItemQueryOptions? options = null)
+    {
+        (options, DataDictionary data) = GetOptionsByUpdateInherited(options);
+        options.CommerceUuid = commerceUuid;
+
+        return await UpdateAsync(data, options);
+    }*/
 }

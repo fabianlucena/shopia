@@ -7,7 +7,7 @@ namespace backend_shopia.IServices;
 public interface ICommerceService
     : IANominableOwnedEntityService<Commerce>
 {
-    Task<bool> CheckByUuidAndCurrentUserAsync(Guid uuid, CommerceQueryOptions? options = null);
+    //Task<bool> CheckByUuidAndCurrentUserAsync(Guid uuid, CommerceQueryOptions? options = null);
 
     CommerceQueryOptions GetFilterByOwnerIdAsync(Int64 ownerId, CommerceQueryOptions? options = null);
 

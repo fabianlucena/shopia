@@ -4,6 +4,9 @@ El comercio no existe.
 Category does not exist.
 El rubro no existe.
 
+Incompatible Commerce UUID and ID.
+El UUID y el ID de comercio son incompatibles.
+
 Item does not exist.
 No existe el artículo.
 
@@ -79,11 +82,11 @@ Se ha alcanzado el límite máximo de imágenes de artículos habilitadas.
 The maximum limit of enabled item images size has been reached.
 Se ha alcanzado el límite máximo de tamaño de imágenes de artículos habilitadas.
 
-The maximum limit of enabled items has been reached.
-Se ha alcanzado el límite máximo de artículos habilitadas.
+The maximum limit of active items has been reached.
+Se ha alcanzado el límite máximo de artículos activos.
 
-The maximum limit of enabled stores has been reached.
-Se ha alcanzado el límite máximo de locales habilitados.
+The maximum limit of active stores has been reached.
+Se ha alcanzado el límite máximo de locales activos.
 
 The store belongs to another commerce
 El local pertenece a otro comercio

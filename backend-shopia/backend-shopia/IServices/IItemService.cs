@@ -7,6 +7,8 @@ namespace backend_shopia.IServices;
 public interface IItemService
     : INominableEntityService<Item>
 {
+    Task<IEnumerable<Item>> GetListAsync(ItemQueryOptions options);
+
     Task<bool> CheckByUuidAndCurrentUserAsync(Guid uuid, ItemQueryOptions? options = null);
 
     Task<ItemQueryOptions> GetFilterByOwnerIdAsync(long ownerId, ItemQueryOptions? options = null);

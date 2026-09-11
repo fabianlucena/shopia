@@ -5,6 +5,7 @@ using backend_shopia.IRepositories;
 using backend_shopia.IServices;
 using backend_shopia.QueryOptions;
 using RFBase.ILibs;
+using RFIServices.QueryOptions;
 using RFServices.Services;
 
 namespace backend_shopia.Services;
@@ -40,15 +41,15 @@ public class CommerceService(
             throw new ACommerceForThatNameAlreadyExistException();
 
         var userPlanService = ServiceProvider.GetRequiredService<IUserPlanService>();
-        var limits = await userPlanService.GetLimitsForCurrentUserAsync();
+        var limits = await userPlanService.GetLimitsByCurrentUserAsync();
 
-        var totalCommercesCount = await GetCountForCurrentUserAsync(new CommerceQueryOptions { IncludeInactive = true });
+        var totalCommercesCount = await GetCountByCurrentUserAsync(new CommerceQueryOptions { IncludeInactive = true });
         if (totalCommercesCount >= limits[PlanLimitName.MaxTotalCommerces])
             throw new TotalCommercesLimitReachedException();
 
-        var enabledCommercesCount = await GetCountForCurrentUserAsync();
+        var enabledCommercesCount = await GetCountByCurrentUserAsync();
         var enabledCommercesMax = limits[PlanLimitName.MaxEnabledCommerces];
-        if (data.IsEnabled && enabledCommercesCount >= enabledCommercesMax
+        if (data.IsActive && enabledCommercesCount >= enabledCommercesMax
             || enabledCommercesCount > enabledCommercesMax
         )
         {
@@ -58,23 +59,17 @@ public class CommerceService(
         return data;
     }
 
-    public override async Task<IEnumerable<Commerce>> GetListAsync(CommerceQueryOptions options)
+    public override async Task<IEnumerable<Commerce>> GetListAsync(BaseQueryOptions options)
     {
         var commerces = await base.GetListAsync(options);
-        if (commerces.Any())
+        if (commerces.Any() && options is CommerceQueryOptions commerceOptions)
         {
-            if (options.Switches.TryGetValue("IncludeStores", out var includeStores)
-                && includeStores)
+            if (commerceOptions.IncludeStores == true)
             {
                 var storeService = ServiceProvider.GetRequiredService<IStoreService>();
                 foreach (var commerce in commerces)
                 {
-                    var stores = await storeService.GetListAsync(
-                        new QueryOptions
-                        {
-                            Filters = { { "CommerceId", commerce.Id } }
-                        }
-                    );
+                    var stores = await storeService.GetListAsync(new StoreQueryOptions { CommerceId = commerce.Id } );
                     if (!stores.Any())
                         continue;
 
@@ -86,24 +81,20 @@ public class CommerceService(
         return commerces;
     }
 
-    public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, CommerceQueryOptions options)
+    public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, BaseQueryOptions options)
     {
         data = await base.ValidateForUpdateAsync(data, options);
 
-        if (data.TryGetValue("IsEnabled", out var isEnabledValue)
-            && isEnabledValue is bool isEnabled && isEnabled)
+        if (data.GetBool("IsActive"))
         {
-            var getOptions = new QueryOptions(options)
-            {
-                Switches = { { "IncludeDisabled", true } }
-            };
+            var getOptions = new CommerceQueryOptions { IncludeInactive = true };
             _ = await GetSingleOrDefaultAsync(getOptions)
                 ?? throw new CommerceDoesNotExistException();
 
             var userPlanService = ServiceProvider.GetRequiredService<IUserPlanService>();
-            var limits = await userPlanService.GetLimitsForCurrentUserAsync();
+            var limits = await userPlanService.GetLimitsByCurrentUserAsync();
 
-            var enabledCommercesCount = await GetCountForCurrentUserAsync();
+            var enabledCommercesCount = await GetCountByCurrentUserAsync();
             var enabledCommercesMax = limits[PlanLimitName.MaxEnabledCommerces];
             if (enabledCommercesCount >= enabledCommercesMax)
                 throw new MaxEnabledCommercesLimitReachedException();
@@ -112,12 +103,13 @@ public class CommerceService(
         return data;
     }
 
-    public async Task<bool> CheckForUuidAndCurrentUserAsync(Guid uuid, CommerceQueryOptions? options = null)
+    /*public async Task<bool> CheckByUuidAndCurrentUserAsync(Guid uuid, CommerceQueryOptions? options = null)
     {
-        var ownerId = await GetCurrentUserId();
+        var ownerId = await GetCurrentUserIdAsync();
 
         options = options?.Clone() ?? new CommerceQueryOptions();
-        .CreateFromQuery(httpContext);
+        // No se debe usar HttpContext.Request en esta capa sino en la de Controllers
+        options.UpdateFromRequest(HttpContext.Request);
         options.IncludeInactive = true;
         options.OwnerId = ownerId;
         options.Uuid = uuid;
@@ -126,9 +118,9 @@ public class CommerceService(
             return true;
 
         throw new CommerceDoesNotExistException();
-    }
+    }*/
 
-    public CommerceQueryOptions GetFilterForOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null)
+    public CommerceQueryOptions GetFilterByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null)
     {
         options = options?.Clone() ?? new CommerceQueryOptions();
         options.OwnerId = ownerId;
@@ -136,22 +128,22 @@ public class CommerceService(
         return options;
     }
 
-    public async Task<int> GetCountForOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null)
-        => await GetCountAsync(GetFilterForOwnerIdAsync(ownerId, options));
+    public async Task<int> GetCountByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null)
+        => await GetCountAsync(GetFilterByOwnerIdAsync(ownerId, options));
 
-    public async Task<int> GetCountForCurrentUserAsync(CommerceQueryOptions? options = null)
-        => await GetCountForOwnerIdAsync(await GetCurrentUserId(), options);
+    public async Task<int> GetCountByCurrentUserAsync(CommerceQueryOptions? options = null)
+        => await GetCountByOwnerIdAsync(await GetCurrentUserIdAsync(), options);
 
-    public async Task<IEnumerable<long>> GetListIdForOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null)
-        => await GetListIdAsync(GetFilterForOwnerIdAsync(ownerId, options));
+    public async Task<IEnumerable<long>> GetListIdByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null)
+        => await GetListIdAsync(GetFilterByOwnerIdAsync(ownerId, options));
 
-    public async Task<IEnumerable<Guid>> GetListUuidForOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null)
-        => await GetListUuidAsync(GetFilterForOwnerIdAsync(ownerId, options));
+    public async Task<IEnumerable<Guid>> GetListUuidByOwnerIdAsync(long ownerId, CommerceQueryOptions? options = null)
+        => await GetListUuidAsync(GetFilterByOwnerIdAsync(ownerId, options));
 
-    public async Task<IEnumerable<long>> GetListIdForCurrentUserAsync(CommerceQueryOptions? options = null)
-        => await GetListIdForOwnerIdAsync(await GetCurrentUserId(), options);
+    public async Task<IEnumerable<long>> GetListIdByCurrentUserAsync(CommerceQueryOptions? options = null)
+        => await GetListIdByOwnerIdAsync(await GetCurrentUserIdAsync(), options);
 
-    public async Task<IEnumerable<Guid>> GetListUuidForCurrentUserAsync(CommerceQueryOptions? options = null)
-        => await GetListUuidForOwnerIdAsync(await GetCurrentUserId(), options);
+    public async Task<IEnumerable<Guid>> GetListUuidByCurrentUserAsync(CommerceQueryOptions? options = null)
+        => await GetListUuidByOwnerIdAsync(await GetCurrentUserIdAsync(), options);
 }
 

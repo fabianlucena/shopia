@@ -7,16 +7,16 @@ namespace backend_shopia.Entities;
 
 [Table("ItemsStores", Schema = "shopia")]
 public class ItemStore
-    : CreatableEntity
+    : CreatableJoin
 {
     [Required]
     [ForeignKey("Item")]
-    public Int64 ItemId { get; set; } = default;
+    public long ItemId { get; set; } = default;
     public Item? Item { get; set; } = default;
 
     [Required]
     [ForeignKey("Store")]
-    public Int64 StoreId { get; set; } = default;
+    public long StoreId { get; set; } = default;
     public Store? Store { get; set; } = default;
 
     [Virtual]
