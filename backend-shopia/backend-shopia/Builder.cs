@@ -1,14 +1,6 @@
-﻿using backend_shopia.Entities;
-using backend_shopia.Exceptions;
-using backend_shopia.IServices;
+﻿using backend_shopia.IServices;
 using backend_shopia.Services;
-using backend_shopia.Types;
-using NetTopologySuite.Geometries;
-using Npgsql;
-using RFDBLocalizer.IServices;
-using RFL10n;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection;
+using RFEventBus;
 
 namespace backend_shopia;
 
@@ -32,9 +24,7 @@ public static class MvcServiceCollectionExtensions
         string dbConnectionString = builder.Configuration.GetConnectionString("dbConnection")
             ?? throw new Exception("No DB connection founded, try adding a dbConnection property to ConnectionStrings on appsettings.json");
 
-        services.AddControllers(options => options.Filters.Add<RBACFilter>());
-
-        //services.AddScoped<IEventBus, EventBus>();
+        services.SetupEventBus();
 
         services.AddSingleton<IEmbeddingService>(provider =>
         {

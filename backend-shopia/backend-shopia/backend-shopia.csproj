@@ -31,6 +31,7 @@
     <ProjectReference Include="..\rf-nugets\RFAuth\RFAuth.csproj" />
     <ProjectReference Include="..\rf-nugets\RFAuth_es\RFAuth_es.csproj" />
     <ProjectReference Include="..\rf-nugets\RFDBLocalizer\RFDBLocalizer.csproj" />
+    <ProjectReference Include="..\rf-nugets\RFEventBus\RFEventBus.csproj" />
     <ProjectReference Include="..\rf-nugets\RFHttpAction\RFHttpAction.csproj" />
     <ProjectReference Include="..\rf-nugets\RFHttpExceptionsL10n\RFHttpExceptionsL10n.csproj" />
     <ProjectReference Include="..\rf-nugets\RFHttpExceptions\RFHttpExceptions.csproj" />

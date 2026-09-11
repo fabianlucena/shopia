@@ -127,5 +127,12 @@ public class StoreService(
 
     public async Task<IEnumerable<long>> GetListIdByCurrentUserAsync(StoreQueryOptions? options = null)
         => await GetListIdByOwnerIdAsync(await GetCurrentUserIdAsync(), options);
+
+    public async Task<IEnumerable<Store>> GetListByUuidsAsync(IEnumerable<Guid> uuids, StoreQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new();
+        options.Uuids = uuids;
+        return await GetListAsync(options);
+    }
 }
 
