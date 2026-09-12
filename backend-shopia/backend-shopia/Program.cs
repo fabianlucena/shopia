@@ -2,7 +2,7 @@ using backend_shopia.Middlewares;
 using RFAuth.Filters;
 using RFAuth.Middlewares;
 using RFHttpExceptionsL10n.Middlewares;
-using RFServices;
+using RFRegisterService;
 
 namespace backend_shopia;
 
@@ -21,7 +21,8 @@ public partial class Program
         // Add services to the container.
         builder.ConfigureServices();
 
-        builder.Services.AddRFServices();
+        AttributedServiceRegistration.LoadAllAssemblies();
+        builder.Services.AddAttributedServices();
 
         builder.Services.AddRouting(options => options.LowercaseUrls = true);
 

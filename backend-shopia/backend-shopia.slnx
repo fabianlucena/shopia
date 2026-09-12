@@ -2,6 +2,7 @@
   <Folder Name="/RF Nugets/">
     <Project Path="rf-nugets/RFAuth/RFAuth.csproj" />
     <Project Path="rf-nugets/RFAuthControllers/RFAuthControllers.csproj" />
+    <Project Path="rf-nugets/RFAuthEF/RFAuthEF.csproj" />
     <Project Path="rf-nugets/RFAuth_es/RFAuth_es.csproj" />
     <Project Path="rf-nugets/RFBase/RFBase.csproj" />
     <Project Path="rf-nugets/RFControllers/RFControllers.csproj" />
