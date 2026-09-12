@@ -40,6 +40,8 @@
     <ProjectReference Include="..\rf-nugets\RFLogger\RFLogger.csproj" />
     <ProjectReference Include="..\rf-nugets\RFOauth2Client\RFOauth2Client.csproj" />
     <ProjectReference Include="..\rf-nugets\RFRBAC\RFRBAC.csproj" />
+    <ProjectReference Include="..\rf-nugets\RFServices\RFServices.csproj" />
+    <ProjectReference Include="..\rf-nugets\RFServices_es\RFServices_es.csproj" />
     <ProjectReference Include="..\rf-nugets\RFUserEmailVerified\RFUserEmailVerified.csproj" />
   </ItemGroup>
 

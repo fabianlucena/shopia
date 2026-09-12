@@ -2,6 +2,7 @@ using backend_shopia.Middlewares;
 using RFAuth.Filters;
 using RFAuth.Middlewares;
 using RFHttpExceptionsL10n.Middlewares;
+using RFServices;
 
 namespace backend_shopia;
 
@@ -16,9 +17,11 @@ public partial class Program
         {
             builder.Configuration.AddJsonFile("appsettings.Test.json", optional: true, reloadOnChange: true);
         }
-
+        
         // Add services to the container.
         builder.ConfigureServices();
+
+        builder.Services.AddRFServices();
 
         builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
