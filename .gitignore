@@ -1,2 +1,4 @@
 /backend-shopia/backend-shopia/appsettings.Local.json
 /backend-shopia/backend-shopia/appsettings.Test.json
+backend-shopia/TestResults/backend-shopia-test-windows-net10.0-report.html
+backend-shopia/TestResults/backend-shopia-test-windows-net10.0.tunit-report.json
