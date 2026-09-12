@@ -11,6 +11,7 @@
     <Project Path="rf-nugets/RFEntitiesEF/RFEntitiesEF.csproj" />
     <Project Path="rf-nugets/RFEventBus/RFEventBus.csproj" />
     <Project Path="rf-nugets/RFHttpAction/RFHttpAction.csproj" />
+    <Project Path="rf-nugets/RFHttpActionControllers/RFHttpActionControllers.csproj" />
     <Project Path="rf-nugets/RFHttpActionEF/RFHttpActionEF.csproj" />
     <Project Path="rf-nugets/RFHttpExceptions/RFHttpExceptions.csproj" />
     <Project Path="rf-nugets/RFHttpExceptionsL10n/RFHttpExceptionsL10n.csproj" />
