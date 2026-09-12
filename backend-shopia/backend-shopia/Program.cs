@@ -1,4 +1,5 @@
 using backend_shopia.Middlewares;
+using Microsoft.EntityFrameworkCore;
 using RFAuth.Filters;
 using RFAuth.Middlewares;
 using RFHttpExceptionsL10n.Middlewares;
@@ -22,17 +23,27 @@ public partial class Program
         builder.ConfigureServices();
 
         AttributedServiceRegistration.LoadAllAssemblies();
-        builder.Services.AddAttributedServices();
 
-        builder.Services.AddRouting(options => options.LowercaseUrls = true);
+        var services = builder.Services;
 
-        builder.Services.AddControllers(options =>
+        services.AddAttributedServices();
+
+        var connectionString = builder.Configuration.GetConnectionString("Default");
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(connectionString)
+                .EnableDetailedErrors()
+                .EnableSensitiveDataLogging());
+        services.AddScoped<DbContext, AppDbContext>();
+
+        services.AddRouting(options => options.LowercaseUrls = true);
+
+        services.AddControllers(options =>
         {
             options.Filters.Add<AuthorizationFilter>();
         });
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen();
 
         var app = builder.Build();
 

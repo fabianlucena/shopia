@@ -8,8 +8,10 @@
     <Project Path="rf-nugets/RFControllers/RFControllers.csproj" />
     <Project Path="rf-nugets/RFDBLocalizer/RFDBLocalizer.csproj" />
     <Project Path="rf-nugets/RFEntities/RFEntities.csproj" />
+    <Project Path="rf-nugets/RFEntitiesEF/RFEntitiesEF.csproj" />
     <Project Path="rf-nugets/RFEventBus/RFEventBus.csproj" />
     <Project Path="rf-nugets/RFHttpAction/RFHttpAction.csproj" />
+    <Project Path="rf-nugets/RFHttpActionEF/RFHttpActionEF.csproj" />
     <Project Path="rf-nugets/RFHttpExceptions/RFHttpExceptions.csproj" />
     <Project Path="rf-nugets/RFHttpExceptionsL10n/RFHttpExceptionsL10n.csproj" />
     <Project Path="rf-nugets/RFIRepositories/RFIRepositories.csproj" />
@@ -20,7 +22,9 @@
     <Project Path="rf-nugets/RFOauth2Client/RFOauth2Client.csproj" />
     <Project Path="rf-nugets/RFOauth2Client_es/RFOauth2Client_es.csproj" />
     <Project Path="rf-nugets/RFPermissions/RFPermissions.csproj" />
+    <Project Path="rf-nugets/RFPermissionsEF/RFPermissionsEF.csproj" />
     <Project Path="rf-nugets/RFRBAC/RFRBAC.csproj" />
+    <Project Path="rf-nugets/RFRBACEF/RFRBACEF.csproj" />
     <Project Path="rf-nugets/RFRegisterService/RFRegisterService.csproj" />
     <Project Path="rf-nugets/RFRGOBAC_es/RFRGOBAC_es.csproj" />
     <Project Path="rf-nugets/RFRolesPermissions/RFRolesPermissions.csproj" />
