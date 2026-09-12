@@ -1,50 +1,41 @@
 ﻿using System.Text;
 using System.Text.Json;
 
-namespace backend_shopia_test
+namespace backend_shopia_test;
+
+public class LoginTest
 {
-    [TestClass]
-    public class LoginTest
+    private readonly HttpClient client = TestFactory.Instance.CreateClient();
+
+    [Test]
+    public async Task Login_returns_ok()
     {
-        private HttpClient client = default!;
-
-        [TestInitialize]
-        public void TestInit()
+        var body = new
         {
-            client = TestFactory.Singleton.CreateClient();
-            Console.WriteLine(client.BaseAddress);
-        }
+            username = "admin",
+            password = "1234"
+        };
 
-        [TestMethod]
-        public async Task Login_returns_ok()
+        var json = JsonSerializer.Serialize(body);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var result = await client.PostAsync("/api/v1/login", content);
+
+        await Assert.That((int)result.StatusCode).IsEqualTo(200);
+    }
+
+    [Test]
+    public async Task Login_returns_fail()
+    {
+        var body = new
         {
-            var body = new
-            {
-                username = "admin",
-                password = "1234"
-            };
+            username = "admin",
+            password = "12341"
+        };
 
-            var json = JsonSerializer.Serialize(body);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var result = await client.PostAsync("/api/v1/login", content);
+        var json = JsonSerializer.Serialize(body);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var result = await client.PostAsync("/api/v1/login", content);
 
-            Assert.AreEqual(200, (int)result.StatusCode);
-        }
-
-        [TestMethod]
-        public async Task Login_returns_fail()
-        {
-            var body = new
-            {
-                username = "admin",
-                password = "12341"
-            };
-
-            var json = JsonSerializer.Serialize(body);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var result = await client.PostAsync("/api/v1/login", content);
-
-            Assert.AreEqual(403, (int)result.StatusCode);
-        }
+        await Assert.That((int)result.StatusCode).IsEqualTo(403);
     }
 }

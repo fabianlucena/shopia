@@ -1,15 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
-using backend_shopia;
+﻿using backend_shopia;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 
-namespace backend_shopia_test
+namespace backend_shopia_test;
+
+public class TestFactory : WebApplicationFactory<Program>
 {
-    public class TestFactory : WebApplicationFactory<Program>
-    {
-        public static readonly TestFactory Singleton = new();
+    public static readonly TestFactory Instance = new();
 
-        public TestFactory()
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        builder.UseEnvironment("Test");
+
+        builder.ConfigureAppConfiguration((context, config) =>
         {
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
-        }
+            config.AddJsonFile("appsettings.Test.json", optional: true);
+        });
     }
 }
