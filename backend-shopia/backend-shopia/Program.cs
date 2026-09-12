@@ -15,20 +15,21 @@ public partial class Program
         
         builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
         if (builder.Environment.IsEnvironment("Test"))
-        {
             builder.Configuration.AddJsonFile("appsettings.Test.json", optional: true, reloadOnChange: true);
-        }
-        
-        // Add services to the container.
-        builder.ConfigureServices();
+
+        var connectionString = builder.Configuration.GetConnectionString("Default");
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new Exception("No DB connection founded, try adding a dbConnection property to ConnectionStrings on appsettings.json");
 
         AttributedServiceRegistration.LoadAllAssemblies();
 
+        builder.ConfigureServices();
+
         var services = builder.Services;
 
+        services.AddHttpContextAccessor();
         services.AddAttributedServices();
 
-        var connectionString = builder.Configuration.GetConnectionString("Default");
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(connectionString)
                 .EnableDetailedErrors()

@@ -21,8 +21,8 @@ public static class MvcServiceCollectionExtensions
                 });
         });
 
-        string dbConnectionString = builder.Configuration.GetConnectionString("dbConnection")
-            ?? throw new Exception("No DB connection founded, try adding a dbConnection property to ConnectionStrings on appsettings.json");
+        //string dbConnectionString = builder.Configuration.GetConnectionString("dbConnection")
+        //    ?? throw new Exception("No DB connection founded, try adding a dbConnection property to ConnectionStrings on appsettings.json");
 
         services.SetupEventBus();
 

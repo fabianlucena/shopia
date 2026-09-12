@@ -31,6 +31,7 @@
     <Project Path="rf-nugets/RFServices/RFServices.csproj" />
     <Project Path="rf-nugets/RFServices_es/RFServices_es.csproj" />
     <Project Path="rf-nugets/RFUserEmailVerified/RFUserEmailVerified.csproj" />
+    <Project Path="rf-nugets/RFUserEmailVerifiedEF/RFUserEmailVerifiedEF.csproj" />
   </Folder>
   <Project Path="backend-shopia-test/backend-shopia-test.csproj" />
   <Project Path="backend-shopia/backend-shopia.csproj" />

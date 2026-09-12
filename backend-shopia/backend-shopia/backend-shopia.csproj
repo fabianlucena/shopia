@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\rf-nugets\RFAuthControllers\RFAuthControllers.csproj" />
     <ProjectReference Include="..\rf-nugets\RFAuthEF\RFAuthEF.csproj" />
     <ProjectReference Include="..\rf-nugets\RFAuth\RFAuth.csproj" />
     <ProjectReference Include="..\rf-nugets\RFAuth_es\RFAuth_es.csproj" />
@@ -47,6 +48,7 @@
     <ProjectReference Include="..\rf-nugets\RFRBAC\RFRBAC.csproj" />
     <ProjectReference Include="..\rf-nugets\RFServices\RFServices.csproj" />
     <ProjectReference Include="..\rf-nugets\RFServices_es\RFServices_es.csproj" />
+    <ProjectReference Include="..\rf-nugets\RFUserEmailVerifiedEF\RFUserEmailVerifiedEF.csproj" />
     <ProjectReference Include="..\rf-nugets\RFUserEmailVerified\RFUserEmailVerified.csproj" />
   </ItemGroup>
 
