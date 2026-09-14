@@ -1,6 +1,4 @@
-﻿using backend_shopia.Services;
-using Microsoft.Extensions.Options;
-using RFIServices.QueryOptions;
+﻿using RFIServices.QueryOptions;
 
 namespace backend_shopia.QueryOptions;
 
@@ -13,13 +11,8 @@ public class ItemQueryOptions : ANominableEntityQueryOptions
     public IEnumerable<long>? CommercesId { get; set; }
     public Guid? StoreUuid { get; set; }
     public Guid? CommerceUuid { get; set; }
-    public bool? InheritIsActive { get; set; }
+    public bool? InheritedIsActive { get; set; }
     public bool? Mine { get; set; }
-    /*if (GetBoolFromRequest(request, "mine"))
-    {
-        var commercesId = await commerceService.GetListIdByCurrentUserAsync(new CommerceQueryOptions { IncludeInactive = true });
-        options.AddFilter("CommerceId", commercesId);
-    }*/
 
     public ItemQueryOptions() { }
 
@@ -36,7 +29,7 @@ public class ItemQueryOptions : ANominableEntityQueryOptions
         CommercesId = options.CommercesId;
         StoreUuid = options.StoreUuid;
         CommerceUuid = options.CommerceUuid;
-        InheritIsActive = options.InheritIsActive;
+        InheritedIsActive = options.InheritedIsActive;
         Mine = options.Mine;
     }
 

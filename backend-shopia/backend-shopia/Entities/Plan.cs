@@ -8,9 +8,9 @@ namespace backend_shopia.Entities;
 public class Plan
     : ANominableEntity
 {
-    [ForeignKey("ExtendTo")]
-    public long? ExtendToId { get; set; } = default;
-    public Plan? ExtendTo { get; set; } = default;
+    [ForeignKey("Includes")]
+    public long? IncludesId { get; set; } = default;
+    public Plan? Includes { get; set; } = default;
 
     public string? Description { get; set; }
 
@@ -26,8 +26,8 @@ public class Plan
         if (plan is null)
             return;
 
-        ExtendToId = plan.ExtendToId;
-        ExtendTo = plan.ExtendTo;
+        IncludesId = plan.IncludesId;
+        Includes = plan.Includes;
         Description = plan.Description;
         Price = plan.Price;
     }

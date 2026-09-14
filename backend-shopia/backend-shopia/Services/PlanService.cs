@@ -62,7 +62,7 @@ public class PlanService(
                 }
             }
 
-            if (extendedPlan.ExtendToId == null)
+            if (extendedPlan.IncludesId == null)
                 break;
 
             extendedPlans.Add(extendedPlan.Id);
@@ -70,7 +70,7 @@ public class PlanService(
             var extendsToOptions = new PlanQueryOptions
             {
                 IncludeInactive = true,
-                Id = extendedPlan.ExtendToId.Value,
+                Id = extendedPlan.IncludesId.Value,
             };
             extendedPlan = await GetSingleOrDefaultAsync(extendsToOptions);
             if (extendedPlan != null && extendedPlans.Contains(extendedPlan.Id))
@@ -85,9 +85,9 @@ public class PlanService(
                 PlanId = basePlan.Id,
                 SkipNames = limits.Select(l => l.Name),
             };
-            var extendToLimits = await planLimitService.GetListAsync(planLimitOptions);
-            if (extendToLimits.Any())
-                limits.AddRange(extendToLimits);
+            var includesLimits = await planLimitService.GetListAsync(planLimitOptions);
+            if (includesLimits.Any())
+                limits.AddRange(includesLimits);
         }
 
         var result = new PlanLimits(limits);

@@ -16,7 +16,7 @@ public interface IItemService
     Task<IEnumerable<long>> GetListIdByCurrentUserAsync(ItemQueryOptions? options = null);
     Task<IEnumerable<Guid>> GetListUuidByCurrentUserAsync(ItemQueryOptions? options = null);
 
-    Task<int> UpdateInheritedByUuidAsync(Guid uuid, ItemQueryOptions? options = null);
-    Task<int> UpdateInheritedByStoreUuidAsync(Guid storeUuid, ItemQueryOptions? options = null);
-    Task<int> UpdateInheritedByCommerceUuidAsync(Guid commerceUuid, ItemQueryOptions? options = null);
+    Task<int> UpdateInheritedByUuidAsync(Guid uuid);
+    Task<int> UpdateInheritedByStoreUuidAsync(Guid storeUuid);
+    Task<int> UpdateInheritedByCommerceUuidAsync(Guid commerceUuid);
 }

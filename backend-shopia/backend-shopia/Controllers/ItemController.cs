@@ -71,7 +71,7 @@ namespace backend_shopia.Controllers
                 .UpdateFromRequest(HttpContext.Request);
             options.Uuid = uuid;
 
-            options.InheritIsActive = true;
+            options.InheritedIsActive = true;
             options.IncludeCategory = true;
             options.IncludeCommerce = true;
 

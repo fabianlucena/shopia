@@ -7,11 +7,13 @@ using backend_shopia.QueryOptions;
 using RFBase.ILibs;
 using RFBase.Libs;
 using RFIServices.QueryOptions;
+using RFRegisterService.Attributes;
 using RFServices.Services;
 using System.Text.Json;
 
 namespace backend_shopia.Services;
 
+[RegisterService]
 public class ItemService(
     IItemRepository itemRepository,
     IServiceProvider serviceProvider
@@ -449,12 +451,12 @@ public class ItemService(
     public async Task<IEnumerable<Guid>> GetListUuidByCurrentUserAsync(ItemQueryOptions? options = null)
         => await GetListUuidAsync(await GetFilterByOwnerIdAsync(await GetCurrentUserIdAsync(), options));
 
-    public async Task<int> UpdateInheritedByUuidAsync(Guid uuid, ItemQueryOptions? options = null)
-        => await itemRepository.UpdateInheritedByUuidAsync(uuid, options);
+    public async Task<int> UpdateInheritedByUuidAsync(Guid uuid)
+        => await itemRepository.UpdateInheritedByUuidAsync(uuid);
 
-    public async Task<int> UpdateInheritedByStoreUuidAsync(Guid storeUuid, ItemQueryOptions? options = null)
-        => await itemRepository.UpdateInheritedByStoreUuidAsync(storeUuid, options);
+    public async Task<int> UpdateInheritedByStoreUuidAsync(Guid storeUuid)
+        => await itemRepository.UpdateInheritedByStoreUuidAsync(storeUuid);
 
-    public async Task<int> UpdateInheritedByCommerceUuidAsync(Guid commerceUuid, ItemQueryOptions? options = null)
-        => await itemRepository.UpdateInheritedByCommerceUuidAsync(commerceUuid, options);
+    public async Task<int> UpdateInheritedByCommerceUuidAsync(Guid commerceUuid)
+        => await itemRepository.UpdateInheritedByCommerceUuidAsync(commerceUuid);
 }

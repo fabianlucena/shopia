@@ -992,7 +992,7 @@ ALTER SEQUENCE shopia."Items_Id_seq" OWNED BY shopia."Items"."Id";
 --
 
 CREATE TABLE shopia."Plans" (
-    "ExtendToId" bigint,
+    "IncludesId" bigint,
     "Description" text,
     "Name" character varying(255) NOT NULL,
     "IsEnabled" boolean NOT NULL,
@@ -4151,11 +4151,11 @@ ALTER TABLE ONLY shopia."PlansLimits"
 
 --
 -- TOC entry 4642 (class 2606 OID 21419)
--- Name: Plans shop_Plans_ExtendToId_FK_shop_Plans_Id; Type: FK CONSTRAINT; Schema: shopia; Owner: shopia-test
+-- Name: Plans shop_Plans_IncludesId_FK_shop_Plans_Id; Type: FK CONSTRAINT; Schema: shopia; Owner: shopia-test
 --
 
 ALTER TABLE ONLY shopia."Plans"
-    ADD CONSTRAINT "shop_Plans_ExtendToId_FK_shop_Plans_Id" FOREIGN KEY ("ExtendToId") REFERENCES shopia."Plans"("Id");
+    ADD CONSTRAINT "shop_Plans_IncludesId_FK_shop_Plans_Id" FOREIGN KEY ("IncludesId") REFERENCES shopia."Plans"("Id");
 
 
 --
